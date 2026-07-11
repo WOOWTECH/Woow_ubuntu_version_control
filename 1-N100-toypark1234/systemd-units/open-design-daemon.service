@@ -1,0 +1,15 @@
+[Unit]
+Description=Open Design daemon
+After=network.target
+
+[Service]
+WorkingDirectory=%h/projects/open-design
+Environment=PATH=%h/.local/opt/node-v24.11.0-linux-x64/bin:%h/.opencode/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=OD_API_TOKEN=614f4fc64fc7c18ff5eead19d7771d5c0e884acf9f660ca64d9284a580d0a050
+Environment=OD_ALLOWED_ORIGINS=http://192.168.1.146:7456,https://toypark1234-opendesign.woowtech.io
+ExecStart=%h/.local/opt/node-v24.11.0-linux-x64/bin/node %h/projects/open-design/apps/daemon/bin/od.mjs --host 127.0.0.1 --port 7457 --no-open
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

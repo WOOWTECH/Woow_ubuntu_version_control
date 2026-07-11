@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflared Tunnel
+After=network.target podman-ha.service
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/podman start cloudflared
+ExecStop=/usr/bin/podman stop cloudflared
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

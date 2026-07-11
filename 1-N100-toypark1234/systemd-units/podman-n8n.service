@@ -1,0 +1,14 @@
+[Unit]
+Description=n8n Automation
+After=network-online.target podman-ha.service
+Wants=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/podman stop n8n
+ExecStart=/usr/bin/podman start n8n
+ExecStop=/usr/bin/podman stop n8n
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Immich Photo Management
+After=network-online.target podman-ha.service
+Wants=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/podman stop immich_server immich_redis immich_postgres immich_machine_learning
+ExecStart=/usr/bin/podman start immich_server immich_redis immich_postgres immich_machine_learning
+ExecStop=/usr/bin/podman stop immich_server immich_redis immich_postgres immich_machine_learning
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

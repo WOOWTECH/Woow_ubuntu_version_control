@@ -1,0 +1,27 @@
+# Backup archives never enter git (sensitive data).
+backup-*.tar
+backup-*.tar.zst
+backup-*.tar.gz
+backup-*.tar.age
+snapshot-*.raw/
+restore-workspace/
+
+# Real .env files with secrets — only .env.template samples may be committed.
+.env
+.env.local
+*.env
+!*.env.template
+!.env.example
+
+# Cloudflared credentials (JSON with tunnel secret).
+*-cloudflared-creds.json
+
+# Postgres dumps (contain business data).
+pgdumps/
+*.sql
+*.sql.gz
+
+# Runtime & logs.
+*.log
+*.tmp
+.DS_Store

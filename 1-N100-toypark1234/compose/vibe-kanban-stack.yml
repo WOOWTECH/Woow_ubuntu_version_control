@@ -1,0 +1,100 @@
+# vibe-kanban 單機版 remote 架構 — 192.168.1.146 (toypark1234, rootless podman)
+# 來源: 官方 crates/remote/docker-compose.yml + docs/self-hosting/deploy-docker.mdx
+#       @ tag v0.1.43-20260417125614 (BloopAI/vibe-kanban, Apache-2.0)
+# 單機改法: 移除 caddy(TLS 由 Cloudflare edge 終結), 只 bind 127.0.0.1,
+#           image 預先用 podman build 好並 tag, restart: always 補 Quadlet 缺的自動重啟。
+#
+# 對外: 現有 CF tunnel bccf15fb-... 加兩條路由
+#   https://toypark1234-vibekanban.woowtech.io        -> 127.0.0.1:8081 (remote-server)
+#   https://toypark1234-vibekanban-relay.woowtech.io  -> 127.0.0.1:8082 (relay-server)
+#
+# 密鑰全部由 .env 提供(見 .env.example);.env 權限 600,不進 git、不貼對話。
+
+services:
+  remote-db:
+    image: postgres:16-alpine
+    command: ["postgres", "-c", "wal_level=logical"]   # Electric 需要 logical replication
+    restart: always
+    environment:
+      POSTGRES_DB: remote
+      POSTGRES_USER: remote
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - remote-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U remote -d remote"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  remote-server:
+    image: localhost/vibe-kanban-remote:0.1.43-local-v1   # 由 build-images.sh 預先 build
+    restart: always
+    depends_on:
+      remote-db:
+        condition: service_healthy
+    environment:
+      RUST_LOG: info,remote=info
+      SERVER_DATABASE_URL: postgres://remote:${DB_PASSWORD}@remote-db:5432/remote
+      SERVER_LISTEN_ADDR: 0.0.0.0:8081
+      ELECTRIC_URL: http://electric:3000
+      ELECTRIC_ROLE_PASSWORD: ${ELECTRIC_ROLE_PASSWORD}
+      SERVER_PUBLIC_BASE_URL: ${PUBLIC_BASE_URL}
+      VIBEKANBAN_REMOTE_JWT_SECRET: ${VIBEKANBAN_REMOTE_JWT_SECRET}   # base64, decode >= 32 bytes
+      SELF_HOST_LOCAL_AUTH_EMAIL: ${SELF_HOST_LOCAL_AUTH_EMAIL}
+      SELF_HOST_LOCAL_AUTH_PASSWORD: ${SELF_HOST_LOCAL_AUTH_PASSWORD}
+      # OAuth 全部留空 = 純 localAuth
+    ports:
+      - "0.0.0.0:8081:8081"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8081/v1/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  electric:
+    image: electricsql/electric:1.4.13
+    working_dir: /app
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://electric_sync:${ELECTRIC_ROLE_PASSWORD}@remote-db:5432/remote?sslmode=disable
+      PG_PROXY_PORT: "65432"
+      LOGICAL_PUBLISHER_HOST: electric
+      AUTH_MODE: insecure
+      ELECTRIC_INSECURE: "true"
+      ELECTRIC_MANUAL_TABLE_PUBLISHING: "true"
+      ELECTRIC_USAGE_REPORTING: "false"
+      ELECTRIC_FEATURE_FLAGS: allow_subqueries,tagged_subqueries
+    volumes:
+      - electric-data:/app/persistent
+    depends_on:
+      remote-db:
+        condition: service_healthy
+      remote-server:                # 必須等 remote-server 跑完 migration + 設定 electric_sync 密碼
+        condition: service_healthy
+
+  relay-server:
+    image: localhost/vibe-kanban-relay:0.1.43-local-v1    # 由 build-images.sh 預先 build
+    restart: always
+    depends_on:
+      remote-db:
+        condition: service_healthy
+    environment:
+      RUST_LOG: info
+      SERVER_DATABASE_URL: postgres://remote:${DB_PASSWORD}@remote-db:5432/remote
+      RELAY_LISTEN_ADDR: 0.0.0.0:8082
+      VIBEKANBAN_REMOTE_JWT_SECRET: ${VIBEKANBAN_REMOTE_JWT_SECRET}   # 與 remote-server 同一組
+    ports:
+      - "0.0.0.0:8082:8082"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8082/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  remote-db-data:
+  electric-data:

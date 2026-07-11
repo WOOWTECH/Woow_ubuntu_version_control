@@ -1,0 +1,14 @@
+[Unit]
+Description=Home Assistant
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/podman stop homeassistant
+ExecStart=/usr/bin/podman start homeassistant
+ExecStop=/usr/bin/podman stop homeassistant
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

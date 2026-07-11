@@ -1,0 +1,5 @@
+# Reserved for future LFS use. Currently backup tarballs are excluded from git
+# entirely via .gitignore, so no LFS filter is active.
+# If you decide to check large binaries into LFS in the future, uncomment:
+# *.tar.zst filter=lfs diff=lfs merge=lfs -text
+* text=auto eol=lf
