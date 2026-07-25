@@ -1,0 +1,8 @@
+[submodule "opendesign"]
+	path = opendesign
+	url = https://github.com/WOOWTECH/Woow_opendesign_docker_compose_all.git
+	branch = podman
+[submodule "vibe-kanban"]
+	path = vibe-kanban
+	url = https://github.com/WOOWTECH/Woow_vibekanban_docker_compose_all.git
+	branch = podman-ubuntu

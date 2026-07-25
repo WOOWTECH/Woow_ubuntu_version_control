@@ -71,6 +71,25 @@ SCP／NAS／USB — 你自己決定信任邊界。
 看 [`REPRODUCE.md`](REPRODUCE.md)。一頁完整走完：底座 → 拉 backup → 展開 → 起服務 →
 驗證。
 
+## 上游 recipe submodules
+
+以下 submodule 是**跨機共用的部署 recipe**，釘在該產品目前為 hybrid host + podman
+架構的分支上。任一台 Ubuntu 主機的 `system-manifest.md` 都可指向這些 recipe。
+
+| Path | Upstream | Branch |
+|------|----------|--------|
+| `opendesign/` | `WOOWTECH/Woow_opendesign_docker_compose_all` | `podman` |
+| `vibe-kanban/` | `WOOWTECH/Woow_vibekanban_docker_compose_all` | `podman-ubuntu` |
+
+Hermes recipe 位置預留 TODO — 目前 upstream `podman` 分支的 hybrid 設計前提尚未確認
+（image 是第三方 `docker.io/nousresearch/hermes-agent`，非 Node CLI），確認前不加。
+
+拉取或更新:
+```bash
+git submodule update --init --recursive
+git submodule update --remote opendesign vibe-kanban
+```
+
 ## 姊妹 skill：`ubuntu-skills`
 
 本 repo **只記錄「這台機的狀態」**。**「怎麼把 Ubuntu 裝成能跑 podman + cockpit 的
