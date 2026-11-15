@@ -120,3 +120,7 @@ Cockpit 登入後，先在上方啟用管理存取權限；「工具 → 備份�
 ```bash
 python3 -m unittest discover -s distribution/tests -v
 ```
+
+## 部署問題的來源回推
+
+[2026-11-16 各來源 main 合併清單](docs/upstream-backports-20261116.md)列出 11 個新修正 PR、既有已合併項目、CI／提交查核與歷史版本鎖的差異。
