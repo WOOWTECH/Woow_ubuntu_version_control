@@ -99,6 +99,8 @@ def preflight():
 
 def platform_install():
     run(['sudo', 'install', '-D', '-m', '0644', ROOT / 'overlays/needrestart-woow-release.conf', '/etc/needrestart/conf.d/woow-release.conf'])
+    run(['sudo', 'install', '-D', '-m', '0644', ROOT / 'overlays/user-manager.conf', f'/etc/systemd/system/user@{os.getuid()}.service.d/woow-release.conf'])
+    run(['sudo', 'systemctl', 'daemon-reload'])
     run(['sudo', 'apt-get', 'update'])
     packages = ['podman', 'uidmap', 'slirp4netns', 'fuse-overlayfs', 'dbus-user-session', 'git', 'curl', 'jq', 'openssl', 'zstd', 'age', 'rsync', 'python3', 'python3-venv', 'nodejs', 'npm', 'build-essential', 'tmux', 'xz-utils', 'unzip', 'iproute2']
     run(['sudo', 'apt-get', 'install', '-y', *packages])
@@ -225,6 +227,15 @@ def patch_first_boot():
             text = unit.read_text()
             if 'UserNS=keep-id' in text:
                 unit.write_text(re.sub(r'^TimeoutStartSec=(180|300)$', 'TimeoutStartSec=900', text, flags=re.M))
+    # A reboot can leave stopped namespace joiners in Podman's database. The
+    # owner's --replace then refuses to remove it while those dependents exist.
+    # BindsTo/After already stop these exact application units before the owner;
+    # remove their old containers before replacing the owner, never their volumes.
+    owner = SOURCES / 'Woow_podman_opendesign/quadlet/open-design.container'
+    cleanup = 'ExecStartPre=/usr/bin/podman rm --ignore --force open-design-nginx open-design-terminal open-design-mcp\n'
+    text = owner.read_text()
+    if cleanup not in text:
+        owner.write_text(text.replace('[Service]\n', '[Service]\n' + cleanup, 1))
     # Odoo separately probes this constant even after the Quadlet is pinned.
     common = SOURCES / 'Woow_podman_odoo/scripts/common.sh'
     common.write_text(re.sub(r'^REPO_GATEWAY_IMAGE=.*$', 'REPO_GATEWAY_IMAGE=' + LOCK['containers']['odoo18-gateway']['image'], common.read_text(), flags=re.M))
@@ -463,6 +474,8 @@ def verify():
         'release_packages_held': holds.returncode == 0 and set(LOCK['platform_packages']).issubset(holds.stdout.splitlines()),
         'backup_restart_policy_matches': policy.is_file() and digest(policy) == digest(ROOT / 'overlays/needrestart-woow-release.conf'),
     }
+    stop_budget = subprocess.run(['systemctl', 'show', f'user@{os.getuid()}.service', '-p', 'TimeoutStopUSec', '--value'], capture_output=True, text=True)
+    result['maintenance']['user_manager_stop_budget_matches'] = stop_budget.returncode == 0 and stop_budget.stdout.strip() in ('3min', '180s')
     result['native_units'] = {}
     for unit, user in [('pi-web.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
         query = subprocess.run(['systemctl', *(['--user'] if user else []), 'is-active', unit], capture_output=True, text=True)
