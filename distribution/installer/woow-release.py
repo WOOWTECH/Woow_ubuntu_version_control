@@ -442,6 +442,7 @@ def mcp():
 def cockpit(address):
     repo = SOURCES / 'Woow_cockpit'
     run(['python3', ROOT / 'installer/patch-cockpit-held-packages.py', repo])
+    run(['python3', ROOT / 'installer/patch-cockpit-backup-navigation.py', repo])
     run(['sudo', 'python3', repo / 'scripts/manage.py', 'install', '--service-owner', output(['id', '-un'])])
     # Fresh-host policy chosen by the product owner: HTTP on LAN; HTTPS belongs at an external tunnel.
     conf = '[WebService]\nAllowUnencrypted=true\nLoginTo=false\n\n[Session]\nIdleTimeout=0\n'
