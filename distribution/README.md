@@ -69,6 +69,8 @@ OpenDesign 的 Paseo bridge 程式已包含在相同映像中，但首次安裝�
 
 新設備會以當地生成的 MQTT 密碼把 HA 連上 EMQX，並將本機 HA MCP 加入 Pi／Claude Code／Codex 共用設定。EMQX 的 `woow` 帳號除了原有 `woow/#`，另可使用 HA 探索所需的 `homeassistant/#`；其他使用者主題仍拒絕存取。驗證指令 `python3 distribution/installer/local-smoke.py` 會建立短暫 MQTT 感測器，確認 HA 收到數值後移除測試資料，並驗證 MCP 與三代理設定。
 
+原生 Pi 以新生成的 operator 帳號連到這台設備的 Omnigent，host 由持續運行的 Pi Web 服務管理。候選版對固定的 Omnigent plugin 0.3.31 加上一項明確覆寫：CLI 版本偵測由 5 秒延長為 30 秒；N100 VM 的 Pi 冷啟動曾實測超過 6 秒。覆寫會核對版本與原始程式片段，記錄變更後校驗碼，不變更登入、host 身分或模型授權判定。
+
 ## 維護者製作材料
 
 在**持有版本鎖中精確映像**且具散布授權的建置／參考設備執行：

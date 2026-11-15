@@ -68,6 +68,9 @@ def main():
         if not reply.get('ok') or not reply.get('host', {}).get('connected'):
             raise SystemExit('Native Pi host is not connected to local Omnigent.')
         connected.write_text(json.dumps({'connected': True, 'server': 'http://127.0.0.1:8000', 'host_id': reply['host']['id']}) + '\n')
+        # Move host ownership to the persistent Pi Web service. A host spawned
+        # by this installation job would otherwise die with its systemd cgroup.
+        subprocess.run(['systemctl', '--user', 'restart', 'pi-web.service'], check=True)
     report = {'ha_mqtt': 'loaded', 'shared_agent_mcp': 'woow-local-ha', 'native_omnigent_connection_preserved': connection.exists() or connected.exists(), 'external_credentials_copied': False}
     (STATE / 'local-links.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report))

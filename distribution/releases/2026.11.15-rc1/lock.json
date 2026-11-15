@@ -2,6 +2,7 @@
   "schema_version": 1,
   "release": "2026.11.15-rc1",
   "architecture": "x86_64",
+  "native_pi_version": "1.4.0",
   "os": {
     "id": "ubuntu",
     "version": "24.04"

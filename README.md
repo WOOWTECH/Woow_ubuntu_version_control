@@ -1,10 +1,19 @@
 # WOOW Ubuntu Version Control
 
-**新設備建置請從 [x86_64 發行版安裝器](distribution/README.md) 開始。**
-它以固定來源與映像建立新的 Ubuntu／Podman／Cockpit 應用設備，不攜帶來源主機的私人資料。
+以固定版本在新設備建立 Ubuntu 24.04 x86_64、rootless Podman／Quadlet、WOOW Cockpit、原生 Pi 與應用服務。來源為 woowtechopenclaw 的正式組合；不複製原設備的帳號、檔案、資料庫或雲端登入。
 
-下方主機目錄和根目錄的 capture／restore 腳本是較早的主機快照流程，保留供歷史參考。
-它們依賴另行提供的私人備份，不代表目前整套架構已可全新重建；新安裝不要混用這兩條流程。
+- [新設備安裝與材料取得](distribution/README.md)
+- [架構、版本與設備邊界](distribution/docs/architecture.md)
+- [安裝後驗收、備份及還原流程](distribution/docs/acceptance.md)
+- [x86_64 預裝方案](distribution/profiles/openclaw-x86_64.json)
+- [2026.11.15-rc1 來源與映像版本鎖](distribution/releases/2026.11.15-rc1/lock.json)
+
+本候選版包含 15 個來源提交、37 個映像與 47 個正式容器，另有原生 Pi Web 及三代理 CLI。HA 品牌映像、Odoo 等二進位安裝材料透過 WOOW 授權管道交付；公開 Git 倉庫提供程式、校驗碼、設定及說明。請指定交付的 release tag／commit，依同版驗收紀錄判讀支援範圍。
+
+`distribution/` 是全新建置流程。根目錄的 `scripts/capture.sh`、`scripts/restore.sh` 及既有主機資料夾屬於較早的私人備份還原流程；新設備安裝請勿混用。
+
+<details>
+<summary>歷史主機快照與舊版 capture／restore 文件</summary>
 
 **姊妹專案：** `WOOWTECH/Woow_ha_version_control` 針對 Home Assistant OS；本專案針對
 一般 Ubuntu Server（跑 podman + cockpit 的 homelab 底座）。
@@ -112,3 +121,5 @@ homelab 底座」** 由另一個 repo `ubuntu-skills` 負責，內含兩個 Clau
 **AI**（例如 Claude Code）：從 `REPRODUCE.md` 開始，一步步呼叫 `scripts/`。
 
 **人**：從 `install-list.md`／`git log` 快速理解某台機當前跑什麼、跟半年前差在哪。
+
+</details>

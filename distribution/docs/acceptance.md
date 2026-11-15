@@ -8,6 +8,7 @@
 python3 distribution/installer/woow-release.py verify
 python3 distribution/installer/smoke.py
 python3 distribution/installer/local-smoke.py
+python3 distribution/installer/native-smoke.py
 python3 distribution/installer/queue-smoke.py
 python3 distribution/installer/app-smoke.py
 python3 distribution/installer/resume-smoke.py
@@ -16,6 +17,7 @@ python3 distribution/installer/resume-smoke.py
 - `verify` 比對 47 個正式容器的映像內容 ID、運行／健康狀態、關鍵 Ubuntu 套件版本、本機 systemd 服務及 HTTP 入口。缺項會傳回非零狀態。
 - `smoke.py` 使用各固定提交的原專案測試。它不呼叫外部模型；Cloudflare 尚未綁定時，外網連線檢查會明確跳過。
 - `local-smoke.py` 驗證 HA 經 EMQX 自動探索臨時感測器並接收數值，測試後清除 retained 訊息；另檢查 HA MCP 與三代理共用設定。
+- `native-smoke.py` 驗證原生 Pi 的 Omnigent host 已連線、身分與本機登入紀錄一致，並實際偵測 Pi／Claude Code／Codex 三個 CLI；不進行模型對話。
 - `queue-smoke.py` 使用新設備 n8n 擁有者登入，建立臨時 webhook／Code 流程，經正式 webhook processor、queue worker 與 JavaScript runner 取得唯一回覆，再停用、封存及刪除流程。
 - `app-smoke.py` 用新設備憑證在 Nextcloud 寫入、讀回及刪除一個測試檔，驗證 Collabora discovery 及 Odoo tenant 管理員登入。這不是完整 Office 文件編輯驗收。
 - `resume-smoke.py` 會重跑應用安裝階段，可能重新啟動服務；它在記憶體中比對 Podman secrets 及新機帳號檔案的雜湊，報告只記錄是否保留，不輸出密碼或雜湊。

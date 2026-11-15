@@ -364,6 +364,7 @@ def native():
         result = subprocess.run(['bash', str(repo / 'install.sh')], env=env, stdout=log, stderr=subprocess.STDOUT, umask=0o022)
     if result.returncode:
         raise SystemExit('Native Pi installer failed; see private native-pi.log')
+    run(['python3', ROOT / 'installer/patch-native-startup.py'])
     import secrets
     pwfile = STATE / 'piweb-password'
     if not pwfile.exists():
@@ -440,14 +441,18 @@ def verify():
     result['native_versions'] = {}
     native_root = Path.home() / '.local/share/pi-agent'
     pins = (SOURCES / 'Woow_native_os_pi_agent/lib/pins.sh').read_text()
-    for name, pin, executable in [('node', 'NODE', native_root / 'node/bin/node'), ('claude', 'CLAUDE', native_root / 'bin/claude'), ('codex', 'CODEX', native_root / 'bin/codex')]:
-        expected = re.search('^PIN_' + pin + r'_VERSION=([0-9.]+)', pins, re.M)[1]
+    for name, pin, executable in [('node', 'NODE', native_root / 'node/bin/node'), ('claude', 'CLAUDE', native_root / 'bin/claude'), ('codex', 'CODEX', native_root / 'bin/codex'), ('pi', None, native_root / 'bin/pi')]:
+        expected = re.search('^PIN_' + pin + r'_VERSION=([0-9.]+)', pins, re.M)[1] if pin else LOCK['native_pi_version']
         try:
             query = subprocess.run([executable, '--version'], capture_output=True, text=True, timeout=30)
             match = re.search(r'\d+\.\d+\.\d+', query.stdout)
             result['native_versions'][name] = {'version': match[0] if match else None, 'matches': query.returncode == 0 and bool(match) and match[0] == expected}
         except (OSError, subprocess.TimeoutExpired):
             result['native_versions'][name] = {'matches': False}
+    overlay = STATE / 'native-startup-overlay.json'
+    plugin_installer = native_root / 'plugins/pi-omnigent-plugin/src/installer.mjs'
+    overlay_record = json.loads(overlay.read_text()) if overlay.is_file() else {}
+    result['native_startup_overlay_matches'] = plugin_installer.is_file() and overlay_record.get('probe_timeout_ms') == 30000 and overlay_record.get('installed_sha256') == digest(plugin_installer)
     result['platform_packages'] = {}
     for package, expected in LOCK['platform_packages'].items():
         query = subprocess.run(['dpkg-query', '-W', '-f=${Version}', package], capture_output=True, text=True)
@@ -479,6 +484,7 @@ def verify():
     result['passed'] = all(c.get('running') and c.get('image_matches') and c.get('health') not in ('unhealthy', 'starting') for c in result['containers'].values()) and all(v == 200 for v in result['http'].values()) and all(p['matches'] for p in result['platform_packages'].values()) and all(result['native_units'].values())
     result['passed'] = result['passed'] and all(s['commit_matches'] for s in result['sources'].values()) and all(v['matches'] for v in result['native_versions'].values())
     result['passed'] = result['passed'] and all(result['maintenance'].values())
+    result['passed'] = result['passed'] and result['native_startup_overlay_matches']
     save_json(STATE / 'verification.json', result)
     print(json.dumps(result, indent=2))
     return result['passed']
