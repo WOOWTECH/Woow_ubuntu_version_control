@@ -3,3 +3,5 @@
 # If you decide to check large binaries into LFS in the future, uncomment:
 # *.tar.zst filter=lfs diff=lfs merge=lfs -text
 * text=auto eol=lf
+# Unified diffs encode empty context lines as a single space.
+distribution/overlays/*.patch -whitespace
