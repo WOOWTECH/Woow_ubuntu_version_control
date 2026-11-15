@@ -4,6 +4,8 @@
 
 第一個候選版是 `2026.11.15-rc1`。來源為 woowtechopenclaw 的正式服務組合，排除 Immich、測試容器、舊回退容器及私人登入。驗收狀態以同版 `releases/` 目錄中的紀錄為準；版本清單本身不是驗收通過的證明。
 
+既有實體設備的後續 Nextcloud／Immich ML 維護與 Cockpit 備份導覽同步，見[維護收尾紀錄](docs/maintenance-closeout.md)。
+
 參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)、[既有設備的保留資料升級與只讀盤點](docs/existing-device-upgrades.md)。
 
 ## 安裝材料
@@ -16,6 +18,8 @@
 安裝器驗證封存校驗碼，再確認載入後的 image config ID 與版本鎖相同。`manifest_digest` 是來源映像的 manifest digest；`id` 是 image config digest，兩者不可混用。OCI 匯出可能改變 manifest 的序列化／壓縮；封存本身另有 SHA-256。公開映像的線上來源以 registry digest 鎖定。匯入後使用本機 release 別名與 `Pull=never`；每次驗收再比對實際容器的 image config ID，不依賴匯出時可能改變的 registry manifest。`materials.json` 的校驗碼也必須符合本 Git release 內的可信索引。
 
 首次安裝仍需網路取得固定提交的公開來源、Ubuntu 套件及原生 Pi 的釘選相依軟體。這不是完全離線的 OS ISO。安裝器固定 Podman、Cockpit 及 cockpit-podman 等關鍵套件版本；完整實際 apt 套件清單另外保存在設備的 `packages.txt`。
+
+Cockpit 導覽同步 [Woow_cockpit PR #15](https://github.com/WOOWTECH/Woow_cockpit/pull/15)：`patch-cockpit-backup-navigation.py` 將歷史固定來源的備份頁改到 `tools`、順序 41；應用軟體為 40，原 `/woowtechbackup` 網址保留。這只改選單，不更動備份引擎、應用設定或金鑰。已更新的來源可重複套用，不改寫 rc1 tag。
 
 Office 外掛另外鎖在 `application-artifacts.json`：對齊來源設備的 richdocuments 12.0.1，使用官方發行封存與 SHA-256。`nextcloud-office-app.py` 檢查 Nextcloud 35 相容範圍、路徑、檔案類型及官方完整性簽章，再啟用外掛；拒絕覆蓋不同版本的既有 app。可用 `--archive /path/to/richdocuments-v12.0.1.tar.gz` 提供預先取得的相同材料，不再由 `app:enable` 自行選擇當時最新版本。這項 main 分支補充不改寫先前 rc1 tag。
 
@@ -97,7 +101,7 @@ python3 distribution/installer/export-materials.py \
 
 ## 首次操作
 
-Cockpit 登入後，先在上方啟用管理存取權限，再開啟工具中的應用軟體、服務管理或備份還原。一般登入與管理權限是兩個階段；權限尚未開啟時，頁面會提示無法讀取服務。
+Cockpit 登入後，先在上方啟用管理存取權限；「工具 → 備份與還原」位於「應用軟體」正下方，服務管理位於「系統」分類。一般登入與管理權限是兩個階段；權限尚未開啟時，頁面會提示無法讀取服務。
 
 各應用延續來源的監聽策略：HA、EMQX、n8n 與 Nextcloud 提供區網入口；其餘部分應用預設只監聽本機。尚未綁定 PaaS／Tunnel 的設備，這些應用需從本機或 SSH 轉送開啟；不可把來源設備的對外網址搬過來當成新設備入口。
 

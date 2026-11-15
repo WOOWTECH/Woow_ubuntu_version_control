@@ -128,14 +128,14 @@ python3 distribution/installer/prepare-nextcloud-text.py \
 
 Text 9.0.2 已通過瀏覽器 session API 200、編輯與 WebDAV 讀回驗收，暫時使用者與檔案已清除。Office／gateway 的 Quadlet 同時加入 `nextcloud.target` 的 `WantedBy`，讓整組停止後能一起恢復，不只隨 `default.target` 啟動。實體整組重啟後 29.7 秒達到穩定就緒，Office／gateway 無須手動啟動；一秒間隔探針觀察到約 22.6 秒不可用區間，這不是精確停機秒數。原帳號、密碼、金鑰與網址指紋一致。
 
-此升級路徑另遇到 [Nextcloud 上游 #64487](https://github.com/nextcloud/server/issues/64487)：修復步驟移除空的 `federated_invites` 表後，結構檢查仍期待該表。實體設備先取 DB dump 並校驗，再用隨該版本出貨的 `cloud_federation_api/1016Date202502262004` migration 重建缺少的空表。`repair-nextcloud-invites.php` 預設只預覽，限定 35.0.1、僅允許建立該表及其 token 唯一約束；明確加上 `--apply` 才會執行。原帳號、密碼、資料列及既有索引未刪除。仍保留兩個舊版額外索引 `taskp_tasks_scheduled`、`text_steps_doc_id_id_index` 的結構提示，**不宣稱 schema 檢查全綠**。[官方 schema 檢查說明](https://docs.nextcloud.com/server/stable/admin_manual/occ_database.html#db-schema-check)提醒部分差異可能有效，應逐項審查。
+此升級路徑另遇到 [Nextcloud 上游 #64487](https://github.com/nextcloud/server/issues/64487)：修復步驟移除空的 `federated_invites` 表後，結構檢查仍期待該表。實體設備先取 DB dump 並校驗，再用隨該版本出貨的 `cloud_federation_api/1016Date202502262004` migration 重建缺少的空表。`repair-nextcloud-invites.php` 預設只預覽，限定 35.0.1、僅允許建立該表及其 token 唯一約束；明確加上 `--apply` 才會執行。原帳號、密碼、資料列及既有索引未刪除。該階段仍保留兩個舊版額外索引 `taskp_tasks_scheduled`、`text_steps_doc_id_id_index` 的結構提示，**當時尚未通過 schema 檢查**；後續維護與收尾結果見[維護紀錄](maintenance-closeout.md)。[官方 schema 檢查說明](https://docs.nextcloud.com/server/stable/admin_manual/occ_database.html#db-schema-check)提醒部分差異可能有效，應逐項審查。
 
 本輪也遇到大量映像匯入與 rootless UID 初始化爭用 Podman 儲存鎖，拖延冷備份的停止程序。已將後續流程改成所有映像準備完成後才安裝／切換服務；Text 修正連同完整備份與等待共 689.8 秒，並非精確 HTTP 停機秒數。不能把這次保留資料升級描述為零中斷或全程秒級切換。
 
 
 ## 實體設備完成驗收
 
-保留原服務後，補上 Omnigent、LiteLLM、EMQX、Odoo tenant cloud、Hermes、OpenDesign、Headscale 與 code-server；8 項來源 smoke 全部通過，另有 9 項 MCP 管理服務通過各自安裝檢查。37 個固定映像均已核對內容 ID。原有的 Matter、Tailscale、NPM 與 Immich 保留，最終共 53 個運行中容器；原本 Immich machine-learning 的 unhealthy 狀態仍在，沒有把它算成修復。
+保留原服務後，補上 Omnigent、LiteLLM、EMQX、Odoo tenant cloud、Hermes、OpenDesign、Headscale 與 code-server；8 項來源 smoke 全部通過，另有 9 項 MCP 管理服務通過各自安裝檢查。37 個固定映像均已核對內容 ID。原有的 Matter、Tailscale、NPM 與 Immich 保留，最終共 53 個運行中容器；該階段原本 Immich machine-learning 的 unhealthy 狀態仍在，沒有把它算成修復；後續獨立修復及推論驗收見[維護紀錄](maintenance-closeout.md)。
 
 新 Odoo 使用另配的 `:18084`，原 Nextcloud `:18080` 延續。Cockpit 保留原帳號、網址與既有自訂連結；14 張應用卡片在 1440px／390px 顯示與管理資料讀取通過，沒有水平溢出。已填入本機／區網／VPN 可使用的應用入口與原本的對外網址，沒有替原 Access 規則解鎖。Hermes 卡片使用管理頁 `:19119`（不是 gateway API 的 `:18642`），以設備專用密碼完成實際瀏覽器登入。
 
@@ -146,3 +146,7 @@ HA 接上新本機 EMQX，原整合保留；透過 MCP 發布唯一的 MQTT disc
 Cockpit 裝入 24 個備份應用設定，保留冷備份策略。Pi bridge 與 Cockpit PWA 是入口輔助服務，其設定未包含在推測的 app 備份範圍，因此沒有誤列為完整可還原套件。code-server 的應用資料可備份，但主機 `Desktop`、`.ssh`、`.local/bin` 與 `.gitconfig` 不在這個備份範圍；原生 Pi 也應使用其原生資料備份，不能以 bridge 的備份代替。這不是 24 個應用都已各自完成跨機還原演練的宣稱。
 
 實體設備未做整機重開機，也未驗收外部模型對話、外部 Headscale 節點或所有 SaaS 的第三方授權。全新隔離 VM 的冷啟動、備份下載與還原結果另列。新服務密碼只存於設備的私有交接檔，公開版本不包含原設備／來源設備的帳密、Tunnel token、模型供應商權杖或使用者資料。
+
+## 後續維護與來源同步
+
+Nextcloud 35.0.3、原設備 Immich ML 修復及 Cockpit 備份導覽的版本、限制、操作方式與證據，集中於[維護收尾紀錄](maintenance-closeout.md)。歷史階段結果與 rc1 新機版本鎖保留，不把後續維護測試回填成當時已通過。

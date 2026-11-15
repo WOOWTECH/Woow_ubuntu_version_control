@@ -1,0 +1,226 @@
+{
+  "scope": "existing physical x86_64 device; maintenance after preserved-data deployment",
+  "immich": {
+    "repair": {
+      "passed": true,
+      "version": "gunicorn (version 25.1.0)",
+      "immich_version": "2.7.5",
+      "workaround": "GUNICORN_CMD_ARGS=--no-control-socket",
+      "image_and_mounts_preserved": true,
+      "healthcheck": "healthy",
+      "cutover_and_probe_seconds": 21.1,
+      "original_quadlet_preserved": true
+    },
+    "inference": {
+      "passed": true,
+      "actual_local_clip_inference": true,
+      "embedding_dimensions": 512,
+      "response_sha256": "dc941032e2d8881df9f98c8f7698c4263e8825ac284b4ac62a7d7127cbbec7bb",
+      "seconds": 0.3,
+      "user_photos_accessed": false,
+      "external_model_provider_called": false
+    }
+  },
+  "nextcloud": {
+    "isolated_upgrade_and_rollback": {
+      "service": "nextcloud",
+      "scope": "isolated copies after brief original cold backup",
+      "passed": true,
+      "public_ports_opened": false,
+      "network_egress_allowed": false,
+      "backup_seconds": 0.8,
+      "backup_includes_user_files": true,
+      "sharing_index_repair": {
+        "passed": true,
+        "schema_findings": [],
+        "empty_legacy_table": true,
+        "only_obsolete_index_removed": "uniq_734621b62ae63fdb4185a14495a838f",
+        "other_indexes_primary_and_foreign_keys_preserved": true,
+        "rollback_ddl_sha256": "e68dfe69c6d4c627a8bb04ba55a587e645f49edfddacba8112992204442e5eb8"
+      },
+      "schema_findings_after_upgrade": [],
+      "upgrades": [
+        {
+          "version": "35.0.3",
+          "accounts_and_passwords_preserved": true,
+          "instance_secrets_and_urls_preserved": true,
+          "user_files_preserved": true,
+          "readiness": true
+        }
+      ],
+      "rollback": {
+        "version": "35.0.1",
+        "readiness": true,
+        "accounts_config_and_files_restored": true
+      },
+      "original_service_version_unchanged": true,
+      "user_count": 1,
+      "user_file_count": 0
+    },
+    "production": {
+      "passed": true,
+      "old_version": "35.0.1",
+      "new_version": "35.0.3",
+      "physical_host": true,
+      "image": {
+        "version": "35.0.3",
+        "reference": "docker.io/library/nextcloud@sha256:8a7a65b8bae82a79568fec2ed9cf3e374a1944eda2a22ebe130d79463336fee3",
+        "id": "4093075d9ce8a7beeb69deefa802ae14c6dcc9ea89437bc7f4e333dd21a2ab94",
+        "architecture": "amd64"
+      },
+      "sharing_index_repair": {
+        "passed": true,
+        "schema_findings": [],
+        "empty_legacy_table": true,
+        "only_obsolete_index_removed": "uniq_734621b62ae63fdb4185a14495a838f",
+        "other_indexes_primary_and_foreign_keys_preserved": true,
+        "rollback_ddl_sha256": "e68dfe69c6d4c627a8bb04ba55a587e645f49edfddacba8112992204442e5eb8"
+      },
+      "full_cold_backup_verified": true,
+      "original_accounts_passwords_instance_keys_urls_mounts_preserved": true,
+      "optional_performance_indexes_preserved": true,
+      "schema_findings": [],
+      "official_core_and_app_integrity_passed": true,
+      "app_versions": {
+        "text": "9.0.2",
+        "richdocuments": "12.0.2"
+      },
+      "upgrade_and_validation_seconds": 468.9
+    },
+    "text": {
+      "passed": true,
+      "browser_edit_downloaded_marker_present": true,
+      "temporary_user_and_files_removed": true,
+      "original_user_count": 1,
+      "access_mode": "existing LAN HTTP URL",
+      "bytes": 71
+    },
+    "office": {
+      "passed": true,
+      "temporary_user_browser_login": true,
+      "office_document_open_edit_save": true,
+      "downloaded_docx_contains_typed_marker": true,
+      "temporary_user_and_files_removed": true,
+      "original_user_count": 1,
+      "access_mode": "existing LAN HTTP URL",
+      "vpn_office_editing_tested": false,
+      "download_bytes": 5174
+    }
+  },
+  "cockpit": {
+    "installation": {
+      "passed": true,
+      "source_commit": "c393dfbc79eacd26224c3f42e2d0d8b41de2f2f5",
+      "changed": [
+        "usr/local/share/cockpit/woowtechbackup/manifest.json",
+        "var/lib/woowtech-cockpit/installed.json"
+      ],
+      "managed_files": 127,
+      "verify": {
+        "status": "verified",
+        "files": 127,
+        "directories": 5,
+        "source_version": "2026.11.15.2",
+        "drift": []
+      },
+      "backup_config_keys_archives_and_app_links_preserved": true,
+      "preserved_files": 26,
+      "catalog_entries": 24,
+      "backup_location": "tools after applications",
+      "installer_backup_id": "20261115T123658101436Z"
+    },
+    "browser": {
+      "authenticated": true,
+      "views": [
+        {
+          "width": 1440,
+          "tools": [
+            "應用軟體",
+            "備份與還原",
+            "Pi Web",
+            "畫面參考",
+            "終端機",
+            "軟體更新",
+            "應用程式"
+          ],
+          "backup_sections_loaded": [
+            "backups",
+            "restore",
+            "catalog",
+            "keys",
+            "activity",
+            "overview"
+          ],
+          "backup_app_count": 24,
+          "backup_tab_count": 6,
+          "backup_tabs": [
+            "總覽",
+            "備份列表",
+            "從檔案還原",
+            "應用設定",
+            "加密金鑰",
+            "活動紀錄"
+          ],
+          "scrollWidth": 1200,
+          "viewportWidth": 1200
+        },
+        {
+          "width": 390,
+          "tools": [
+            "應用軟體",
+            "備份與還原",
+            "Pi Web",
+            "畫面參考",
+            "終端機",
+            "軟體更新",
+            "應用程式"
+          ],
+          "backup_sections_loaded": [
+            "backups",
+            "restore",
+            "catalog",
+            "keys",
+            "activity",
+            "overview"
+          ],
+          "backup_app_count": 24,
+          "backup_tab_count": 6,
+          "backup_tabs": [
+            "總覽",
+            "備份列表",
+            "從檔案還原",
+            "應用設定",
+            "加密金鑰",
+            "活動紀錄"
+          ],
+          "scrollWidth": 390,
+          "viewportWidth": 390
+        }
+      ],
+      "passed": true
+    }
+  },
+  "final_health": {
+    "passed": true,
+    "checked_at": "2026-11-15T13:15:15.404529+00:00",
+    "running_containers": 53,
+    "unhealthy_or_starting_containers": 0,
+    "immich_ml_health": "healthy",
+    "immich_ml_minutes_since_restart": 39.6,
+    "immich_server_to_ml_http": 200,
+    "nextcloud_version": "35.0.3",
+    "nextcloud_schema_findings": [],
+    "nextcloud_maintenance_off": true,
+    "nextcloud_cron_active": true,
+    "original_user_count": 1,
+    "owned_fixture_users_and_lab_resources_removed": true
+  },
+  "limitations": [
+    "Physical host reboot not performed",
+    "24 backup catalog entries are not 24 completed cross-device restore tests",
+    "Existing Nextcloud had one user and zero user files before acceptance fixtures",
+    "No external model-provider conversations tested in this closeout",
+    "Nextcloud Office document editing was tested through the original LAN HTTP entry"
+  ],
+  "passed": true
+}
