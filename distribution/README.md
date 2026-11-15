@@ -4,7 +4,7 @@
 
 第一個候選版是 `2026.11.15-rc1`。來源為 woowtechopenclaw 的正式服務組合，排除 Immich、測試容器、舊回退容器及私人登入。驗收狀態以同版 `releases/` 目錄中的紀錄為準；版本清單本身不是驗收通過的證明。
 
-參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)。
+參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)、[既有設備的保留資料升級與只讀盤點](docs/existing-device-upgrades.md)。
 
 ## 安裝材料
 
@@ -20,6 +20,8 @@
 版本鎖中的九個 Cockpit／Podman 套件設為 apt hold，需由維護者在下一個驗收版本明確更新；其餘 Ubuntu 安全更新仍依系統原有政策執行。安裝器另讓 needrestart 跳過有限期的 `woowtech-backup-j….service` 作業，避免更新函式庫時中止正在執行的備份／還原；下一個備份作業自然使用已更新的函式庫。這不會停用系統更新，也不排除其他常駐服務。
 
 部署帳號的 systemd `user@UID.service` 關機等待時間設為 180 秒。Ubuntu 映像原本只有 5 秒，會早於 Quadlet 自己的 30–90 秒期限強制結束資料庫；不能只調容器內層的停止期限。OpenDesign 主服務另會在啟動前移除自己三個已命名的附屬容器，處理意外斷電留下的網路命名空間依賴；所有資料卷保留，不對其他容器執行 prune。
+
+完整組合冷啟動時，EMQX 健康檢查改用容器內的節點 `/status`，避免每次 `emqx ctl status` 額外啟動 Erlang 程序而逾時；實際 MQTT 授權與讀寫另做功能驗收。Hermes 初始化等待 gateway 的期限延長至 900 秒，整機驗證也檢查初始化服務完成，不只看容器存在。完整組合與主機既有服務共享 N100 時，冷啟動可能需要十多分鐘；目前不宣稱固定秒數內就緒。
 
 ## 新設備安裝
 
