@@ -57,7 +57,7 @@ Cockpit 314 升至 362、Podman 插件升至 124，並安裝固定品牌版 2026
 
 版本鎖使用 `apt-mark hold` 後，dpkg 會回報 `hold ok installed`。舊 Cockpit 品牌安裝器誤認為未安裝，修正已合併至 [Woow_cockpit PR #13](https://github.com/WOOWTECH/Woow_cockpit/pull/13)，32 項安裝測試與 CI 通過。本版本的固定來源由 `installer/patch-cockpit-held-packages.py` 套用相同相容修正；仍拒絕過舊或未配置完成的套件，不解除版本鎖。
 
-以上只代表各項已完成的服務；完整實體設備方案的後續結果須另行補齊，不能以 VM 已通過的驗收替代。私有備份、原始日誌及金鑰不放入公開倉庫。
+後續完整實體設備的新增服務與跨服務結果見下方紀錄；VM 驗收與實體驗收各自列出。私有備份、原始日誌及金鑰不放入公開倉庫。
 
 ## Nextcloud 與 Pi 實體切換
 
@@ -123,3 +123,26 @@ python3 distribution/installer/prepare-nextcloud-text.py \
 套用前須完成包含 DB、HTML、使用者檔案、config 與密鑰的冷備份並驗證校驗碼；停止 cron、啟用維護模式後，以已驗證的官方 app 替換原 Text，執行 `occ integrity:check-app text` 與 `occ upgrade --no-interaction`。不得手動刪改資料庫欄位。重新啟動 app 清除 PHP opcode cache，恢復 cron，核對原帳號／instance key／網址，並以瀏覽器編輯及 WebDAV 讀回驗收。失敗時以同一份完整 HTML＋DB 備份恢復，不能只換回舊 app 程式。
 
 這是既有設備的可選修正，並未改寫 rc1 的 Core image ID 或歷史 tag。實體功能驗收結果以證據檔為準。
+
+實體驗收另確認：Nextcloud 的 `occ upgrade` 會嘗試從 App Store 更新已啟用的應用，這次同時將 richdocuments 升到官方 12.0.2。已另外鎖定其官方封存、核對 app 簽章，並重新完成 DOCX 編輯／儲存／下載比對；不把先前 12.0.1 的結果當作新版測試。全新設備的 Office 12.0.1 pin 保留，既有設備的 12.0.2 例外列在 `application-artifacts.json`。往後維護時應盤點全部 app 的實際版本，不能只核對 Core 映像。
+
+Text 9.0.2 已通過瀏覽器 session API 200、編輯與 WebDAV 讀回驗收，暫時使用者與檔案已清除。Office／gateway 的 Quadlet 同時加入 `nextcloud.target` 的 `WantedBy`，讓整組停止後能一起恢復，不只隨 `default.target` 啟動。實體整組重啟後 29.7 秒達到穩定就緒，Office／gateway 無須手動啟動；一秒間隔探針觀察到約 22.6 秒不可用區間，這不是精確停機秒數。原帳號、密碼、金鑰與網址指紋一致。
+
+此升級路徑另遇到 [Nextcloud 上游 #64487](https://github.com/nextcloud/server/issues/64487)：修復步驟移除空的 `federated_invites` 表後，結構檢查仍期待該表。實體設備先取 DB dump 並校驗，再用隨該版本出貨的 `cloud_federation_api/1016Date202502262004` migration 重建缺少的空表。`repair-nextcloud-invites.php` 預設只預覽，限定 35.0.1、僅允許建立該表及其 token 唯一約束；明確加上 `--apply` 才會執行。原帳號、密碼、資料列及既有索引未刪除。仍保留兩個舊版額外索引 `taskp_tasks_scheduled`、`text_steps_doc_id_id_index` 的結構提示，**不宣稱 schema 檢查全綠**。[官方 schema 檢查說明](https://docs.nextcloud.com/server/stable/admin_manual/occ_database.html#db-schema-check)提醒部分差異可能有效，應逐項審查。
+
+本輪也遇到大量映像匯入與 rootless UID 初始化爭用 Podman 儲存鎖，拖延冷備份的停止程序。已將後續流程改成所有映像準備完成後才安裝／切換服務；Text 修正連同完整備份與等待共 689.8 秒，並非精確 HTTP 停機秒數。不能把這次保留資料升級描述為零中斷或全程秒級切換。
+
+
+## 實體設備完成驗收
+
+保留原服務後，補上 Omnigent、LiteLLM、EMQX、Odoo tenant cloud、Hermes、OpenDesign、Headscale 與 code-server；8 項來源 smoke 全部通過，另有 9 項 MCP 管理服務通過各自安裝檢查。37 個固定映像均已核對內容 ID。原有的 Matter、Tailscale、NPM 與 Immich 保留，最終共 53 個運行中容器；原本 Immich machine-learning 的 unhealthy 狀態仍在，沒有把它算成修復。
+
+新 Odoo 使用另配的 `:18084`，原 Nextcloud `:18080` 延續。Cockpit 保留原帳號、網址與既有自訂連結；14 張應用卡片在 1440px／390px 顯示與管理資料讀取通過，沒有水平溢出。已填入本機／區網／VPN 可使用的應用入口與原本的對外網址，沒有替原 Access 規則解鎖。Hermes 卡片使用管理頁 `:19119`（不是 gateway API 的 `:18642`），以設備專用密碼完成實際瀏覽器登入。
+
+原生 Pi 保留既有模型登入與 MCP 項目，加入本設備 HA MCP；Pi／Claude／Codex 的 HA MCP 設定一致，可列出 77 個工具。以本機 operator 連接新 Omnigent，三種代理均可偵測。實測發現首次 host 留在暫時安裝作業的 cgroup，作業結束後會被清掉，因此另在作業退出後重啟常駐 `woow-native-connection.service`；再次確認 host ID 未變、保持連線，實際 PID 屬於常駐服務。此項沒有呼叫外部模型。
+
+HA 接上新本機 EMQX，原整合保留；透過 MCP 發布唯一的 MQTT discovery／狀態訊息，讀回 `23.75`，再清除保留訊息。初次查詢早於 discovery 完成時會回 entity-not-found，驗收已改成等待實體出現，沒有把暫時未出現當成成功。
+
+Cockpit 裝入 24 個備份應用設定，保留冷備份策略。Pi bridge 與 Cockpit PWA 是入口輔助服務，其設定未包含在推測的 app 備份範圍，因此沒有誤列為完整可還原套件。code-server 的應用資料可備份，但主機 `Desktop`、`.ssh`、`.local/bin` 與 `.gitconfig` 不在這個備份範圍；原生 Pi 也應使用其原生資料備份，不能以 bridge 的備份代替。這不是 24 個應用都已各自完成跨機還原演練的宣稱。
+
+實體設備未做整機重開機，也未驗收外部模型對話、外部 Headscale 節點或所有 SaaS 的第三方授權。全新隔離 VM 的冷啟動、備份下載與還原結果另列。新服務密碼只存於設備的私有交接檔，公開版本不包含原設備／來源設備的帳密、Tunnel token、模型供應商權杖或使用者資料。

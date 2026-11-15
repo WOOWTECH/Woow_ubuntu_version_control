@@ -324,6 +324,243 @@
     "original_user_count": 1,
     "access_mode": "existing LAN HTTP URL",
     "vpn_office_editing_tested": false,
-    "download_bytes": 5175
+    "download_bytes": 5172,
+    "office_app_version": "12.0.2"
+  },
+  "final_acceptance": {
+    "recorded_at_utc": "2026-11-15T12:07:24Z",
+    "passed": true,
+    "expansion": {
+      "passed": true,
+      "installed": [
+        "omnigent",
+        "litellm",
+        "emqx",
+        "odoo18",
+        "hermes",
+        "open-design",
+        "headscale",
+        "woow-code-server"
+      ],
+      "original_services_managed_by_this_step": false,
+      "mcp_management_services_installed": 9
+    },
+    "new_application_smoke": {
+      "omnigent": {
+        "exit_code": 0
+      },
+      "litellm": {
+        "exit_code": 0
+      },
+      "emqx": {
+        "exit_code": 0
+      },
+      "odoo18": {
+        "exit_code": 0
+      },
+      "hermes": {
+        "exit_code": 0
+      },
+      "open-design": {
+        "exit_code": 0
+      },
+      "headscale": {
+        "exit_code": 0
+      },
+      "woow-code-server": {
+        "exit_code": 0
+      }
+    },
+    "native_agents": {
+      "passed": true,
+      "external_model_called": false,
+      "original_mcp_and_provider_auth_preserved": true,
+      "pi_claude_codex_share_ha_mcp": true,
+      "ha_mcp_tool_count": 77,
+      "local_operator_host_connected": true,
+      "host_identity_preserved_on_resume": true,
+      "engines_detected": {
+        "pi": true,
+        "claude": true,
+        "codex": true
+      },
+      "connection_alive_after_setup_unit_exited": true,
+      "host_runs_in_persistent_service_cgroup": true
+    },
+    "ha_mqtt": {
+      "passed": true,
+      "existing_integrations_replaced": false,
+      "real_devices_actuated": false,
+      "new_local_mqtt_integration_loaded": true,
+      "mqtt_discovery_state_roundtrip": true,
+      "test_retained_messages_removed": true
+    },
+    "nextcloud_text_upgrade": {
+      "passed": true,
+      "core_version": "35.0.1",
+      "text_version_before": "9.0.0",
+      "text_version_after": "9.0.2",
+      "artifact": {
+        "version": "9.0.2",
+        "archive": "nextcloud-text-9.0.2.tar.gz",
+        "sha256": "c285a0cc8518e64d8a2b789080a805a03692c02d9df74ebc0c075c44d6c840de",
+        "source_url": "https://download.nextcloud.com/server/releases/nextcloud-35.0.3.tar.bz2",
+        "source_sha256": "58401440ce81b7f8d445a8c2a8027572b616ef83592f96b121fd15ec8a1aed35",
+        "nextcloud_range": "35"
+      },
+      "official_app_signature_valid": true,
+      "full_cold_backup_verified": true,
+      "accounts_passwords_urls_and_instance_keys_preserved": true,
+      "official_app_migrations_completed": true,
+      "database_columns_not_deleted": true,
+      "elapsed_seconds": 689.8,
+      "browser_edit_test_pending": true
+    },
+    "nextcloud_text_document": {
+      "passed": true,
+      "browser_edit_downloaded_marker_present": true,
+      "temporary_user_and_files_removed": true,
+      "original_user_count": 1,
+      "access_mode": "existing LAN HTTP URL",
+      "bytes": 71
+    },
+    "nextcloud_office_document": {
+      "passed": true,
+      "temporary_user_browser_login": true,
+      "office_document_open_edit_save": true,
+      "downloaded_docx_contains_typed_marker": true,
+      "temporary_user_and_files_removed": true,
+      "original_user_count": 1,
+      "access_mode": "existing LAN HTTP URL",
+      "vpn_office_editing_tested": false,
+      "download_bytes": 5172,
+      "office_app_version": "12.0.2"
+    },
+    "nextcloud_schema_repair": {
+      "passed": true,
+      "missing_table_recreated_with_shipped_official_migration": true,
+      "database_dump_checksum_verified": true,
+      "original_accounts_and_passwords_preserved": true,
+      "existing_database_rows_and_indexes_not_deleted": true,
+      "remaining_schema_findings": [
+        {
+          "table": "oc_taskprocessing_tasks",
+          "type": "unexpected_index",
+          "name": "taskp_tasks_scheduled",
+          "app": null,
+          "enabled": true
+        },
+        {
+          "table": "oc_text_steps",
+          "type": "unexpected_index",
+          "name": "text_steps_doc_id_id_index",
+          "app": null,
+          "enabled": true
+        }
+      ],
+      "schema_clean": false,
+      "upstream_issue": "https://github.com/nextcloud/server/issues/64487"
+    },
+    "running_container_count": 53,
+    "preexisting_unhealthy_container_retained": "immich_machine_learning",
+    "new_unhealthy_containers": [],
+    "nextcloud_versions": {
+      "text": "9.0.2",
+      "richdocuments": "12.0.2"
+    },
+    "original_nextcloud_user_count": 1,
+    "temporary_nextcloud_users_removed": true,
+    "physical_host_reboot_tested": false,
+    "external_model_conversation_tested": false,
+    "all_services_cross_device_restore_tested": false,
+    "free_disk_bytes": 57371459584
+  },
+  "final_cockpit_browser": {
+    "authenticated": true,
+    "views": [
+      {
+        "width": 1440,
+        "cards": 14,
+        "names": [
+          "Cloudflare Tunnel",
+          "code-server",
+          "EMQX",
+          "Headscale",
+          "Hermes",
+          "Home Assistant",
+          "Immich",
+          "LiteLLM",
+          "n8n",
+          "Nextcloud",
+          "Odoo",
+          "Omnigent",
+          "OpenDesign",
+          "Pi Agent"
+        ],
+        "scrollWidth": 1200,
+        "viewportWidth": 1200
+      },
+      {
+        "width": 390,
+        "cards": 14,
+        "names": [
+          "Cloudflare Tunnel",
+          "code-server",
+          "EMQX",
+          "Headscale",
+          "Hermes",
+          "Home Assistant",
+          "Immich",
+          "LiteLLM",
+          "n8n",
+          "Nextcloud",
+          "Odoo",
+          "Omnigent",
+          "OpenDesign",
+          "Pi Agent"
+        ],
+        "scrollWidth": 390,
+        "viewportWidth": 390
+      }
+    ]
+  },
+  "backup_catalog": {
+    "installed_entries": 24,
+    "excluded_helpers": [
+      "pi-web-bridge",
+      "woow-cockpit-pwa"
+    ],
+    "code_server_host_personal_directories_excluded": true,
+    "all_app_restore_drills_performed": false
+  },
+  "nextcloud_group_resume": {
+    "passed": true,
+    "whole_nextcloud_target_restarted": true,
+    "office_and_gateway_resumed_without_manual_start": true,
+    "original_accounts_passwords_keys_and_urls_preserved": true,
+    "readiness_seconds": 29.7,
+    "http_unavailability_observed": true,
+    "observed_down_span_seconds": 22.6,
+    "probe_interval_seconds": 1,
+    "exact_downtime_claimed": false
+  },
+  "work_cleanup": {
+    "passed": true,
+    "temporary_startup_overrides_removed": [
+      "open-design",
+      "open-design-mcp",
+      "open-design-terminal",
+      "open-design-nginx",
+      "code-server"
+    ],
+    "completed_failed_setup_units_cleared": 9,
+    "existing_stopped_containers_volumes_and_backups_deleted": false,
+    "original_unhealthy_service_unchanged": true
+  },
+  "hermes_dashboard": {
+    "passed": true,
+    "dashboard_port": 19119,
+    "browser_login": true,
+    "model_called": false
   }
 }

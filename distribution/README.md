@@ -43,6 +43,8 @@ python3 distribution/installer/woow-release.py apply \
 
 SSH 連線不穩定時，可在 `tmux` 中執行；或先執行 `platform` 完成 sudo 套件安裝，再將其餘階段交由該使用者的 systemd 執行。原生 Pi 第一次安裝也可能使用 sudo 安裝缺少的建置相依套件。
 
+若安裝放在暫時的 systemd 作業中，請等該作業成功退出後，再從另外的終端執行 `systemctl --user restart woow-native-connection.service`，並用 `~/.local/share/pi-agent/bin/pi-omnigent status` 確認 host 已連線。首次登入啟動的 host 可能還在安裝作業的 cgroup；作業退出會清掉該子程序。上述步驟使用既有授權及 host ID，讓連線改由常駐服務維持，不重新登入或覆寫模型授權。
+
 ```bash
 python3 distribution/installer/woow-release.py platform
 python3 distribution/installer/woow-release.py sources --materials /path/to/authorized-materials/images
