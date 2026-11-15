@@ -1,0 +1,74 @@
+{
+  "homeassistant": {
+    "service": "homeassistant",
+    "physical_host": true,
+    "passed": true,
+    "device_actuation_tested": false,
+    "old_version": "2026.9.1",
+    "new_version": "2026.9.1-r7",
+    "upstream_smoke_exit": 0,
+    "previously_loaded_integrations": 31,
+    "all_previous_loaded_integrations_recovered": true,
+    "original_users_and_password_records_preserved": true,
+    "original_device_and_entity_ids_preserved": true,
+    "environment_yaml_and_network_preserved": true,
+    "newer_mcp_version_preserved": "1.3.2",
+    "matter_service_unchanged": true,
+    "backup_created": true,
+    "upgrade_and_validation_seconds": 250.5
+  },
+  "cloudflare_tunnel": {
+    "service": "woow-cf-tunnel",
+    "physical_host": true,
+    "passed": true,
+    "environment_preserved": true,
+    "route_and_connection_gates_passed": true,
+    "upgrade_and_soak_seconds": 220.2,
+    "watchdog_success": true
+  },
+  "cockpit": {
+    "passed": true,
+    "cockpit_version": "362",
+    "branding_version": "2026.11.15.2",
+    "original_account_and_password_preserved": true,
+    "managed_files_verified": true,
+    "original_public_origins_preserved": true,
+    "additional_lan_vpn_origins_configured": true,
+    "browser_login": {
+      "https_public": true,
+      "http_lan": true,
+      "http_vpn": true,
+      "existing_account": true,
+      "administrator_access": true,
+      "visible_application_cards": 6,
+      "viewports": [
+        1440,
+        390
+      ],
+      "horizontal_overflow": false
+    }
+  },
+  "n8n": {
+    "service": "n8n",
+    "physical_host": true,
+    "passed": true,
+    "old_version": "2.38.7",
+    "new_version": "2.43.6",
+    "original_records_preserved": true,
+    "encryption_key_preserved": true,
+    "environment_and_urls_preserved": true,
+    "listener_and_data_mount_preserved": true,
+    "backup_checksums_verified": true,
+    "record_counts": {
+      "user": 1,
+      "credentials_entity": 0,
+      "workflow_entity": 0
+    },
+    "cutover_and_validation_seconds": 112.5,
+    "public_health_before": "HTTPError",
+    "public_health_after": "HTTPError",
+    "upstream_smoke_passed": true,
+    "model_calls_made": false,
+    "total_seconds": 122.0
+  }
+}
