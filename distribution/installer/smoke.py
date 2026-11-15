@@ -48,6 +48,13 @@ def main():
             if text.count(old) != 1:
                 raise SystemExit('Upstream smoke contract changed: ' + app)
             text = text.replace(old, new)
+        if app == 'headscale':
+            # Archive imports use a local alias. Check immutable content rather
+            # than rejecting the same image because its registry tag changed.
+            old = "got=$(podman inspect --format '{{.ImageName}}' headscale 2>/dev/null || true)"
+            if text.count(old) != 1:
+                raise SystemExit('Upstream Headscale image assertion changed.')
+            text = text.replace(old, "HEADSCALE_IMAGE=" + r.LOCK['containers']['headscale']['image_id'] + "\ngot=$(podman inspect --format '{{.Image}}' headscale 2>/dev/null || true)")
         fd, name = tempfile.mkstemp(prefix='.woow-release-smoke-', suffix='.sh', dir=script.parent)
         try:
             with os.fdopen(fd, 'w') as stream:

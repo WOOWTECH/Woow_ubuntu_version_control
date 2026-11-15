@@ -80,8 +80,8 @@ def preflight():
     if platform.machine() != 'x86_64' or os.getuid() == 0:
         raise SystemExit('Run as a normal x86_64 Ubuntu user with sudo, not root.')
     if not (STATE / 'device.json').exists():
-        if shutil.disk_usage(Path.home()).free < 65 * 1024**3:
-            raise SystemExit('A new full install requires at least 65 GiB free.')
+        if shutil.disk_usage(Path.home()).free < 85 * 1024**3:
+            raise SystemExit('A new full install requires at least 85 GiB free (including first-use UID mapping copies).')
         if QDIR.exists() and list(QDIR.glob('*.container')):
             raise SystemExit('Existing Quadlets found. Use a fresh user/host/VM; this installer does not adopt or replace them.')
         if shutil.which('podman') and output(['podman', 'ps', '-aq']):
@@ -188,6 +188,10 @@ def import_images(materials, selected=None):
 def patch_images():
     records = {}
     for repo in LOCK['sources']:
+        if repo == 'Woow_podman__mcp_server':
+            # Its own provenance gate validates a clean checkout and renders
+            # the reviewed image ID directly; no image-template overlay needed.
+            continue
         for path in (SOURCES / repo).rglob('*.container'):
             if '.git' in path.parts:
                 continue
@@ -214,9 +218,11 @@ def patch_images():
 def patch_first_boot():
     # keep-id performs a full first-use image ownership copy on Podman 4.9.
     # On N100 storage it can outlast the upstream five-minute start timeout.
-    for unit in (SOURCES / 'Woow_podman_opendesign/quadlet').glob('*.container'):
-        text = unit.read_text()
-        unit.write_text(re.sub(r'^TimeoutStartSec=300$', 'TimeoutStartSec=900', text, flags=re.M))
+    for repo in ('Woow_podman_opendesign', 'Woow_podman_code_server_package', 'Woow_podman_omnigent_package'):
+        for unit in (SOURCES / repo / 'quadlet').glob('*.container'):
+            text = unit.read_text()
+            if 'UserNS=keep-id' in text:
+                unit.write_text(re.sub(r'^TimeoutStartSec=(180|300)$', 'TimeoutStartSec=900', text, flags=re.M))
     # Odoo separately probes this constant even after the Quadlet is pinned.
     common = SOURCES / 'Woow_podman_odoo/scripts/common.sh'
     common.write_text(re.sub(r'^REPO_GATEWAY_IMAGE=.*$', 'REPO_GATEWAY_IMAGE=' + LOCK['containers']['odoo18-gateway']['image'], common.read_text(), flags=re.M))
@@ -268,11 +274,17 @@ def configure(address):
     overrides = {
         'homeassistant': {'HA_TZ': 'Asia/Taipei', 'HA_PRIVILEGED': 'false', 'HA_MCP': 'true', 'HA_MATTER': 'true'},
         'emqx': {'WOOW_EMQX_BIND': '0.0.0.0'},
-        'open-design': {'WOOW_OD_PASEO': 'on'},
+        # The source's Paseo bridge requires its own approved HTTPS origin.
+        # Never reuse the source device's domain or invent a trusted origin.
+        'open-design': {'WOOW_OD_PASEO': 'off'},
         'n8n': {'HOST_BIND': '0.0.0.0', 'N8N_SECURE_COOKIE': 'false', 'EXECUTIONS_MODE': 'queue', 'N8N_QUEUE_WEBHOOK_PROCESSOR': 'true'},
         'nextcloud': {'HOST_PORT': 18082, 'NEXTCLOUD_TRUSTED_DOMAINS': f'localhost 127.0.0.1 nextcloud-gateway {address}'},
     }
     for app in APPS:
+        if app == 'woow-cf-tunnel':
+            # Upstream's first run only creates settings and exits successfully.
+            # Prepare the reviewed fresh-volume settings before invoking it.
+            set_config(app, {})
         if app != 'woow-cf-tunnel':
             if app == 'odoo18':
                 if not image_exists(LOCK['containers']['odoo18-web']['image_id']):
@@ -371,10 +383,30 @@ def mcp():
     if subprocess.run(['git', '-C', repo, 'merge-base', '--is-ancestor', LOCK['sources'][repo.name], 'origin/main']).returncode:
         run(['git', '-C', repo, 'fetch', '--unshallow', 'origin', 'main'])
     for product, port in [('headscale', 18509), ('emqx', 18501), ('hermes', 18502), ('n8n', 18503), ('odoo', 18504), ('litellm', 18505), ('nextcloud', 18506), ('opendesign', 18507), ('k8s', 18508)]:
+        extra = []
+        if product == 'headscale' and not (Path.home() / '.config/headscale-mcp-admin/headscale-mcp-admin.env').exists():
+            extra = ['--origin', 'http://127.0.0.1:' + str(port)]
         with (STATE / (product + '-mcp.log')).open('a') as log:
             # Existing owner-approved unsigned release flow still validates the clean
             # merged commit, image labels and immutable content ID before installation.
-            proc = subprocess.run(['bash', str(repo / 'products/deploy/manage.sh'), product, 'install', '--skip-release-signature', '--port', str(port)], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+            proc = subprocess.run(['bash', str(repo / 'products/deploy/manage.sh'), product, 'install', '--skip-release-signature', '--port', str(port), *extra], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+            if proc.returncode and product == 'k8s':
+                # A fresh device deliberately has no cluster credentials. The
+                # child can briefly report running before failing auto-detect;
+                # repeat the upstream management test after that state settles.
+                # Never accept a configured backend failure through this path.
+                config = subprocess.run(['podman', 'exec', 'k8s-mcp-admin', 'cat', '/data/config.json'], capture_output=True, text=True)
+                connection = json.loads(config.stdout).get('connection', {}) if config.returncode == 0 else None
+                if connection is not None and not connection.get('kubeconfig') and str(connection.get('in_cluster', 'false')).lower() != 'true':
+                    for _ in range(30):
+                        with urllib.request.urlopen('http://127.0.0.1:18508/healthz', timeout=10) as response:
+                            health = json.load(response)
+                        if health.get('mcp') == 'not_running':
+                            proc = subprocess.run(['bash', str(repo / 'products/deploy/manage.sh'), 'k8s', 'smoke'], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+                            if proc.returncode == 0:
+                                save_json(STATE / 'k8s-pending.json', {'management_smoke_passed': True, 'cluster_configured': False, 'cluster_tools_tested': False})
+                                break
+                        time.sleep(2)
         if proc.returncode:
             raise SystemExit(product + ' MCP install failed; inspect its private log.')
 
@@ -398,6 +430,30 @@ def cockpit(address):
 
 def verify():
     result = {'release': RELEASE, 'containers': {}, 'external_authorizations_pending': LOCK['external_authorizations']}
+    result['sources'] = {}
+    for repo, expected in LOCK['sources'].items():
+        actual = subprocess.run(['git', '-C', SOURCES / repo, 'rev-parse', 'HEAD'], capture_output=True, text=True)
+        overlays = subprocess.run(['git', '-C', SOURCES / repo, 'diff', '--name-only'], capture_output=True, text=True)
+        result['sources'][repo] = {'commit_matches': actual.returncode == 0 and actual.stdout.strip() == expected, 'local_overlays': overlays.stdout.splitlines()}
+    result['native_versions'] = {}
+    native_root = Path.home() / '.local/share/pi-agent'
+    pins = (SOURCES / 'Woow_native_os_pi_agent/lib/pins.sh').read_text()
+    for name, pin, executable in [('node', 'NODE', native_root / 'node/bin/node'), ('claude', 'CLAUDE', native_root / 'bin/claude'), ('codex', 'CODEX', native_root / 'bin/codex')]:
+        expected = re.search('^PIN_' + pin + r'_VERSION=([0-9.]+)', pins, re.M)[1]
+        try:
+            query = subprocess.run([executable, '--version'], capture_output=True, text=True, timeout=30)
+            match = re.search(r'\d+\.\d+\.\d+', query.stdout)
+            result['native_versions'][name] = {'version': match[0] if match else None, 'matches': query.returncode == 0 and bool(match) and match[0] == expected}
+        except (OSError, subprocess.TimeoutExpired):
+            result['native_versions'][name] = {'matches': False}
+    result['platform_packages'] = {}
+    for package, expected in LOCK['platform_packages'].items():
+        query = subprocess.run(['dpkg-query', '-W', '-f=${Version}', package], capture_output=True, text=True)
+        result['platform_packages'][package] = {'version': query.stdout.strip(), 'matches': query.returncode == 0 and query.stdout.strip() == expected}
+    result['native_units'] = {}
+    for unit, user in [('pi-web.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
+        query = subprocess.run(['systemctl', *(['--user'] if user else []), 'is-active', unit], capture_output=True, text=True)
+        result['native_units'][unit] = query.returncode == 0 and query.stdout.strip() == 'active'
     for name, rec in LOCK['containers'].items():
         proc = subprocess.run(['podman', 'inspect', name], capture_output=True, text=True)
         if proc.returncode:
@@ -412,7 +468,8 @@ def verify():
                 result['http'][name] = response.status
         except Exception as e:
             result['http'][name] = type(e).__name__
-    result['passed'] = all(c.get('running') and c.get('image_matches') and c.get('health') not in ('unhealthy', 'starting') for c in result['containers'].values()) and all(v == 200 for v in result['http'].values())
+    result['passed'] = all(c.get('running') and c.get('image_matches') and c.get('health') not in ('unhealthy', 'starting') for c in result['containers'].values()) and all(v == 200 for v in result['http'].values()) and all(p['matches'] for p in result['platform_packages'].values()) and all(result['native_units'].values())
+    result['passed'] = result['passed'] and all(s['commit_matches'] for s in result['sources'].values()) and all(v['matches'] for v in result['native_versions'].values())
     save_json(STATE / 'verification.json', result)
     print(json.dumps(result, indent=2))
     return result['passed']

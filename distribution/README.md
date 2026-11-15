@@ -17,7 +17,7 @@
 
 ## 新設備安裝
 
-準備 Ubuntu 24.04 x86_64、一個有 sudo 的一般帳號、至少 65 GiB 可用空間。完整參考機是 N100／16 GiB RAM；其他硬體及高負載容量不因 x86_64 相容就視為驗收完成。全新完整部署建議保留至少 100 GiB 給應用及後續資料。若新設備沒有啟用 swap，平台階段會在 ext4／XFS 建立 4 GiB swap；既有 swap 保留。
+準備 Ubuntu 24.04 x86_64、一個有 sudo 的一般帳號、至少 85 GiB 可用空間。完整參考機是 N100／16 GiB RAM；其他硬體及高負載容量不因 x86_64 相容就視為驗收完成。全新完整部署建議保留至少 120 GiB 給應用及後續資料。Podman 4.9 首次使用不同 UID 映射會產生額外映像副本，空間需求不能只用壓縮材料的 11.4 GiB 估算。若新設備沒有啟用 swap，平台階段會在 ext4／XFS 建立 4 GiB swap；既有 swap 保留。
 
 ```bash
 git clone https://github.com/WOOWTECH/Woow_ubuntu_version_control.git
@@ -51,7 +51,7 @@ python3 distribution/installer/woow-release.py verify
 
 ## 每台設備的帳號與授權
 
-- Cockpit 使用新設備自己的 Linux 帳號；不內建共用 `admin/woowtech2026`。
+- Cockpit 使用新設備自己的 Linux 帳號；不內建共用帳號密碼。
 - HA 新建立管理員及僅供這台 MCP 使用的權杖；管理員資料保存在 `~/.local/state/woow-release/2026.11.15-rc1/ha-account.json`，權限 0600。
 - n8n 尚無擁有者時，建立此設備專用的管理員；資料保存在同目錄的 `n8n-account.json`。已完成設定的帳號不會被取代。
 - Pi Web 使用此設備生成的密碼，保存在同一私有目錄的 `piweb-password`。保留 Pi Web 獨立登入。
@@ -60,6 +60,8 @@ python3 distribution/installer/woow-release.py verify
 - MCP 使用原部署已採用的未簽章發行流程，仍檢查來源是已合併提交、工作樹乾淨、建置標籤及映像 ID。它不是第三方簽署的供應鏈證明。
 
 內部 Cockpit 使用 HTTP `:9090`，Pi Web 的 Cockpit 閘道使用 `:19094`。對外 HTTPS 由新設備的 Cloudflare／PaaS 授權設定；不繼承來源設備的網域和安全存取規則。
+
+OpenDesign 的 Paseo bridge 程式已包含在相同映像中，但首次安裝預設關閉；原專案要求專屬 HTTPS origin 及允許清單。取得新設備的 HTTPS 網址後，設定 `OPENDESIGN_PASEO_ORIGIN`、`OD_ALLOWED_ORIGINS` 及 `WOOW_OD_PASEO=on`，再重跑 OpenDesign 安裝階段。這是等待新網址的設定差異，不能宣稱已完成 Paseo 外部連線驗收。
 
 新設備會以當地生成的 MQTT 密碼把 HA 連上 EMQX，並將本機 HA MCP 加入 Pi／Claude Code／Codex 共用設定。EMQX 的 `woow` 帳號除了原有 `woow/#`，另可使用 HA 探索所需的 `homeassistant/#`；其他使用者主題仍拒絕存取。驗證指令 `python3 distribution/installer/local-smoke.py` 會建立短暫 MQTT 感測器，確認 HA 收到數值後移除測試資料，並驗證 MCP 與三代理設定。
 
