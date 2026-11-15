@@ -65,7 +65,11 @@ Nextcloud 的隔離副本先以完整備份完成 34.0.3 → 34.0.6 → 35.0.1�
 
 Pi 由舊 Podman 套件切換至固定原生套件，保留 14 份會話、原模型登入與 MCP 設定、套件清單及專案檔案。舊工作目錄絕對路徑以明確的相容 symlink 延續；複製使用 `podman unshare`，避免容器 UID 擁有的檔案遺漏。固定原生 Omnigent／Paseo 插件加入既有套件清單，不刪除原套件。既有 NPM 路由仍指向原容器名稱與連接埠，由僅位於原私有網路的相容代理，透過使用者 socket 轉到 loopback 上的原生 Pi；NPM 設定與外網路由均未更名。
 
-Pi 切換與驗證花費 86.7 秒。14 份會話與模型／MCP／專案內容雜湊一致，另核對舊工作目錄的 12 個檔案；原資料卷沒有運行中的寫入者，並另作完整壓縮備份、驗證壓縮檔與校驗碼。舊 Pi 沒有獨立網頁密碼，新版新增設備專用的 Pi Web 密碼；這不更動模型供應商登入。桌面與手機可登入，但本階段沒有對外模型對話驗收，也沒有宣稱舊設備本來不存在的 Claude／Codex 登入已完成。
+Pi 切換與驗證花費 86.7 秒。14 份會話與模型／MCP／專案內容雜湊一致，另核對舊工作目錄的 12 個檔案；原資料卷沒有運行中的寫入者，並另作完整壓縮備份、驗證壓縮檔與校驗碼。舊套件的健康檢查 timer 原本執行 `podman healthcheck run pi-web`，遷移後該名稱是無容器健康探針的相容代理，會產生 exit 125；已保留原 30 秒週期、改查原生 Pi HTTP 端點並驗證成功，不因此重啟 Pi。舊 Pi 沒有獨立網頁密碼，新版新增設備專用的 Pi Web 密碼；這不更動模型供應商登入。桌面與手機可登入，但本階段沒有對外模型對話驗收，也沒有宣稱舊設備本來不存在的 Claude／Codex 登入已完成。
+
+Office 另外使用固定 richdocuments 12.0.1 官方封存、SHA-256 與 app 完整性驗證啟用，Collabora discovery／capabilities 已通過。原 Nextcloud `:18080` 由 gateway 延續，app 本身移到 loopback 的 `:18082`。原帳號、掛載與網址比對一致；實際文件編輯結果另列，不能以 discovery 成功代替文件儲存驗收。
+
+備份時另發現 UID 33 擁有、0700 的 HTML 目錄，讓主機使用者的 `-d html/config` 誤判設定不存在。完整冷備份的 `html.tgz` 仍含設定，但一般備份可能漏掉獨立的 `config.tgz`。修正已合併至 [Nextcloud PR #8](https://github.com/WOOWTECH/Woow_podman_nextcloud/pull/8)：目錄檢查與封存均在 Podman user namespace 內執行，設定無法讀取時直接失敗，封存權限設為 0600。真實 UID 權限測試與 CI 通過，實體設備另比對原 `config.php` 和封存內容雜湊一致。`patch-nextcloud-backup.py` 將同一修正套入固定來源，既有補丁可重複呼叫，不改寫 rc1 tag 或共用 Quadlet library。
 
 ## 保留 Cockpit 網址的 PWA 與 Pi 入口
 

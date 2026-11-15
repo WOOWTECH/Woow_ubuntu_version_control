@@ -287,5 +287,32 @@
     "login_submission": "DOM login controls in installed PWA target",
     "scope": "isolated Chromium test profile",
     "browser_open_as_window_setting": true
+  },
+  "native_pi_health": {
+    "passed": true,
+    "obsolete_container_health_probe_replaced": true,
+    "native_http_probe_passed": true,
+    "original_timer_cadence_preserved": true,
+    "pi_restarted": false
+  },
+  "nextcloud_office": {
+    "passed": true,
+    "original_user_url_port": 18080,
+    "office_canonical_entry": "existing LAN URL",
+    "vpn_document_editing_verified": false,
+    "original_accounts_passwords_and_mounts_preserved": true,
+    "original_port_preserved_by_gateway": true,
+    "full_backup_verified": true,
+    "office_app_version": "12.0.1",
+    "official_app_integrity_verified": true,
+    "office_discovery_and_capabilities_passed": true,
+    "document_editing_test_pending": true
+  },
+  "nextcloud_config_backup": {
+    "passed": true,
+    "original_config_php_hash_matches_archive": true,
+    "archive_mode": "0600",
+    "container_uid_owned_directory_supported": true,
+    "service_restarted": false
   }
 }

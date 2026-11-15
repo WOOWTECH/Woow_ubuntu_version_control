@@ -220,6 +220,7 @@ def patch_images():
     save_json(STATE / 'source-overlays.json', records)
 
 def patch_first_boot():
+    run(['python3', ROOT / 'installer/patch-nextcloud-backup.py', SOURCES / 'Woow_podman_nextcloud'])
     # keep-id performs a full first-use image ownership copy on Podman 4.9.
     # On N100 storage it can outlast the upstream five-minute start timeout.
     for repo in ('Woow_podman_opendesign', 'Woow_podman_code_server_package', 'Woow_podman_omnigent_package'):
