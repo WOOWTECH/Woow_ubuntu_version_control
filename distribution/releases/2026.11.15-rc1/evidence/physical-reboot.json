@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "physical_host_reboot_tested": true,
+  "source_release": "2026.11.15-rc1",
+  "target": "existing Intel N100 / x86_64 / 16 GiB; original services retained",
+  "automatic_recovery": {
+    "boot_changed": true,
+    "same_host_and_owner": true,
+    "expected_containers": 53,
+    "running_containers": 53,
+    "missing_containers": [],
+    "unexpected_containers": [],
+    "changed_container_fields": {},
+    "all_expected_services_ready": true,
+    "units": {
+      "pi-web.service": true,
+      "woow-native-connection.service": true,
+      "woow-cockpit-pwa.service": true,
+      "woow-pi-web.socket": true,
+      "nextcloud-cron.timer": true
+    },
+    "http": {
+      "ha": 200,
+      "cockpit": 200,
+      "pi": 200,
+      "nextcloud": 200,
+      "office": 200,
+      "n8n": 200,
+      "webhook": 200,
+      "emqx": 200,
+      "odoo": 200,
+      "litellm": 200,
+      "omnigent": 200
+    },
+    "verified_at_boot_uptime_seconds": 558.4,
+    "read_only": true,
+    "services_restarted_by_auditor": false,
+    "passed": true
+  },
+  "early_readiness_attempt": {
+    "boot_changed": true,
+    "same_host_and_owner": true,
+    "expected_containers": 53,
+    "running_containers": 53,
+    "missing_containers": [],
+    "unexpected_containers": [],
+    "changed_container_fields": {},
+    "all_expected_services_ready": false,
+    "units": {
+      "pi-web.service": true,
+      "woow-native-connection.service": true,
+      "woow-cockpit-pwa.service": true,
+      "woow-pi-web.socket": true,
+      "nextcloud-cron.timer": true
+    },
+    "http": {
+      "ha": 200,
+      "cockpit": 200,
+      "pi": "TimeoutError",
+      "nextcloud": 200,
+      "office": 200,
+      "n8n": 200,
+      "webhook": 200,
+      "emqx": 200,
+      "odoo": 200,
+      "litellm": "ConnectionResetError",
+      "omnigent": 200
+    },
+    "verified_at_boot_uptime_seconds": 480.1,
+    "read_only": true,
+    "services_restarted_by_auditor": false,
+    "passed": false
+  },
+  "application_preservation": {
+    "passed": true,
+    "checks": {
+      "ha_passwords": true,
+      "ha_users": true,
+      "n8n_accounts": true,
+      "n8n_workflows": true,
+      "n8n_credentials": true,
+      "nextcloud_users": true,
+      "config_fingerprints": true,
+      "core.entity_registry": true,
+      "core.device_registry": true,
+      "ha_previously_loaded_recovered": true
+    },
+    "ha_previously_loaded": 33,
+    "configuration_files": 118
+  },
+  "system_preservation": {
+    "passed": true,
+    "private_root_configurations_preserved": 28,
+    "changed_configuration_count": 0,
+    "failed_system_units": 0,
+    "stop_budget": "3min",
+    "previous_user_manager_stop_timed_out": false
+  },
+  "native_agents": {
+    "host_connected": true,
+    "host_identity_matches_existing_receipt": true,
+    "engines_detected": {
+      "pi": true,
+      "claude": true,
+      "codex": true
+    },
+    "host_owned_by_persistent_service": true,
+    "external_model_called": false,
+    "passed": true
+  },
+  "post_boot_health": {
+    "passed": true,
+    "checked_at": "2026-11-15T15:20:19.859150+00:00",
+    "running_containers": 53,
+    "unhealthy_or_starting_containers": 0,
+    "immich_ml_health": "healthy",
+    "immich_ml_minutes_since_restart": 13.9,
+    "immich_server_to_ml_http": 200,
+    "nextcloud_version": "35.0.3",
+    "nextcloud_schema_findings": [],
+    "nextcloud_maintenance_off": true,
+    "nextcloud_cron_active": true,
+    "original_user_count": 1,
+    "owned_fixture_users_and_lab_resources_removed": true
+  },
+  "immich_inference": {
+    "passed": true,
+    "actual_local_clip_inference": true,
+    "embedding_dimensions": 512,
+    "response_sha256": "dc941032e2d8881df9f98c8f7698c4263e8825ac284b4ac62a7d7127cbbec7bb",
+    "seconds": 4.8,
+    "user_photos_accessed": false,
+    "external_model_provider_called": false
+  },
+  "ha_mqtt": {
+    "passed": true,
+    "existing_integrations_replaced": false,
+    "real_devices_actuated": false,
+    "new_local_mqtt_integration_loaded": true,
+    "mqtt_discovery_state_roundtrip": true,
+    "test_retained_messages_removed": true
+  },
+  "n8n_queue": {
+    "passed": true,
+    "owner_password_reset": false,
+    "worker_launcher_registered_before_execution": true,
+    "verified_webhook_routes": [
+      "original-main-url",
+      "webhook-processor"
+    ],
+    "unique_code_results": true,
+    "successful_database_executions": 2,
+    "original_accounts_preserved": true,
+    "temporary_workflow_removed": true
+  },
+  "automatic_unit_recovery": {
+    "passed": true,
+    "failed_user_units": 0,
+    "tracked_units": 52,
+    "all_tracked_units_nrestarts_zero": true
+  },
+  "browser": {
+    "public_https": {
+      "authenticated": true,
+      "views": [
+        {
+          "width": 1440,
+          "cards": 14,
+          "scrollWidth": 1200,
+          "viewportWidth": 1200
+        },
+        {
+          "width": 390,
+          "cards": 14,
+          "scrollWidth": 390,
+          "viewportWidth": 390
+        }
+      ]
+    },
+    "vpn_http": {
+      "authenticated": true,
+      "views": [
+        {
+          "width": 1440,
+          "cards": 14,
+          "scrollWidth": 1200,
+          "viewportWidth": 1200
+        },
+        {
+          "width": 390,
+          "cards": 14,
+          "scrollWidth": 390,
+          "viewportWidth": 390
+        }
+      ]
+    },
+    "pi_web": {
+      "authenticated": true,
+      "views": [
+        {
+          "width": 1440,
+          "scrollWidth": 1440,
+          "bodyVisible": true
+        },
+        {
+          "width": 390,
+          "scrollWidth": 390,
+          "bodyVisible": true
+        }
+      ]
+    },
+    "backup_navigation": {
+      "passed": true,
+      "views": [
+        {
+          "width": 1440,
+          "backup_sections_loaded": [
+            "backups",
+            "restore",
+            "catalog",
+            "keys",
+            "activity",
+            "overview"
+          ],
+          "backup_app_count": 24,
+          "backup_tab_count": 6,
+          "scrollWidth": 1200,
+          "viewportWidth": 1200
+        },
+        {
+          "width": 390,
+          "backup_sections_loaded": [
+            "backups",
+            "restore",
+            "catalog",
+            "keys",
+            "activity",
+            "overview"
+          ],
+          "backup_app_count": 24,
+          "backup_tab_count": 6,
+          "scrollWidth": 390,
+          "viewportWidth": 390
+        }
+      ]
+    }
+  },
+  "all_services_cross_device_restore_tested": false,
+  "external_model_conversation_tested": false,
+  "n8n_test_restarts_after_automatic_recovery_only": true,
+  "passed": true,
+  "first_observed_all_containers_healthy_at_boot_uptime_seconds": 538.3
+}
