@@ -42,6 +42,7 @@ python3 distribution/installer/woow-release.py office --address <區網IPv4>
 python3 distribution/installer/woow-release.py native
 python3 distribution/installer/woow-release.py cockpit --address <區網IPv4>
 python3 distribution/installer/woow-release.py mcp
+python3 distribution/installer/woow-release.py local-links
 python3 distribution/installer/woow-release.py backup-catalog
 python3 distribution/installer/woow-release.py verify
 ```
@@ -52,12 +53,15 @@ python3 distribution/installer/woow-release.py verify
 
 - Cockpit 使用新設備自己的 Linux 帳號；不內建共用 `admin/woowtech2026`。
 - HA 新建立管理員及僅供這台 MCP 使用的權杖；管理員資料保存在 `~/.local/state/woow-release/2026.11.15-rc1/ha-account.json`，權限 0600。
+- n8n 尚無擁有者時，建立此設備專用的管理員；資料保存在同目錄的 `n8n-account.json`。已完成設定的帳號不會被取代。
 - Pi Web 使用此設備生成的密碼，保存在同一私有目錄的 `piweb-password`。保留 Pi Web 獨立登入。
 - 各資料庫／應用／MCP 密碼由原專案安裝器生成為 Podman secrets，不輸出到公開報告。
 - 模型供應商、PaaS／Cloudflare、ngrok、VPN 節點及外部 Kubernetes 需要新設備獨立授權。原設備的 Token、Tunnel ID、OAuth、MCP 設定中的外部憑證、Matter fabric、工作流程與使用者檔案都不複製。
 - MCP 使用原部署已採用的未簽章發行流程，仍檢查來源是已合併提交、工作樹乾淨、建置標籤及映像 ID。它不是第三方簽署的供應鏈證明。
 
 內部 Cockpit 使用 HTTP `:9090`，Pi Web 的 Cockpit 閘道使用 `:19094`。對外 HTTPS 由新設備的 Cloudflare／PaaS 授權設定；不繼承來源設備的網域和安全存取規則。
+
+新設備會以當地生成的 MQTT 密碼把 HA 連上 EMQX，並將本機 HA MCP 加入 Pi／Claude Code／Codex 共用設定。EMQX 的 `woow` 帳號除了原有 `woow/#`，另可使用 HA 探索所需的 `homeassistant/#`；其他使用者主題仍拒絕存取。驗證指令 `python3 distribution/installer/local-smoke.py` 會建立短暫 MQTT 感測器，確認 HA 收到數值後移除測試資料，並驗證 MCP 與三代理設定。
 
 ## 維護者製作材料
 

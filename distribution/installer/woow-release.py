@@ -211,6 +211,38 @@ def patch_images():
             records[str(path.relative_to(SOURCES))] = digest(path)
     save_json(STATE / 'source-overlays.json', records)
 
+def patch_first_boot():
+    # keep-id performs a full first-use image ownership copy on Podman 4.9.
+    # On N100 storage it can outlast the upstream five-minute start timeout.
+    for unit in (SOURCES / 'Woow_podman_opendesign/quadlet').glob('*.container'):
+        text = unit.read_text()
+        unit.write_text(re.sub(r'^TimeoutStartSec=300$', 'TimeoutStartSec=900', text, flags=re.M))
+    # Odoo separately probes this constant even after the Quadlet is pinned.
+    common = SOURCES / 'Woow_podman_odoo/scripts/common.sh'
+    common.write_text(re.sub(r'^REPO_GATEWAY_IMAGE=.*$', 'REPO_GATEWAY_IMAGE=' + LOCK['containers']['odoo18-gateway']['image'], common.read_text(), flags=re.M))
+    helpers = SOURCES / 'Woow_podman_odoo/scripts/odoo-helpers.sh'
+    text = helpers.read_text()
+    old = '  [[ $initialized == t ]] || odoo_tenant_init_base "$db"'
+    new = '  if [[ $initialized != t ]]; then\n    odoo_tenant_init_base "$db"\n    ODOO_TENANT_FRESH=1\n  fi'
+    if old in text:
+        helpers.write_text(text.replace(old, new, 1))
+    # HA discovery uses a shared namespace outside the regular woow/# topics.
+    # Grant only this named local integration account; keep default deny and
+    # isolation from other users' application topics.
+    acl = SOURCES / 'Woow_podman_emqx/config/acl.conf'
+    rule = '{allow, {username, "woow"}, all, ["homeassistant/#"]}.\n'
+    if rule not in acl.read_text():
+        acl.write_text(rule + acl.read_text())
+    # A running Nextcloud container may still be copying cron.php and creating
+    # its database. Skip the timer until installation finishes, rather than
+    # failing the entire initial install because the file is not there yet.
+    cron = SOURCES / 'Woow_podman_nextcloud/systemd/nextcloud-cron.service'
+    text = cron.read_text()
+    condition = 'ExecCondition=/usr/bin/podman exec -u www-data nextcloud-app php -r "@include \'/var/www/html/config/config.php\'; exit((get_defined_vars()[\'CONFIG\'][\'installed\'] ?? false) ? 0 : 1);"\n'
+    if condition not in text:
+        text = text.replace('ExecStart=', condition + 'ExecStart=', 1)
+        cron.write_text(text)
+
 def set_config(app, overrides):
     repo = APPS[app][0]
     example = SOURCES / repo / 'config' / f'{app}.env.example'
@@ -236,6 +268,7 @@ def configure(address):
     overrides = {
         'homeassistant': {'HA_TZ': 'Asia/Taipei', 'HA_PRIVILEGED': 'false', 'HA_MCP': 'true', 'HA_MATTER': 'true'},
         'emqx': {'WOOW_EMQX_BIND': '0.0.0.0'},
+        'open-design': {'WOOW_OD_PASEO': 'on'},
         'n8n': {'HOST_BIND': '0.0.0.0', 'N8N_SECURE_COOKIE': 'false', 'EXECUTIONS_MODE': 'queue', 'N8N_QUEUE_WEBHOOK_PROCESSOR': 'true'},
         'nextcloud': {'HOST_PORT': 18082, 'NEXTCLOUD_TRUSTED_DOMAINS': f'localhost 127.0.0.1 nextcloud-gateway {address}'},
     }
@@ -258,6 +291,26 @@ def install_apps(selected):
             result = subprocess.run(['bash', str(SOURCES / repo / 'scripts/install.sh'), *args], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
         if result.returncode:
             raise SystemExit(f'{app} failed; inspect the private log: {STATE / (app + ".log")}. Resume after correcting the cause.')
+        if app == 'n8n':
+            run(['python3', ROOT / 'installer/bootstrap-n8n.py'])
+        if app == 'nextcloud':
+            deadline = time.monotonic() + 900
+            while time.monotonic() < deadline:
+                try:
+                    with urllib.request.urlopen('http://127.0.0.1:18082/status.php', timeout=10) as response:
+                        status = json.load(response)
+                    if status.get('installed') and not status.get('maintenance') and not status.get('needsDbUpgrade'):
+                        break
+                except (OSError, ValueError):
+                    pass
+                time.sleep(5)
+            else:
+                raise SystemExit('Nextcloud initialization did not complete.')
+            with (STATE / (app + '.log')).open('a') as log:
+                for command in [['podman', 'exec', '-u', 'www-data', 'nextcloud-app', 'php', 'occ', 'background:cron'],
+                                ['podman', 'exec', 'nextcloud-db', 'psql', '-U', 'nextcloud', '-d', 'nextcloud', '-c', 'CREATE EXTENSION IF NOT EXISTS vector'],
+                                ['podman', 'exec', '-u', 'www-data', 'nextcloud-app', 'php', 'occ', 'db:add-missing-indices']]:
+                    run(command, stdout=log, stderr=subprocess.STDOUT)
         print(app + ' installer passed', flush=True)
 
 def office(address):
@@ -284,7 +337,11 @@ def native():
     cached = STATE / 'assets' / asset['url'].rsplit('/', 1)[-1]
     cached.parent.mkdir(parents=True, exist_ok=True)
     if not cached.exists():
-        run(['curl', '-fsSL', '--retry', '3', asset['url'], '-o', cached])
+        partial = cached.with_suffix('.download')
+        run(['curl', '-fsSL', '--retry', '3', asset['url'], '-o', partial])
+        if digest(partial) != asset['sha256']:
+            raise SystemExit('Native Pi artifact checksum mismatch; incomplete file not promoted.')
+        partial.replace(cached)
     if digest(cached) != asset['sha256']:
         raise SystemExit('Native Pi artifact checksum mismatch.')
     Path(str(cached) + '.sha256').write_text(asset['sha256'] + '  ' + cached.name + '\n')
@@ -362,7 +419,7 @@ def verify():
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=['plan', 'platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'backup-catalog', 'verify', 'apply'])
+    p.add_argument('action', choices=['plan', 'platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'local-links', 'backup-catalog', 'verify', 'apply'])
     p.add_argument('--materials', type=Path, default=Path('/mnt/materials/images'))
     p.add_argument('--address', help='LAN IPv4 address; detected automatically for a fresh device')
     p.add_argument('--apps', nargs='+', choices=APPS)
@@ -384,16 +441,17 @@ def main():
         if not (STATE / 'device.json').exists():
             import uuid
             save_json(STATE / 'device.json', {'device_id': str(uuid.uuid4()), 'release': RELEASE, 'address': args.address})
-        steps = ['platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'backup-catalog', 'verify'] if args.action == 'apply' else [args.action]
+        steps = ['platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'local-links', 'backup-catalog', 'verify'] if args.action == 'apply' else [args.action]
         for step in steps:
             if step == 'platform': platform_install()
             elif step == 'sources': fetch_sources(args.materials); source_modes()
-            elif step == 'images': import_images(args.materials, args.apps); patch_images()
-            elif step == 'apps': configure(args.address); install_apps(args.apps or list(APPS))
+            elif step == 'images': import_images(args.materials, args.apps); patch_images(); patch_first_boot()
+            elif step == 'apps': patch_first_boot(); configure(args.address); install_apps(args.apps or list(APPS))
             elif step == 'office': office(args.address)
             elif step == 'native': native()
             elif step == 'cockpit': cockpit(args.address)
             elif step == 'mcp': mcp()
+            elif step == 'local-links': run(['python3', ROOT / 'installer/local-links.py'])
             elif step == 'backup-catalog': run(['python3', ROOT / 'installer/backup-catalog.py'])
             elif step == 'verify' and not verify(): raise SystemExit(1)
 

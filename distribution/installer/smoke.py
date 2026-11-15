@@ -19,6 +19,8 @@ def main():
     args = parser.parse_args()
     os.umask(0o077)
     results = {}
+    previous_path = r.STATE / 'smoke-results.json'
+    previous = json.loads(previous_path.read_text()) if previous_path.exists() else {}
     for app in args.apps:
         source = r.SOURCES / r.APPS[app][0]
         script = source / 'tests/smoke.sh'
@@ -58,7 +60,7 @@ def main():
                 except subprocess.TimeoutExpired:
                     results[app] = {'exit_code': 124}
             print(app, results[app], flush=True)
-            r.save_json(r.STATE / 'smoke-results.json', results)
+            r.save_json(r.STATE / 'smoke-results.json', {**previous, **results})
         finally:
             Path(name).unlink(missing_ok=True)
     raise SystemExit(0 if all(x['exit_code'] == 0 for x in results.values()) else 1)
