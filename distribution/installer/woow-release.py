@@ -1,0 +1,401 @@
+#!/usr/bin/env python3
+"""Install a new WOOW appliance. This is not a backup restore or an upgrade tool."""
+import argparse
+import fcntl
+import hashlib
+import ipaddress
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import shutil
+import socket
+import subprocess
+import sys
+import time
+import urllib.request
+
+ROOT = Path(__file__).resolve().parents[1]
+RELEASE = '2026.11.15-rc1'
+LOCK = json.loads((ROOT / 'releases' / RELEASE / 'lock.json').read_text())
+MATERIALS = json.loads((ROOT / 'releases' / RELEASE / 'materials.json').read_text())['images']
+STATE = Path.home() / '.local/state/woow-release' / RELEASE
+SOURCES = STATE / 'sources'
+QDIR = Path.home() / '.config/containers/systemd'
+APPS = {
+    'homeassistant': ('Woow_podman_homeassistant', ['--with-matter', '--with-mcp', '--no-smoke']),
+    'emqx': ('Woow_podman_emqx', ['--accept-defaults', '--without-ngrok', '--no-smoke']),
+    'litellm': ('Woow_podman_litellm', ['--no-pull', '--yes']),
+    'n8n': ('Woow_podman_n8n', ['--no-smoke']),
+    'nextcloud': ('Woow_podman_nextcloud', ['--no-smoke']),
+    'odoo18': ('Woow_podman_odoo', ['--accept-defaults', '--no-smoke']),
+    'hermes': ('Woow_podman_hermes', ['--accept-defaults', '--no-build', '--no-llm', '--no-smoke']),
+    'open-design': ('Woow_podman_opendesign', ['--accept-defaults', '--no-build', '--no-smoke']),
+    'omnigent': ('Woow_podman_omnigent_package', ['--no-build', '--yes']),
+    'headscale': ('Woow_podman_vpn_headscale_package', ['--accept-defaults', '--no-build', '--no-smoke']),
+    'woow-code-server': ('Woow_podman_code_server_package', ['--no-build', '--without-tailscale', '--yes']),
+    'woow-cf-tunnel': ('Woow_cloudflare_tunnel_webgui', ['--image', LOCK['images'][LOCK['containers']['woow-cf-tunnel']['image_id']]['tags'][0]]),
+}
+
+def run(args, **kw):
+    kw.setdefault('umask', 0o022)  # Upstream templates must remain readable in unprivileged containers.
+    return subprocess.run([str(x) for x in args], check=True, **kw)
+
+def output(args):
+    return subprocess.check_output([str(x) for x in args], text=True).strip()
+
+def save_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix('.tmp')
+    tmp.write_text(json.dumps(data, indent=2) + '\n')
+    tmp.chmod(0o600)
+    tmp.replace(path)
+
+def digest(path):
+    with path.open('rb') as f:
+        return hashlib.file_digest(f, 'sha256').hexdigest()
+
+def device_address(requested=None):
+    """Choose an actual interface address for Cockpit's Pi Web ingress."""
+    if requested:
+        candidate = requested
+    elif (STATE / 'device.json').exists():
+        candidate = json.loads((STATE / 'device.json').read_text())['address']
+    else:
+        route = json.loads(output(['ip', '-j', '-4', 'route', 'get', '1.1.1.1']))
+        candidate = route[0].get('prefsrc', '')
+    try:
+        address = ipaddress.IPv4Address(candidate)
+    except ipaddress.AddressValueError:
+        raise SystemExit('Use --address with this device\'s LAN IPv4 address.')
+    if address.is_loopback or address.is_unspecified or address.is_multicast:
+        raise SystemExit('--address must be a reachable interface IPv4 address.')
+    return str(address)
+
+def preflight():
+    osinfo = dict(line.split('=', 1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
+    if osinfo.get('ID', '').strip('"') != 'ubuntu' or osinfo.get('VERSION_ID', '').strip('"') != '24.04':
+        raise SystemExit('This profile requires Ubuntu 24.04.')
+    if platform.machine() != 'x86_64' or os.getuid() == 0:
+        raise SystemExit('Run as a normal x86_64 Ubuntu user with sudo, not root.')
+    if not (STATE / 'device.json').exists():
+        if shutil.disk_usage(Path.home()).free < 65 * 1024**3:
+            raise SystemExit('A new full install requires at least 65 GiB free.')
+        if QDIR.exists() and list(QDIR.glob('*.container')):
+            raise SystemExit('Existing Quadlets found. Use a fresh user/host/VM; this installer does not adopt or replace them.')
+        if shutil.which('podman') and output(['podman', 'ps', '-aq']):
+            raise SystemExit('Existing containers found. Use a fresh user/host/VM.')
+        if (Path.home() / '.local/share/pi-agent').exists():
+            raise SystemExit('Existing native Pi installation found. Use a fresh host.')
+        occupied = []
+        for port in [9090, 8123, 1883, 18083, 15678, 15679, 18080, 18081, 4000, 8000, 7456, 18443, 18000, 30141]:
+            with socket.socket() as s:
+                if s.connect_ex(('127.0.0.1', port)) == 0:
+                    occupied.append(port)
+        if occupied:
+            raise SystemExit(f'Existing services use profile ports: {occupied}. No changes made.')
+    print('Preflight passed: Ubuntu 24.04 x86_64, fresh or managed installation.', flush=True)
+
+def platform_install():
+    run(['sudo', 'apt-get', 'update'])
+    packages = ['podman', 'uidmap', 'slirp4netns', 'fuse-overlayfs', 'dbus-user-session', 'git', 'curl', 'jq', 'openssl', 'zstd', 'age', 'rsync', 'python3', 'python3-venv', 'nodejs', 'npm', 'build-essential', 'tmux', 'xz-utils', 'unzip', 'iproute2']
+    run(['sudo', 'apt-get', 'install', '-y', *packages])
+    run(['sudo', 'apt-get', 'install', '-y', *[k + '=' + v for k, v in LOCK['platform_packages'].items()]])
+    run(['sudo', 'loginctl', 'enable-linger', output(['id', '-un'])])
+    run(['systemctl', '--user', 'start', 'podman.socket'])
+    run(['systemctl', '--user', 'enable', 'podman.socket'])
+    run(['sudo', 'bash', ROOT / 'installer/ensure-swap.sh'])
+    (STATE / 'packages.txt').write_text(output(['dpkg-query', '-W', '-f=${Package}\t${Version}\n']) + '\n')
+
+def fetch_sources(materials):
+    SOURCES.mkdir(parents=True, exist_ok=True)
+    for repo, commit in LOCK['sources'].items():
+        dest = SOURCES / repo
+        if dest.exists():
+            if output(['git', '-C', dest, 'rev-parse', 'HEAD']) != commit:
+                raise SystemExit(f'Source mismatch: {repo}')
+            continue
+        cached = materials.parent / 'sources' / repo
+        if (cached / '.git').exists() and output(['git', '-C', cached, 'rev-parse', 'HEAD']) == commit:
+            run(['git', 'clone', '--no-hardlinks', cached, dest])
+            run(['git', '-C', dest, 'remote', 'set-url', 'origin', f'https://github.com/WOOWTECH/{repo}.git'])
+        else:
+            run(['git', 'init', dest])
+            run(['git', '-C', dest, 'remote', 'add', 'origin', f'https://github.com/WOOWTECH/{repo}.git'])
+            run(['git', '-C', dest, 'fetch', '--depth=1', 'origin', commit])
+            run(['git', '-C', dest, 'checkout', '--detach', 'FETCH_HEAD'])
+        if output(['git', '-C', dest, 'rev-parse', 'HEAD']) != commit:
+            raise SystemExit(f'Commit verification failed: {repo}')
+
+def source_modes():
+    # Git checkout under a restrictive caller umask can turn public 0644
+    # configuration templates into 0600. Restore only Git-tracked file modes;
+    # generated device credentials outside these source trees remain private.
+    for repo in LOCK['sources']:
+        dest = SOURCES / repo
+        for entry in output(['git', '-C', dest, 'ls-files', '-s']).splitlines():
+            metadata, name = entry.split('\t', 1)
+            mode = metadata.split()[0]
+            path = dest / name
+            if mode in ('100644', '100755') and path.is_file() and not path.is_symlink():
+                path.chmod(0o644 if mode == '100644' else 0o755)
+
+def image_exists(ref):
+    return subprocess.run(['podman', 'image', 'exists', ref]).returncode == 0
+
+def import_images(materials, selected=None):
+    manifest = json.loads((materials / 'materials.json').read_text())
+    if manifest['release'] != RELEASE:
+        raise SystemExit('Wrong materials release.')
+    wanted = set(LOCK['images'])
+    if selected:
+        wanted = set()
+        for app in selected:
+            for path in (SOURCES / APPS[app][0] / 'quadlet').rglob('*.container'):
+                match = re.search(r'^ContainerName=(.+)$', path.read_text(), re.M)
+                if match and match[1] in LOCK['containers']:
+                    wanted.add(LOCK['containers'][match[1]]['image_id'])
+    for ident, rec in LOCK['images'].items():
+        if ident not in wanted:
+            continue
+        if not image_exists(ident):
+            if rec['private_material'] or ident in manifest['images']:
+                entry = manifest['images'][ident]
+                archive = materials / entry['file']
+                if archive.name != entry['file'] or entry != MATERIALS.get(ident) or digest(archive) != entry['sha256']:
+                    raise SystemExit(f'Archive checksum/path failure: {ident}')
+                # zstd output goes directly to Podman: no untrusted filesystem extraction.
+                unzip = subprocess.Popen(['zstd', '-dc', archive], stdout=subprocess.PIPE)
+                loaded = subprocess.run(['podman', 'load'], stdin=unzip.stdout)
+                unzip.stdout.close()
+                if unzip.wait() or loaded.returncode:
+                    raise SystemExit(f'Image import failed: {ident}')
+            else:
+                run(['podman', 'pull', '--arch=amd64', rec['reference']])
+        actual = output(['podman', 'image', 'inspect', '--format', '{{.Id}}', ident]).removeprefix('sha256:')
+        if actual != ident:
+            raise SystemExit(f'Image content identity mismatch: {ident}')
+        run(['podman', 'tag', ident, rec['deployment_reference']])
+        for tag in rec['tags']:
+            if '@' not in tag:
+                run(['podman', 'tag', ident, tag])
+    # The upstream code-server installer verifies its local build tag before rendering.
+    code_version = (SOURCES / 'Woow_podman_code_server_package/VERSION').read_text().strip()
+    if image_exists(LOCK['containers']['code-server']['image_id']):
+        run(['podman', 'tag', LOCK['containers']['code-server']['image_id'], f'localhost/woow-code-server:{code_version}'])
+
+def patch_images():
+    records = {}
+    for repo in LOCK['sources']:
+        for path in (SOURCES / repo).rglob('*.container'):
+            if '.git' in path.parts:
+                continue
+            text = path.read_text()
+            match = re.search(r'^ContainerName=(.+)$', text, re.M)
+            if not match or match[1] not in LOCK['containers']:
+                continue
+            name = match[1]
+            # Odoo still needs its image placeholders for the installer's account probe.
+            if name not in ('odoo18-web', 'odoo18-db'):
+                text = re.sub(r'^Image=.*$', 'Image=' + LOCK['containers'][name]['image'], text, flags=re.M)
+            text = re.sub(r'^Pull=.*\n?', '', text, flags=re.M)
+            text = re.sub(r'^(Image=.*)$', r'\1\nPull=never', text, flags=re.M)
+            if name == 'litellm':
+                # The upstream installer actively invokes health checks. A retry
+                # count is therefore not a wall-clock startup budget: 40 attempts
+                # can kill Prisma before its first migration finishes. Keep the
+                # 900-second installer deadline and normal liveness restarts.
+                text = re.sub(r'^HealthStartupRetries=.*$', 'HealthStartupRetries=0', text, flags=re.M)
+            path.write_text(text)
+            records[str(path.relative_to(SOURCES))] = digest(path)
+    save_json(STATE / 'source-overlays.json', records)
+
+def set_config(app, overrides):
+    repo = APPS[app][0]
+    example = SOURCES / repo / 'config' / f'{app}.env.example'
+    dest = Path.home() / '.config' / app / f'{app}.env'
+    if dest.exists():
+        return  # Device-local changes are never overwritten on resume.
+    text = example.read_text()
+    for k, v in overrides.items():
+        if re.search('^' + re.escape(k) + '=', text, re.M):
+            text = re.sub('^' + re.escape(k) + '=.*$', k + '=' + str(v), text, flags=re.M)
+        else:
+            text += f'\n{k}={v}\n'
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.parent.chmod(0o755)
+    dest.write_text(text)
+    dest.chmod(0o600)
+
+def configure(address):
+    if not re.fullmatch(r'[A-Za-z0-9.-]+', address):
+        raise SystemExit('Use a hostname or IPv4 address, without a scheme/path/port.')
+    def imported_digest(name):
+        return output(['podman', 'image', 'inspect', '--format', '{{.Digest}}', LOCK['containers'][name]['image_id']])
+    overrides = {
+        'homeassistant': {'HA_TZ': 'Asia/Taipei', 'HA_PRIVILEGED': 'false', 'HA_MCP': 'true', 'HA_MATTER': 'true'},
+        'emqx': {'WOOW_EMQX_BIND': '0.0.0.0'},
+        'n8n': {'HOST_BIND': '0.0.0.0', 'N8N_SECURE_COOKIE': 'false', 'EXECUTIONS_MODE': 'queue', 'N8N_QUEUE_WEBHOOK_PROCESSOR': 'true'},
+        'nextcloud': {'HOST_PORT': 18082, 'NEXTCLOUD_TRUSTED_DOMAINS': f'localhost 127.0.0.1 nextcloud-gateway {address}'},
+    }
+    for app in APPS:
+        if app != 'woow-cf-tunnel':
+            if app == 'odoo18':
+                if not image_exists(LOCK['containers']['odoo18-web']['image_id']):
+                    continue
+                overrides[app] = {'WOOW_ODOO_TENANT_CLOUD': 'True', 'WOOW_ODOO_DEFAULT_DB': 'odoo', 'WOOW_ODOO_ADMIN_LOGIN': 'admin@example.invalid', 'WOOW_ODOO_GATEWAY_ENABLED': 'True', 'WOOW_ODOO_IMAGE': 'localhost/woow-release/odoo18-web@' + imported_digest('odoo18-web'), 'WOOW_ODOO_DB_IMAGE': 'localhost/woow-release/odoo18-db@' + imported_digest('odoo18-db')}
+            set_config(app, overrides.get(app, {}))
+
+def install_apps(selected):
+    for app in selected:
+        repo, args = APPS[app]
+        print('Installing ' + app, flush=True)
+        with (STATE / (app + '.log')).open('a') as log:
+            if app == 'homeassistant' and subprocess.run(['podman', 'secret', 'exists', 'homeassistant-mcp-token']).returncode != 0:
+                run(['bash', SOURCES / repo / 'scripts/install.sh', '--with-matter', '--without-mcp', '--no-smoke'], stdout=log, stderr=subprocess.STDOUT)
+                run(['python3', ROOT / 'installer/bootstrap-ha.py'], stdout=log, stderr=subprocess.STDOUT)
+            result = subprocess.run(['bash', str(SOURCES / repo / 'scripts/install.sh'), *args], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+        if result.returncode:
+            raise SystemExit(f'{app} failed; inspect the private log: {STATE / (app + ".log")}. Resume after correcting the cause.')
+        print(app + ' installer passed', flush=True)
+
+def office(address):
+    secret = 'nextcloud-office-password'
+    if subprocess.run(['podman', 'secret', 'exists', secret]).returncode != 0:
+        import secrets
+        run(['podman', 'secret', 'create', secret, '-'], input=secrets.token_urlsafe(32).encode(), stdout=subprocess.DEVNULL)
+    for name in ['nextcloud-office', 'nextcloud-gateway']:
+        text = (ROOT / 'overlays' / (name + '.container')).read_text().replace('@@NEXTCLOUD_AUTHORITY@@', address + ':18081')
+        text = re.sub(r'^Image=.*$', 'Image=' + LOCK['containers'][name]['image'] + '\nPull=never', text, flags=re.M)
+        (QDIR / (name + '.container')).write_text(text)
+    shutil.copyfile(ROOT / 'overlays/nextcloud-gateway.conf', Path.home() / '.config/nextcloud/gateway.conf')
+    (Path.home() / '.config/nextcloud/gateway.conf').chmod(0o644)
+    run(['systemctl', '--user', 'daemon-reload'])
+    run(['systemctl', '--user', 'start', 'nextcloud-office.service', 'nextcloud-gateway.service'])
+    run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'app:enable', 'richdocuments'])
+    run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'config:app:set', 'richdocuments', 'wopi_url', '--value=http://' + address + ':18081'])
+    run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'config:app:set', 'richdocuments', 'public_wopi_url', '--value=http://' + address + ':18081'])
+
+def native():
+    repo = SOURCES / 'Woow_native_os_pi_agent'
+    env = os.environ.copy()
+    asset = LOCK['native_assets']['piweb']
+    cached = STATE / 'assets' / asset['url'].rsplit('/', 1)[-1]
+    cached.parent.mkdir(parents=True, exist_ok=True)
+    if not cached.exists():
+        run(['curl', '-fsSL', '--retry', '3', asset['url'], '-o', cached])
+    if digest(cached) != asset['sha256']:
+        raise SystemExit('Native Pi artifact checksum mismatch.')
+    Path(str(cached) + '.sha256').write_text(asset['sha256'] + '  ' + cached.name + '\n')
+    env['PI_AGENT_PIWEB_ARTIFACT'] = str(cached)
+    with (STATE / 'native-pi.log').open('a') as log:
+        result = subprocess.run(['bash', str(repo / 'install.sh')], env=env, stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+    if result.returncode:
+        raise SystemExit('Native Pi installer failed; see private native-pi.log')
+    import secrets
+    pwfile = STATE / 'piweb-password'
+    if not pwfile.exists():
+        pwfile.write_text(secrets.token_urlsafe(32))
+        pwfile.chmod(0o600)
+    envfile = Path.home() / '.config/woow-release/piweb.env'
+    envfile.parent.mkdir(parents=True, exist_ok=True)
+    envfile.write_text('PI_WEB_PASSWORD=' + pwfile.read_text() + '\n')
+    envfile.chmod(0o600)
+    dropin = Path.home() / '.config/systemd/user/pi-web.service.d'
+    dropin.mkdir(parents=True, exist_ok=True)
+    (dropin / 'release-auth.conf').write_text('[Service]\nEnvironmentFile=%h/.config/woow-release/piweb.env\n')
+    run(['systemctl', '--user', 'daemon-reload'])
+    run(['systemctl', '--user', 'restart', 'pi-web.service'])
+
+def mcp():
+    repo = SOURCES / 'Woow_podman__mcp_server'
+    # Pin to the actual deployed build's merged source, not today's arbitrary main.
+    if subprocess.run(['git', '-C', repo, 'merge-base', '--is-ancestor', LOCK['sources'][repo.name], 'origin/main']).returncode:
+        run(['git', '-C', repo, 'fetch', '--unshallow', 'origin', 'main'])
+    for product, port in [('headscale', 18509), ('emqx', 18501), ('hermes', 18502), ('n8n', 18503), ('odoo', 18504), ('litellm', 18505), ('nextcloud', 18506), ('opendesign', 18507), ('k8s', 18508)]:
+        with (STATE / (product + '-mcp.log')).open('a') as log:
+            # Existing owner-approved unsigned release flow still validates the clean
+            # merged commit, image labels and immutable content ID before installation.
+            proc = subprocess.run(['bash', str(repo / 'products/deploy/manage.sh'), product, 'install', '--skip-release-signature', '--port', str(port)], stdout=log, stderr=subprocess.STDOUT, umask=0o022)
+        if proc.returncode:
+            raise SystemExit(product + ' MCP install failed; inspect its private log.')
+
+def cockpit(address):
+    repo = SOURCES / 'Woow_cockpit'
+    run(['sudo', 'python3', repo / 'scripts/manage.py', 'install', '--service-owner', output(['id', '-un'])])
+    # Fresh-host policy chosen by the product owner: HTTP on LAN; HTTPS belongs at an external tunnel.
+    conf = '[WebService]\nAllowUnencrypted=true\nLoginTo=false\n\n[Session]\nIdleTimeout=0\n'
+    run(['sudo', 'install', '-d', '-m', '755', '/etc/cockpit'])
+    run(['sudo', 'tee', '/etc/cockpit/cockpit.conf'], input=conf.encode(), stdout=subprocess.DEVNULL)
+    run(['sudo', 'systemctl', 'enable', '--now', 'cockpit.socket'])
+    run(['sudo', 'python3', repo / 'scripts/manage.py', 'verify'])
+    run(['bash', repo / 'pwa-gateway/install.sh'])
+    # Keep the gateway's Node runtime root-owned; do not execute a user's binary as a system service.
+    node = Path.home() / '.local/share/pi-agent/node/bin/node'
+    run(['sudo', 'install', '-d', '-m', '755', '/usr/local/lib/woow-node'])
+    run(['sudo', 'install', '-m', '755', node, '/usr/local/lib/woow-node/node'])
+    service = repo / 'pi-web-integration/woowtech-piweb-gateway.service'
+    service.write_text(service.read_text().replace('ExecStart=/usr/bin/node ', 'ExecStart=/usr/local/lib/woow-node/node '))
+    run(['sudo', 'bash', repo / 'pi-web-integration/install.sh', address, '19094'])
+
+def verify():
+    result = {'release': RELEASE, 'containers': {}, 'external_authorizations_pending': LOCK['external_authorizations']}
+    for name, rec in LOCK['containers'].items():
+        proc = subprocess.run(['podman', 'inspect', name], capture_output=True, text=True)
+        if proc.returncode:
+            result['containers'][name] = {'status': 'missing'}
+            continue
+        c = json.loads(proc.stdout)[0]
+        result['containers'][name] = {'running': c['State']['Running'], 'image_matches': c['Image'].removeprefix('sha256:') == rec['image_id'], 'health': c['State'].get('Health', {}).get('Status', 'not-declared')}
+    result['http'] = {}
+    for name, url in {'cockpit': 'http://127.0.0.1:9090/ping', 'ha': 'http://127.0.0.1:8123/', 'emqx': 'http://127.0.0.1:18083/', 'n8n': 'http://127.0.0.1:15678/healthz', 'nextcloud': 'http://127.0.0.1:18081/status.php', 'odoo': 'http://127.0.0.1:18080/web/login', 'litellm': 'http://127.0.0.1:4000/health/liveliness', 'pi-web': 'http://127.0.0.1:30141/'}.items():
+        try:
+            with urllib.request.urlopen(url, timeout=15) as response:
+                result['http'][name] = response.status
+        except Exception as e:
+            result['http'][name] = type(e).__name__
+    result['passed'] = all(c.get('running') and c.get('image_matches') and c.get('health') not in ('unhealthy', 'starting') for c in result['containers'].values()) and all(v == 200 for v in result['http'].values())
+    save_json(STATE / 'verification.json', result)
+    print(json.dumps(result, indent=2))
+    return result['passed']
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('action', choices=['plan', 'platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'backup-catalog', 'verify', 'apply'])
+    p.add_argument('--materials', type=Path, default=Path('/mnt/materials/images'))
+    p.add_argument('--address', help='LAN IPv4 address; detected automatically for a fresh device')
+    p.add_argument('--apps', nargs='+', choices=APPS)
+    args = p.parse_args()
+    if args.action == 'plan':
+        print(json.dumps({'release': RELEASE, 'applications': list(APPS), 'containers': len(LOCK['containers']), 'new_device': True, 'requires_authorized_materials': True, 'pending_authorizations': LOCK['external_authorizations']}, indent=2))
+        return
+    os.umask(0o077)
+    args.address = device_address(args.address)
+    STATE.mkdir(parents=True, exist_ok=True)
+    # Native Pi has no containers/shared image state and may install while images load.
+    guard_name = 'native.install.lock' if args.action == 'native' else 'install.lock'
+    with (STATE / guard_name).open('w') as guard:
+        try:
+            fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise SystemExit('Another installer is still running; wait for it before resuming.')
+        preflight()
+        if not (STATE / 'device.json').exists():
+            import uuid
+            save_json(STATE / 'device.json', {'device_id': str(uuid.uuid4()), 'release': RELEASE, 'address': args.address})
+        steps = ['platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'backup-catalog', 'verify'] if args.action == 'apply' else [args.action]
+        for step in steps:
+            if step == 'platform': platform_install()
+            elif step == 'sources': fetch_sources(args.materials); source_modes()
+            elif step == 'images': import_images(args.materials, args.apps); patch_images()
+            elif step == 'apps': configure(args.address); install_apps(args.apps or list(APPS))
+            elif step == 'office': office(args.address)
+            elif step == 'native': native()
+            elif step == 'cockpit': cockpit(args.address)
+            elif step == 'mcp': mcp()
+            elif step == 'backup-catalog': run(['python3', ROOT / 'installer/backup-catalog.py'])
+            elif step == 'verify' and not verify(): raise SystemExit(1)
+
+if __name__ == '__main__':
+    main()

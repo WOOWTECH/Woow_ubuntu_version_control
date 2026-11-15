@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "release": "2026.11.15-rc1",
+  "images": {
+    "44655d1475918e2fcc8733eb23f9e0e9bee0e5aba51c3c1bd068bc33436dc04f": {
+      "file": "44655d1475918e2fcc8733eb23f9e0e9bee0e5aba51c3c1bd068bc33436dc04f.oci.tar.zst",
+      "sha256": "5a8a7cf7e890b3386093a57842b0c9e7a8711ae6bda9fe162010a9d38a770cfc",
+      "bytes": 891988202,
+      "format": "oci-archive",
+      "config_id": "44655d1475918e2fcc8733eb23f9e0e9bee0e5aba51c3c1bd068bc33436dc04f"
+    },
+    "c4b91d71074200a5e4965191aa937019899f1ddd140c7e58d53a8fefffdf8a12": {
+      "file": "c4b91d71074200a5e4965191aa937019899f1ddd140c7e58d53a8fefffdf8a12.oci.tar.zst",
+      "sha256": "6d7e26e2b052dc29111b141eef52ab85624227572f170257b881178ed21adac1",
+      "bytes": 660282778,
+      "format": "oci-archive",
+      "config_id": "c4b91d71074200a5e4965191aa937019899f1ddd140c7e58d53a8fefffdf8a12"
+    },
+    "9a40b79b61494622331629225c9c40196196c04c96bea0cb89f5c314d567533a": {
+      "file": "9a40b79b61494622331629225c9c40196196c04c96bea0cb89f5c314d567533a.docker.tar.zst",
+      "sha256": "294c18a1d1d102ea836453a828aa3a389b630da48ff1cb4853ee8dba808958e4",
+      "bytes": 996273619,
+      "format": "docker-archive",
+      "config_id": "9a40b79b61494622331629225c9c40196196c04c96bea0cb89f5c314d567533a"
+    },
+    "5bf5f9b959b30391e69d3cdbfe71bfcb44188d3cf5b3384087247e223db640ea": {
+      "file": "5bf5f9b959b30391e69d3cdbfe71bfcb44188d3cf5b3384087247e223db640ea.docker.tar.zst",
+      "sha256": "851a53aceb55ef526afd8eeff512209eb07653143c1cc2b30e5a30e72584a66a",
+      "bytes": 2217377616,
+      "format": "docker-archive",
+      "config_id": "5bf5f9b959b30391e69d3cdbfe71bfcb44188d3cf5b3384087247e223db640ea"
+    },
+    "68794c7302df51c24539009635483e9300ff00e353192d7b7bb656ddf1eef373": {
+      "file": "68794c7302df51c24539009635483e9300ff00e353192d7b7bb656ddf1eef373.docker.tar.zst",
+      "sha256": "ce108f61579093165e6681d2bbbabfc6f6f025d4c4718d6be77248bc3d2aa004",
+      "bytes": 425987630,
+      "format": "docker-archive",
+      "config_id": "68794c7302df51c24539009635483e9300ff00e353192d7b7bb656ddf1eef373"
+    },
+    "e80170f48ac2534abd0960be4838dbe9fcdc498da924a62f2436cd470dab4165": {
+      "file": "e80170f48ac2534abd0960be4838dbe9fcdc498da924a62f2436cd470dab4165.oci.tar.zst",
+      "sha256": "d55d5da911bff36d9ffaddc110a7d090df5e9f5eb69690edc4e4fb206c332997",
+      "bytes": 642828569,
+      "format": "oci-archive",
+      "config_id": "e80170f48ac2534abd0960be4838dbe9fcdc498da924a62f2436cd470dab4165"
+    },
+    "dd0982f37ae8628bbe146004058c6e7fcb5ed54c5cefe0a0901bab79a703c0fe": {
+      "file": "dd0982f37ae8628bbe146004058c6e7fcb5ed54c5cefe0a0901bab79a703c0fe.oci.tar.zst",
+      "sha256": "d312df3651944ede920527f2824b22b3a61e33079b648198a4996a897554e69f",
+      "bytes": 675912061,
+      "format": "oci-archive",
+      "config_id": "dd0982f37ae8628bbe146004058c6e7fcb5ed54c5cefe0a0901bab79a703c0fe"
+    },
+    "f4fb9dc1e3414351413f12e560cf47fecd19f17fba5392edff7e941b7c025fc1": {
+      "file": "f4fb9dc1e3414351413f12e560cf47fecd19f17fba5392edff7e941b7c025fc1.docker.tar.zst",
+      "sha256": "884768d6030c050955165bcbed19888eb850f36e67c90cc529d77c16c06fb8f2",
+      "bytes": 140636103,
+      "format": "docker-archive",
+      "config_id": "f4fb9dc1e3414351413f12e560cf47fecd19f17fba5392edff7e941b7c025fc1"
+    },
+    "a5f7b9715dea9116f435ff7892e6925895d1c92d4a265cc02eff1a2abadb227d": {
+      "file": "a5f7b9715dea9116f435ff7892e6925895d1c92d4a265cc02eff1a2abadb227d.oci.tar.zst",
+      "sha256": "65dc380938062805aa3807077907478418903b55ee00bc1d139e2fa696d5205a",
+      "bytes": 43551484,
+      "format": "oci-archive",
+      "config_id": "a5f7b9715dea9116f435ff7892e6925895d1c92d4a265cc02eff1a2abadb227d"
+    },
+    "0b4481f9ad05b6c6632825f093988d120006d61cb300001753cd8e27c41a0a7f": {
+      "file": "0b4481f9ad05b6c6632825f093988d120006d61cb300001753cd8e27c41a0a7f.docker.tar.zst",
+      "sha256": "781d6535b5d5eeb8c8bd5c7aa506b9ce45974949d23240e873862a8f71f32699",
+      "bytes": 109327496,
+      "format": "docker-archive",
+      "config_id": "0b4481f9ad05b6c6632825f093988d120006d61cb300001753cd8e27c41a0a7f"
+    },
+    "d01b1c14c9b18f78ee1c681fcdde44f47d1eaa359c304fda003832f7ea5295bf": {
+      "file": "d01b1c14c9b18f78ee1c681fcdde44f47d1eaa359c304fda003832f7ea5295bf.oci.tar.zst",
+      "sha256": "919971a46b7bb4394da9d7a24e30674e3f875cb1f5432cc1bedecbd06195a44e",
+      "bytes": 80916019,
+      "format": "oci-archive",
+      "config_id": "d01b1c14c9b18f78ee1c681fcdde44f47d1eaa359c304fda003832f7ea5295bf"
+    },
+    "df1fdeb1827c67b9d2d2f65b2c2c40d976655049c0928665fd81252693d4a4ce": {
+      "file": "df1fdeb1827c67b9d2d2f65b2c2c40d976655049c0928665fd81252693d4a4ce.docker.tar.zst",
+      "sha256": "7c477c73554d0e149112ba1ae4e7970520552857bb3a13f1c5edfd92545d182c",
+      "bytes": 128017813,
+      "format": "docker-archive",
+      "config_id": "df1fdeb1827c67b9d2d2f65b2c2c40d976655049c0928665fd81252693d4a4ce"
+    },
+    "48ef8dad194f82973b32e7ca49093d832a620fba2a70320e3450c0eec1e8f5e6": {
+      "file": "48ef8dad194f82973b32e7ca49093d832a620fba2a70320e3450c0eec1e8f5e6.docker.tar.zst",
+      "sha256": "ba26b69092000bcd5d800b72afbebc6ab79bed0f4311358012f8e115d8232095",
+      "bytes": 87686760,
+      "format": "docker-archive",
+      "config_id": "48ef8dad194f82973b32e7ca49093d832a620fba2a70320e3450c0eec1e8f5e6"
+    },
+    "058e40bcb032ee9a42db1aa0e6bf298aa48454e534b76c410dc0b469d1a46f05": {
+      "file": "058e40bcb032ee9a42db1aa0e6bf298aa48454e534b76c410dc0b469d1a46f05.docker.tar.zst",
+      "sha256": "fb724a3cca1dbe1b485588309aa193452d0dd90a30318cbab333791b2360e188",
+      "bytes": 78032607,
+      "format": "docker-archive",
+      "config_id": "058e40bcb032ee9a42db1aa0e6bf298aa48454e534b76c410dc0b469d1a46f05"
+    },
+    "a2851bff4e965f5d00d7f7cce519d3aada1999ad23fdfde4e6206edea4227562": {
+      "file": "a2851bff4e965f5d00d7f7cce519d3aada1999ad23fdfde4e6206edea4227562.docker.tar.zst",
+      "sha256": "adbe4b8ca1527a2d441d96103e1440a3de86b77a11d1c49e722030799b20e303",
+      "bytes": 170409188,
+      "format": "docker-archive",
+      "config_id": "a2851bff4e965f5d00d7f7cce519d3aada1999ad23fdfde4e6206edea4227562"
+    },
+    "97108907737a3c7868d62bda0c6a70c08a46e0068e801c212686da12cb59de5e": {
+      "file": "97108907737a3c7868d62bda0c6a70c08a46e0068e801c212686da12cb59de5e.docker.tar.zst",
+      "sha256": "c4d1667be996fff95a8aed62f3f7dce447ae01317e3f10dbd03e527706ff6164",
+      "bytes": 81022121,
+      "format": "docker-archive",
+      "config_id": "97108907737a3c7868d62bda0c6a70c08a46e0068e801c212686da12cb59de5e"
+    },
+    "0765f0704e2b7f1fc3538908bb4b18a3085e07b76cb19d29d5d3e18ffb541d5c": {
+      "file": "0765f0704e2b7f1fc3538908bb4b18a3085e07b76cb19d29d5d3e18ffb541d5c.docker.tar.zst",
+      "sha256": "9f420d2643c4c3e8ed225805d5daca40191d06111568300466c75dec1d999456",
+      "bytes": 87669147,
+      "format": "docker-archive",
+      "config_id": "0765f0704e2b7f1fc3538908bb4b18a3085e07b76cb19d29d5d3e18ffb541d5c"
+    },
+    "dea5a6acfa09926a33e9d745c4705e2fc020cf4b4a61b6ed09fbf58938ad2ecb": {
+      "file": "dea5a6acfa09926a33e9d745c4705e2fc020cf4b4a61b6ed09fbf58938ad2ecb.docker.tar.zst",
+      "sha256": "455452395bda7a3e6799ea0bc2bd35d4854193cef0437a69158a2211e6d88898",
+      "bytes": 87983905,
+      "format": "docker-archive",
+      "config_id": "dea5a6acfa09926a33e9d745c4705e2fc020cf4b4a61b6ed09fbf58938ad2ecb"
+    },
+    "81b6c6a964c878d416bb60d7ec40d51ced82217aa2edff42934aed6bfb8fb63b": {
+      "file": "81b6c6a964c878d416bb60d7ec40d51ced82217aa2edff42934aed6bfb8fb63b.docker.tar.zst",
+      "sha256": "9c7085054f9b679d5ee76fc669700162d0e28098ba314054895b78dc213d7691",
+      "bytes": 88906626,
+      "format": "docker-archive",
+      "config_id": "81b6c6a964c878d416bb60d7ec40d51ced82217aa2edff42934aed6bfb8fb63b"
+    },
+    "7efa98d1649d577ebe20c3f98162e784a60f9df21d1a4d89804e48c14b24c49a": {
+      "file": "7efa98d1649d577ebe20c3f98162e784a60f9df21d1a4d89804e48c14b24c49a.docker.tar.zst",
+      "sha256": "41ae0fc546e22117546c32655c04730fcd631c8e3994264196cae4dabaea2dbc",
+      "bytes": 92777884,
+      "format": "docker-archive",
+      "config_id": "7efa98d1649d577ebe20c3f98162e784a60f9df21d1a4d89804e48c14b24c49a"
+    },
+    "a0e4feb33520b3ea1924c246914c84edcce3cf5bebb31855bc8dfff4aad451bc": {
+      "file": "a0e4feb33520b3ea1924c246914c84edcce3cf5bebb31855bc8dfff4aad451bc.oci.tar.zst",
+      "sha256": "2ff4427c81bd3c9362298c07516ce87b66c6eb1f6cc57f04138c14505fd89657",
+      "bytes": 130517336,
+      "format": "oci-archive",
+      "config_id": "a0e4feb33520b3ea1924c246914c84edcce3cf5bebb31855bc8dfff4aad451bc"
+    },
+    "3f60addfad2bfc6c09400aa48cfbc1b2b2aab04fb6a64d6392c016e02d7fb57b": {
+      "file": "3f60addfad2bfc6c09400aa48cfbc1b2b2aab04fb6a64d6392c016e02d7fb57b.docker.tar.zst",
+      "sha256": "eaee9369b57950c416f0d04d98d08c6a96e5d7563b72f76d57962aab4317560c",
+      "bytes": 102384375,
+      "format": "docker-archive",
+      "config_id": "3f60addfad2bfc6c09400aa48cfbc1b2b2aab04fb6a64d6392c016e02d7fb57b"
+    },
+    "47ce8258a10e28ce4b4498588c25ef77ae328f4c56cbe3e8d5dcf4f6d8019997": {
+      "file": "47ce8258a10e28ce4b4498588c25ef77ae328f4c56cbe3e8d5dcf4f6d8019997.oci.tar.zst",
+      "sha256": "3a34b874b3b768c99d151c1220b180f1acc85aa718677fa9f1f99dc2e1f7cab4",
+      "bytes": 18970654,
+      "format": "oci-archive",
+      "config_id": "47ce8258a10e28ce4b4498588c25ef77ae328f4c56cbe3e8d5dcf4f6d8019997"
+    },
+    "c8d7cd6bf08e1837180b767d77903889e0f3f022accda90579f5e99ca2a2bdfb": {
+      "file": "c8d7cd6bf08e1837180b767d77903889e0f3f022accda90579f5e99ca2a2bdfb.oci.tar.zst",
+      "sha256": "88d4a7abba1598289eddec4c68ff5564bb88dc785fcce572b741b233b5a439bf",
+      "bytes": 236223627,
+      "format": "oci-archive",
+      "config_id": "c8d7cd6bf08e1837180b767d77903889e0f3f022accda90579f5e99ca2a2bdfb"
+    },
+    "4278d7b1e3deb3193ddc803158f6532963f059fc25a2eefaee4b5a9e71741873": {
+      "file": "4278d7b1e3deb3193ddc803158f6532963f059fc25a2eefaee4b5a9e71741873.oci.tar.zst",
+      "sha256": "8dbe42801944c97bfad55b3fae14376b2560b1cd4a73204877bfe5c9efa26df5",
+      "bytes": 108655929,
+      "format": "oci-archive",
+      "config_id": "4278d7b1e3deb3193ddc803158f6532963f059fc25a2eefaee4b5a9e71741873"
+    },
+    "650ff8153447d257696648bc63a77522cf6e760145be45ce65a408a918229915": {
+      "file": "650ff8153447d257696648bc63a77522cf6e760145be45ce65a408a918229915.oci.tar.zst",
+      "sha256": "d32b325562e6a1dd30976dd8dd19d8d715e6a8e7606881e4c3ece747b0e48381",
+      "bytes": 16723539,
+      "format": "oci-archive",
+      "config_id": "650ff8153447d257696648bc63a77522cf6e760145be45ce65a408a918229915"
+    },
+    "28c5a510d7624e5ce079d2204e4d8421bc96ced83ebc2e1717d6ee33a0ccc1bb": {
+      "file": "28c5a510d7624e5ce079d2204e4d8421bc96ced83ebc2e1717d6ee33a0ccc1bb.oci.tar.zst",
+      "sha256": "bd73f7cd924510f1e346361f2e2a44f5e5eddaf15db55e422efc14bb2c279e4c",
+      "bytes": 165298439,
+      "format": "oci-archive",
+      "config_id": "28c5a510d7624e5ce079d2204e4d8421bc96ced83ebc2e1717d6ee33a0ccc1bb"
+    },
+    "094ecc9ca4ea66931822a93f1d814e059deda57f355d9416fa72f85170871cb7": {
+      "file": "094ecc9ca4ea66931822a93f1d814e059deda57f355d9416fa72f85170871cb7.oci.tar.zst",
+      "sha256": "bbe1a8aeeff96b7543bcb424d5ba8ad328d38de0f85201664080744bc02f91a6",
+      "bytes": 109100657,
+      "format": "oci-archive",
+      "config_id": "094ecc9ca4ea66931822a93f1d814e059deda57f355d9416fa72f85170871cb7"
+    },
+    "40710ae201396ad27dfd01526815d5ad83c83850e7cb16dce9f0012da66f4689": {
+      "file": "40710ae201396ad27dfd01526815d5ad83c83850e7cb16dce9f0012da66f4689.oci.tar.zst",
+      "sha256": "cc4d861deac001b614f7ef8021d420b59f86908506b0476785618b40c3b563f1",
+      "bytes": 142292635,
+      "format": "oci-archive",
+      "config_id": "40710ae201396ad27dfd01526815d5ad83c83850e7cb16dce9f0012da66f4689"
+    },
+    "5509c0097c6064aa8a3b1df58f1d950e67090fffa6678ae8f3f1dc2385f12deb": {
+      "file": "5509c0097c6064aa8a3b1df58f1d950e67090fffa6678ae8f3f1dc2385f12deb.oci.tar.zst",
+      "sha256": "625b954affeb4d2ca14b922e7d7ada7b84916c42599c43a991d30dcbe4c3e85b",
+      "bytes": 15577480,
+      "format": "oci-archive",
+      "config_id": "5509c0097c6064aa8a3b1df58f1d950e67090fffa6678ae8f3f1dc2385f12deb"
+    },
+    "1ae82dcc4a34bcd976195b3c4c5a6b7e569505527a1e2a28c2101e032159a5c7": {
+      "file": "1ae82dcc4a34bcd976195b3c4c5a6b7e569505527a1e2a28c2101e032159a5c7.oci.tar.zst",
+      "sha256": "c022f1fcc0f4a8f155f777e0ccb0e734b8b2b427dcd6445fe5e57d44cb92c974",
+      "bytes": 26340691,
+      "format": "oci-archive",
+      "config_id": "1ae82dcc4a34bcd976195b3c4c5a6b7e569505527a1e2a28c2101e032159a5c7"
+    },
+    "545fa9ea7c1946bbca7df95448b8d2d172777ad861b41599ef69a81b3b32e6d5": {
+      "file": "545fa9ea7c1946bbca7df95448b8d2d172777ad861b41599ef69a81b3b32e6d5.oci.tar.zst",
+      "sha256": "a9bb110d4d10fb143c0a7fc37d8c2d0506e88d922f4fe530173742c165e14980",
+      "bytes": 261172579,
+      "format": "oci-archive",
+      "config_id": "545fa9ea7c1946bbca7df95448b8d2d172777ad861b41599ef69a81b3b32e6d5"
+    },
+    "9b05db12a35460fff0587e009f9326e414a53e9484555547f96d214a2ba98ef7": {
+      "file": "9b05db12a35460fff0587e009f9326e414a53e9484555547f96d214a2ba98ef7.oci.tar.zst",
+      "sha256": "ae33a8cdc7877de8a8dd09919c39329f07a9861de7bc68f63d8e0ab83d4d8d1f",
+      "bytes": 139718756,
+      "format": "oci-archive",
+      "config_id": "9b05db12a35460fff0587e009f9326e414a53e9484555547f96d214a2ba98ef7"
+    },
+    "d1e21a26915a35a6eb5d820018cd55adfcda02e02f7d629e1f42df397d5494ad": {
+      "file": "d1e21a26915a35a6eb5d820018cd55adfcda02e02f7d629e1f42df397d5494ad.oci.tar.zst",
+      "sha256": "95457ad5039c48206d6a66b0f1455cf6f62799f4745110649bb0055f70d08bbe",
+      "bytes": 36136687,
+      "format": "oci-archive",
+      "config_id": "d1e21a26915a35a6eb5d820018cd55adfcda02e02f7d629e1f42df397d5494ad"
+    },
+    "a35ff1de149aeae0b1c9ecc83ab9406bd14a788cd61284e95b88b602df4a6ba3": {
+      "file": "a35ff1de149aeae0b1c9ecc83ab9406bd14a788cd61284e95b88b602df4a6ba3.docker.tar.zst",
+      "sha256": "d8da327a4fb4a10de227b65b4f922abca28a1b71aac72036a9b7bbe5c5007f48",
+      "bytes": 452070089,
+      "format": "docker-archive",
+      "config_id": "a35ff1de149aeae0b1c9ecc83ab9406bd14a788cd61284e95b88b602df4a6ba3"
+    },
+    "696695300a3c18a324c07ecb41f220e8c470302148b0378770cf5c70e6458ea0": {
+      "file": "696695300a3c18a324c07ecb41f220e8c470302148b0378770cf5c70e6458ea0.oci.tar.zst",
+      "sha256": "cb0a14fe46ea1bc71e30917b3119acec6ad8c914830f20baccb1019120847ba0",
+      "bytes": 20789910,
+      "format": "oci-archive",
+      "config_id": "696695300a3c18a324c07ecb41f220e8c470302148b0378770cf5c70e6458ea0"
+    },
+    "7999790230ec6267ae55b82ab0e8d725add734658d15a8ec7a139a6d4087b0a1": {
+      "file": "7999790230ec6267ae55b82ab0e8d725add734658d15a8ec7a139a6d4087b0a1.oci.tar.zst",
+      "sha256": "02bbc359489b24858a4321a57f7d86982c61e689bb76920fce798e77da236f84",
+      "bytes": 2449770077,
+      "format": "oci-archive",
+      "config_id": "7999790230ec6267ae55b82ab0e8d725add734658d15a8ec7a139a6d4087b0a1"
+    }
+  }
+}

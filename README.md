@@ -1,8 +1,10 @@
 # WOOW Ubuntu Version Control
 
-本專案用於管理多台 Ubuntu Homelab 主機的版本控制。每一台主機對應一個資料夾，透過 Git
-追蹤該台的安裝清單、系統 manifest、backup 快照 metadata，確保任一時間點的狀態
-都可被 AI／人重新讀取並在另一台空機上 100% 重建。
+**新設備建置請從 [x86_64 發行版安裝器](distribution/README.md) 開始。**
+它以固定來源與映像建立新的 Ubuntu／Podman／Cockpit 應用設備，不攜帶來源主機的私人資料。
+
+下方主機目錄和根目錄的 capture／restore 腳本是較早的主機快照流程，保留供歷史參考。
+它們依賴另行提供的私人備份，不代表目前整套架構已可全新重建；新安裝不要混用這兩條流程。
 
 **姊妹專案：** `WOOWTECH/Woow_ha_version_control` 針對 Home Assistant OS；本專案針對
 一般 Ubuntu Server（跑 podman + cockpit 的 homelab 底座）。

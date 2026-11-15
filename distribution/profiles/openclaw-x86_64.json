@@ -1,0 +1,16 @@
+{
+  "id": "openclaw-x86_64",
+  "release": "2026.11.15-rc1",
+  "os": "Ubuntu 24.04 LTS",
+  "architecture": "x86_64",
+  "reference_hardware": {"cpu": "Intel N100", "memory_gib": 16},
+  "minimum_free_disk_gib": 65,
+  "recommended_application_disk_gib": 100,
+  "container_runtime": "rootless Podman with systemd Quadlet",
+  "management": ["Cockpit", "WOOW applications", "WOOW services", "WOOW backup and restore", "Pi Web ingress"],
+  "applications": ["Home Assistant with WOOW preload", "Matter", "EMQX", "n8n queue", "LiteLLM", "Hermes", "OpenDesign", "Omnigent", "Nextcloud with Collabora Office", "Odoo 18 tenant cloud", "Headscale with Headplane", "code-server", "Cloudflare Tunnel GUI", "native Pi Agent"],
+  "mcp_products": ["Home Assistant", "EMQX", "Hermes", "n8n", "Odoo", "LiteLLM", "Nextcloud", "OpenDesign", "Headscale", "Kubernetes"],
+  "external_authorization_policy": "new credentials on each device; never copy source tokens",
+  "excluded": ["Immich", "test containers", "rollback containers", "source application data", "source users", "source SSH keys", "source cloud identity"],
+  "other_hardware_profiles": "not validated"
+}
