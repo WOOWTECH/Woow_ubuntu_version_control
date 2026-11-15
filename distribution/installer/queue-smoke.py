@@ -4,6 +4,7 @@ import http.cookiejar
 import json
 import os
 from pathlib import Path
+import subprocess
 import time
 import urllib.request
 import uuid
@@ -13,6 +14,17 @@ STATE = Path.home() / '.local/state/woow-release/2026.11.15-rc1'
 
 def main():
     os.umask(0o077)
+    # HTTP health is available before the external task launcher registers.
+    # Wait for actual runner registration before submitting a workflow; never
+    # hide a failed execution by retrying the same production webhook.
+    deadline = time.monotonic() + 600
+    while True:
+        proc = subprocess.run(['podman', 'logs', 'n8n-worker'], capture_output=True, text=True, timeout=30)
+        if proc.returncode == 0 and 'Registered runner "launcher-javascript"' in proc.stdout + proc.stderr:
+            break
+        if time.monotonic() >= deadline:
+            raise RuntimeError('n8n worker JavaScript launcher did not register')
+        time.sleep(5)
     account = json.loads((STATE / 'n8n-account.json').read_text())
     client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     def request(path, data=None, method=None):
@@ -35,7 +47,7 @@ def main():
         with client.open(req, timeout=120) as response:
             reply = json.load(response)
         assert reply == {'probe': marker} or reply == [{'probe': marker}], 'Code runner result mismatch'
-        report = {'owner_login': True, 'production_webhook_processor': True, 'queued_worker_and_javascript_runner': True, 'returned_unique_code_result': True}
+        report = {'owner_login': True, 'worker_launcher_registered_before_execution': True, 'production_webhook_processor': True, 'queued_worker_and_javascript_runner': True, 'returned_unique_code_result': True}
     finally:
         request('/workflows/' + ident + '/deactivate', {})
         request('/workflows/' + ident + '/archive', {})

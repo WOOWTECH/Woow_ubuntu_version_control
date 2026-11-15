@@ -7,6 +7,8 @@
 - [安裝後驗收、備份及還原流程](distribution/docs/acceptance.md)
 - [x86_64 預裝方案](distribution/profiles/openclaw-x86_64.json)
 - [2026.11.15-rc1 來源與映像版本鎖](distribution/releases/2026.11.15-rc1/lock.json)
+- [第二台 N100 的新機建置實測與限制](distribution/releases/2026.11.15-rc1/VALIDATION.md)
+- [既有設備保留資料升級](distribution/docs/existing-device-upgrades.md)
 
 本候選版包含 15 個來源提交、37 個映像與 47 個正式容器，另有原生 Pi Web 及三代理 CLI。HA 品牌映像、Odoo 等二進位安裝材料透過 WOOW 授權管道交付；公開 Git 倉庫提供程式、校驗碼、設定及說明。請指定交付的 release tag／commit，依同版驗收紀錄判讀支援範圍。
 

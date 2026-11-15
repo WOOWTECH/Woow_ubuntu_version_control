@@ -1,0 +1,1090 @@
+{
+  "before-reboot": {
+    "release": "2026.11.15-rc1",
+    "containers": {
+      "homeassistant": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "homeassistant-mcp": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "homeassistant-matter": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-emqx": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-emqx-entrance": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-valkey": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-worker": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-webhook": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-runners": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-worker-runners": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-agent": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-postgresql": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-redis": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-mcp": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-terminal": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-nginx": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-server": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-runner": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "nextcloud-app": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-db": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-redis": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-office": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-gateway": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-web": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-db": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-gateway": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headplane": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale-entrance": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "woow-cf-tunnel": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "code-server": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-cockpit-pwa": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "opendesign-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "emqx-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "k8s-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      }
+    },
+    "external_authorizations_pending": [
+      "model-providers",
+      "cloudflare-paas",
+      "ngrok",
+      "vpn-node-enrollment",
+      "external-kubernetes"
+    ],
+    "sources": {
+      "Woow_cockpit": {
+        "commit_matches": true,
+        "local_overlays": [
+          "pi-web-integration/woowtech-piweb-gateway.service",
+          "pwa-gateway/woow-cockpit-pwa.container",
+          "tests/backup/fixtures/reference-host/quadlet/code-server.container",
+          "tests/backup/fixtures/reference-host/quadlet/emqx-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/headplane.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale-entrance.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-agent.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-redis.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant-matter.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant-mcp.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant.container",
+          "tests/backup/fixtures/reference-host/quadlet/k8s-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-runners.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-valkey.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-webhook.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-worker-runners.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-worker.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-app.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-db.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-gateway.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-office.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-redis.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-db.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-gateway.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-mcp.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-nginx.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-terminal.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design.container",
+          "tests/backup/fixtures/reference-host/quadlet/opendesign-mcp-admin.container"
+        ]
+      },
+      "Woow_native_os_pi_agent": {
+        "commit_matches": true,
+        "local_overlays": []
+      },
+      "Woow_podman_homeassistant": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/homeassistant.container",
+          "quadlet/optional/homeassistant-matter.container",
+          "quadlet/optional/homeassistant-mcp.container"
+        ]
+      },
+      "Woow_podman_emqx": {
+        "commit_matches": true,
+        "local_overlays": [
+          "config/acl.conf",
+          "quadlet/emqx-entrance.container",
+          "quadlet/emqx.container"
+        ]
+      },
+      "Woow_podman_litellm": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/litellm-postgres.container",
+          "quadlet/litellm.container"
+        ]
+      },
+      "Woow_podman_hermes": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/hermes-agent.container",
+          "quadlet/hermes-postgres.container",
+          "quadlet/hermes-redis.container",
+          "systemd/hermes-provision.service"
+        ]
+      },
+      "Woow_podman_n8n": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/n8n-postgres.container",
+          "quadlet/n8n.container",
+          "quadlet/optional/n8n-runners.container",
+          "quadlet/queue/n8n-valkey.container",
+          "quadlet/queue/n8n-webhook.container",
+          "quadlet/queue/n8n-worker-runners.container",
+          "quadlet/queue/n8n-worker.container"
+        ]
+      },
+      "Woow_podman_nextcloud": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/nextcloud-app.container",
+          "quadlet/nextcloud-db.container",
+          "quadlet/nextcloud-redis.container",
+          "systemd/nextcloud-cron.service"
+        ]
+      },
+      "Woow_podman_odoo": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/odoo-db.container",
+          "quadlet/odoo.container",
+          "quadlet/optional/odoo-gateway.container",
+          "scripts/common.sh",
+          "scripts/odoo-helpers.sh"
+        ]
+      },
+      "Woow_podman_omnigent_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/omnigent-postgres.container",
+          "quadlet/omnigent-runner.container",
+          "quadlet/omnigent-server.container"
+        ]
+      },
+      "Woow_podman_opendesign": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/open-design-mcp.container",
+          "quadlet/open-design-nginx.container",
+          "quadlet/open-design-terminal.container",
+          "quadlet/open-design.container"
+        ]
+      },
+      "Woow_podman_vpn_headscale_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/headplane.container",
+          "quadlet/headscale-entrance.container",
+          "quadlet/headscale.container"
+        ]
+      },
+      "Woow_podman_code_server_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/code-server.container"
+        ]
+      },
+      "Woow_cloudflare_tunnel_webgui": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/woow-cf-tunnel.container"
+        ]
+      },
+      "Woow_podman__mcp_server": {
+        "commit_matches": true,
+        "local_overlays": []
+      }
+    },
+    "native_versions": {
+      "node": {
+        "version": "22.23.4",
+        "matches": true
+      },
+      "claude": {
+        "version": "2.1.296",
+        "matches": true
+      },
+      "codex": {
+        "version": "0.162.1",
+        "matches": true
+      },
+      "pi": {
+        "version": "1.4.0",
+        "matches": true
+      }
+    },
+    "native_startup_overlay_matches": true,
+    "platform_packages": {
+      "cockpit": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-bridge": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-networkmanager": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-packagekit": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-podman": {
+        "version": "124-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-storaged": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-system": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-ws": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "podman": {
+        "version": "4.9.3+ds1-1ubuntu0.2",
+        "matches": true
+      }
+    },
+    "maintenance": {
+      "release_packages_held": true,
+      "backup_restart_policy_matches": true,
+      "user_manager_stop_budget_matches": true
+    },
+    "native_units": {
+      "pi-web.service": true,
+      "woow-native-connection.service": true,
+      "hermes-provision.service": true,
+      "cockpit.socket": true,
+      "woowtech-piweb-gateway.service": true
+    },
+    "http": {
+      "cockpit": 200,
+      "ha": 200,
+      "emqx": 200,
+      "n8n": 200,
+      "nextcloud": 200,
+      "odoo": 200,
+      "litellm": 200,
+      "pi-web": 200
+    },
+    "passed": true
+  },
+  "after-reboot": {
+    "release": "2026.11.15-rc1",
+    "containers": {
+      "homeassistant": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "homeassistant-mcp": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "homeassistant-matter": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-emqx": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-emqx-entrance": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-valkey": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-worker": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-webhook": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-runners": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-worker-runners": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-agent": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-postgresql": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-redis": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-mcp": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-terminal": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "open-design-nginx": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-server": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-postgres": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "omnigent-runner": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "nextcloud-app": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-db": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-redis": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-office": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-gateway": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-web": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-db": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo18-gateway": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headplane": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale-entrance": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "woow-cf-tunnel": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "code-server": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "woow-cockpit-pwa": {
+        "running": true,
+        "image_matches": true,
+        "health": ""
+      },
+      "opendesign-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "emqx-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "hermes-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "n8n-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "odoo-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "litellm-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "nextcloud-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "k8s-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      },
+      "headscale-mcp-admin": {
+        "running": true,
+        "image_matches": true,
+        "health": "healthy"
+      }
+    },
+    "external_authorizations_pending": [
+      "model-providers",
+      "cloudflare-paas",
+      "ngrok",
+      "vpn-node-enrollment",
+      "external-kubernetes"
+    ],
+    "sources": {
+      "Woow_cockpit": {
+        "commit_matches": true,
+        "local_overlays": [
+          "pi-web-integration/woowtech-piweb-gateway.service",
+          "pwa-gateway/woow-cockpit-pwa.container",
+          "tests/backup/fixtures/reference-host/quadlet/code-server.container",
+          "tests/backup/fixtures/reference-host/quadlet/emqx-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/headplane.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale-entrance.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/headscale.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-agent.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/hermes-redis.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant-matter.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant-mcp.container",
+          "tests/backup/fixtures/reference-host/quadlet/homeassistant.container",
+          "tests/backup/fixtures/reference-host/quadlet/k8s-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/litellm.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-postgres.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-runners.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-valkey.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-webhook.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-worker-runners.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n-worker.container",
+          "tests/backup/fixtures/reference-host/quadlet/n8n.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-app.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-db.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-gateway.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-office.container",
+          "tests/backup/fixtures/reference-host/quadlet/nextcloud-redis.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-db.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-gateway.container",
+          "tests/backup/fixtures/reference-host/quadlet/odoo-mcp-admin.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-mcp.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-nginx.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design-terminal.container",
+          "tests/backup/fixtures/reference-host/quadlet/open-design.container",
+          "tests/backup/fixtures/reference-host/quadlet/opendesign-mcp-admin.container"
+        ]
+      },
+      "Woow_native_os_pi_agent": {
+        "commit_matches": true,
+        "local_overlays": []
+      },
+      "Woow_podman_homeassistant": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/homeassistant.container",
+          "quadlet/optional/homeassistant-matter.container",
+          "quadlet/optional/homeassistant-mcp.container"
+        ]
+      },
+      "Woow_podman_emqx": {
+        "commit_matches": true,
+        "local_overlays": [
+          "config/acl.conf",
+          "quadlet/emqx-entrance.container",
+          "quadlet/emqx.container"
+        ]
+      },
+      "Woow_podman_litellm": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/litellm-postgres.container",
+          "quadlet/litellm.container"
+        ]
+      },
+      "Woow_podman_hermes": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/hermes-agent.container",
+          "quadlet/hermes-postgres.container",
+          "quadlet/hermes-redis.container",
+          "systemd/hermes-provision.service"
+        ]
+      },
+      "Woow_podman_n8n": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/n8n-postgres.container",
+          "quadlet/n8n.container",
+          "quadlet/optional/n8n-runners.container",
+          "quadlet/queue/n8n-valkey.container",
+          "quadlet/queue/n8n-webhook.container",
+          "quadlet/queue/n8n-worker-runners.container",
+          "quadlet/queue/n8n-worker.container"
+        ]
+      },
+      "Woow_podman_nextcloud": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/nextcloud-app.container",
+          "quadlet/nextcloud-db.container",
+          "quadlet/nextcloud-redis.container",
+          "systemd/nextcloud-cron.service"
+        ]
+      },
+      "Woow_podman_odoo": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/odoo-db.container",
+          "quadlet/odoo.container",
+          "quadlet/optional/odoo-gateway.container",
+          "scripts/common.sh",
+          "scripts/odoo-helpers.sh"
+        ]
+      },
+      "Woow_podman_omnigent_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/omnigent-postgres.container",
+          "quadlet/omnigent-runner.container",
+          "quadlet/omnigent-server.container"
+        ]
+      },
+      "Woow_podman_opendesign": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/open-design-mcp.container",
+          "quadlet/open-design-nginx.container",
+          "quadlet/open-design-terminal.container",
+          "quadlet/open-design.container"
+        ]
+      },
+      "Woow_podman_vpn_headscale_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/headplane.container",
+          "quadlet/headscale-entrance.container",
+          "quadlet/headscale.container"
+        ]
+      },
+      "Woow_podman_code_server_package": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/code-server.container"
+        ]
+      },
+      "Woow_cloudflare_tunnel_webgui": {
+        "commit_matches": true,
+        "local_overlays": [
+          "quadlet/woow-cf-tunnel.container"
+        ]
+      },
+      "Woow_podman__mcp_server": {
+        "commit_matches": true,
+        "local_overlays": []
+      }
+    },
+    "native_versions": {
+      "node": {
+        "version": "22.23.4",
+        "matches": true
+      },
+      "claude": {
+        "version": "2.1.296",
+        "matches": true
+      },
+      "codex": {
+        "version": "0.162.1",
+        "matches": true
+      },
+      "pi": {
+        "version": "1.4.0",
+        "matches": true
+      }
+    },
+    "native_startup_overlay_matches": true,
+    "platform_packages": {
+      "cockpit": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-bridge": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-networkmanager": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-packagekit": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-podman": {
+        "version": "124-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-storaged": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-system": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "cockpit-ws": {
+        "version": "362-1~bpo24.04.1",
+        "matches": true
+      },
+      "podman": {
+        "version": "4.9.3+ds1-1ubuntu0.2",
+        "matches": true
+      }
+    },
+    "maintenance": {
+      "release_packages_held": true,
+      "backup_restart_policy_matches": true,
+      "user_manager_stop_budget_matches": true
+    },
+    "native_units": {
+      "pi-web.service": true,
+      "woow-native-connection.service": true,
+      "hermes-provision.service": true,
+      "cockpit.socket": true,
+      "woowtech-piweb-gateway.service": true
+    },
+    "http": {
+      "cockpit": 200,
+      "ha": 200,
+      "emqx": 200,
+      "n8n": 200,
+      "nextcloud": 200,
+      "odoo": 200,
+      "litellm": 200,
+      "pi-web": 200
+    },
+    "passed": true
+  },
+  "smoke-results": {
+    "hermes": {
+      "exit_code": 0
+    },
+    "nextcloud": {
+      "exit_code": 0
+    },
+    "odoo18": {
+      "exit_code": 0
+    },
+    "omnigent": {
+      "exit_code": 0
+    },
+    "headscale": {
+      "exit_code": 0
+    },
+    "emqx": {
+      "exit_code": 0
+    },
+    "n8n": {
+      "exit_code": 0
+    },
+    "open-design": {
+      "exit_code": 0
+    },
+    "woow-cf-tunnel": {
+      "exit_code": 0
+    },
+    "woow-code-server": {
+      "exit_code": 0
+    },
+    "homeassistant": {
+      "exit_code": 0
+    },
+    "litellm": {
+      "exit_code": 0
+    }
+  },
+  "resume-smoke": {
+    "applications": [
+      "homeassistant",
+      "emqx",
+      "litellm",
+      "n8n",
+      "nextcloud",
+      "odoo18",
+      "hermes",
+      "open-design",
+      "omnigent",
+      "headscale",
+      "woow-code-server",
+      "woow-cf-tunnel"
+    ],
+    "installer_exit_code": 0,
+    "credential_records_checked": 59,
+    "credentials_preserved": true,
+    "new_secret_count": 0
+  },
+  "local-smoke": {
+    "ha_mqtt_discovery_and_state": true,
+    "ha_mcp_tool_count": 72,
+    "pi_claude_codex_share_ha_mcp": true,
+    "external_model_called": false
+  },
+  "native-smoke": {
+    "host_connected": true,
+    "host_identity_preserved": true,
+    "engines_detected": {
+      "pi": true,
+      "claude": true,
+      "codex": true
+    },
+    "external_model_called": false,
+    "passed": true
+  },
+  "queue-smoke": {
+    "owner_login": true,
+    "worker_launcher_registered_before_execution": true,
+    "production_webhook_processor": true,
+    "queued_worker_and_javascript_runner": true,
+    "returned_unique_code_result": true,
+    "temporary_workflow_removed": true
+  },
+  "app-smoke": {
+    "nextcloud_webdav_write_read_delete": true,
+    "collabora_discovery": true,
+    "odoo_tenant_admin_login": true,
+    "office_editing_tested": false
+  },
+  "backup-smoke": {
+    "encrypted": true,
+    "deep_verify_succeeded": true,
+    "download_checksum_matches": true,
+    "download_bytes": 40960,
+    "retained_message_restored": true,
+    "safety_backup_created": true,
+    "volume_digests_match": true,
+    "health_checks_passed": true
+  },
+  "backup-catalog": {
+    "enrolled_applications": 22
+  },
+  "reboot-proof": {
+    "guest_boot_id_changed": true,
+    "physical_host_reboot_tested": false,
+    "corrected_final_reboot": true,
+    "reboot_number": 3,
+    "first_workflow_probe_failed": true,
+    "reason": "JavaScript launcher registered after HTTP health became available",
+    "recovered_without_service_restart": true,
+    "final_functional_seconds_after_boot": 1366
+  },
+  "platform": {
+    "os": "Ubuntu 24.04",
+    "architecture": "x86_64",
+    "kernel": "6.8.0-149-generic",
+    "cpu_count": 4,
+    "guest_memory_gib": 10,
+    "physical_cpu": "Intel N100",
+    "physical_memory_gib": 16,
+    "virtualized": true
+  }
+}

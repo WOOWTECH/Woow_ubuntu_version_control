@@ -1,0 +1,61 @@
+{
+  "browser-smoke": {
+    "authenticated": true,
+    "views": [
+      {
+        "width": 1440,
+        "frameFound": true,
+        "scrollWidth": 1200,
+        "viewportWidth": 1200,
+        "cards": 13,
+        "states": []
+      },
+      {
+        "width": 390,
+        "frameFound": true,
+        "scrollWidth": 390,
+        "viewportWidth": 390,
+        "cards": 13,
+        "states": []
+      }
+    ]
+  },
+  "piweb-browser": {
+    "authenticated": true,
+    "views": [
+      {
+        "theme": "light",
+        "htmlClass": "__variable_9e44ca notranslate",
+        "colorScheme": "light",
+        "background": "rgb(255, 255, 255)",
+        "width": 390,
+        "scroll": 390
+      },
+      {
+        "theme": "dark",
+        "htmlClass": "__variable_9e44ca notranslate dark",
+        "colorScheme": "dark",
+        "background": "rgb(26, 26, 26)",
+        "width": 390,
+        "scroll": 390
+      }
+    ]
+  },
+  "backup-browser": {
+    "downloaded": true,
+    "bytes": 40960,
+    "stored_archive_checksum_matches": true,
+    "views": [
+      {
+        "width": 1440,
+        "scrollWidth": 1200,
+        "viewportWidth": 1200
+      },
+      {
+        "width": 390,
+        "scrollWidth": 390,
+        "viewportWidth": 390
+      }
+    ]
+  }
+}
