@@ -6,7 +6,7 @@
 
 既有設備的目標是延續原服務的資料、帳號、密鑰、裝置配對與入口網址。這和把來源設備的私密資料複製到新設備不同。版本更新涉及資料庫遷移，不能以更換舊映像當作完整回退。
 
-目前提供只讀盤點，並已完成一台既有設備的 n8n、Home Assistant、Cloudflare Tunnel 與 Cockpit 升級實測；**本候選版尚未提供已驗收的整機原地升級命令**。各應用來源中已有專用升級／回退腳本，仍需對照設備現況、準備一致的備份，在隔離副本測試後才可用於正式切換。
+目前提供只讀盤點，並已完成一台既有設備的 n8n、Home Assistant、Nextcloud、Pi、Cloudflare Tunnel 與 Cockpit 升級實測；**本候選版尚未提供已驗收的整機原地升級命令**。各應用來源中已有專用升級／回退腳本，仍需對照設備現況、準備一致的備份，在隔離副本測試後才可用於正式切換。
 
 ```bash
 # 使用原本部署 Podman 的帳號執行；不使用 sudo 或新帳號。
@@ -39,6 +39,10 @@ python3 distribution/installer/upgrade-audit.py \
 
 此設備有 1 個使用者、0 個工作流程及 0 筆第三方憑證，不能據此宣稱已驗證含實際業務內容的遷移。既有外網入口未登入時仍回 403；保留其路由／設定，不把這視為外網授權登入驗收。這次只更新版本，queue 拓撲另行切換驗收。
 
+後續另取完整冷備份，才啟用 Valkey、worker、worker runner 與獨立 webhook processor。主程序仍接收原有 production webhook，沒有要求既有網址更換路由。原帳號、工作流程、憑證、加密金鑰及 PostgreSQL image ID 比對一致。以 n8n 官方 CLI 匯入／發布唯一的暫時測試工作流程，不猜測或重設擁有者密碼；原主入口與獨立 webhook processor 各執行一次，兩次皆由 queue／JavaScript runner 回傳唯一結果，資料庫紀錄成功，最後取消發布並移除測試內容。
+
+PostgreSQL 16 在 n8n 2.43.6 中會提示僅提供相容支援，仍保留此設備與 rc1 profile 的 16.15。這不是 PostgreSQL 跨主版本升級驗收；若要移到 17 以上，應另做 dump／restore 演練，不能直接更換資料庫映像。
+
 Nextcloud 34 系列於查核日最新維護版為 34.0.6，既有 34.0.3 應先升至此版，再升到候選版 35.0.1。[Nextcloud 官方發行目錄](https://download.nextcloud.com/server/releases/)。
 
 ## HA、Tunnel 與 Cockpit 實體升級紀錄
@@ -53,7 +57,25 @@ Cockpit 314 升至 362、Podman 插件升至 124，並安裝固定品牌版 2026
 
 版本鎖使用 `apt-mark hold` 後，dpkg 會回報 `hold ok installed`。舊 Cockpit 品牌安裝器誤認為未安裝，修正已合併至 [Woow_cockpit PR #13](https://github.com/WOOWTECH/Woow_cockpit/pull/13)，32 項安裝測試與 CI 通過。本版本的固定來源由 `installer/patch-cockpit-held-packages.py` 套用相同相容修正；仍拒絕過舊或未配置完成的套件，不解除版本鎖。
 
-以上只代表已完成的服務；Nextcloud、Pi 遷移及完整實體設備方案的後續結果須另行補齊，不能以 VM 已通過的驗收替代。私有備份、原始日誌及金鑰不放入公開倉庫。
+以上只代表各項已完成的服務；完整實體設備方案的後續結果須另行補齊，不能以 VM 已通過的驗收替代。私有備份、原始日誌及金鑰不放入公開倉庫。
+
+## Nextcloud 與 Pi 實體切換
+
+Nextcloud 的隔離副本先以完整備份完成 34.0.3 → 34.0.6 → 35.0.1，再還原為 34.0.3，確認原帳號、設定及檔案一致。正式設備分兩階段升級，每次均驗證完整冷備份的校驗碼；原帳號密碼、instance secret、資料掛載、對外連接埠及網址保留。兩階段升級與驗證分別花費 359.3、446.5 秒，不是精確 HTTP 停機時間。此設備當時只有一個使用者、零個實際使用者檔案，不能據此宣稱已完成大量既有文件遷移驗收。
+
+Pi 由舊 Podman 套件切換至固定原生套件，保留 14 份會話、原模型登入與 MCP 設定、套件清單及專案檔案。舊工作目錄絕對路徑以明確的相容 symlink 延續；複製使用 `podman unshare`，避免容器 UID 擁有的檔案遺漏。固定原生 Omnigent／Paseo 插件加入既有套件清單，不刪除原套件。既有 NPM 路由仍指向原容器名稱與連接埠，由僅位於原私有網路的相容代理，透過使用者 socket 轉到 loopback 上的原生 Pi；NPM 設定與外網路由均未更名。
+
+Pi 切換與驗證花費 86.7 秒。14 份會話與模型／MCP／專案內容雜湊一致，另核對舊工作目錄的 12 個檔案；原資料卷沒有運行中的寫入者，並另作完整壓縮備份、驗證壓縮檔與校驗碼。舊 Pi 沒有獨立網頁密碼，新版新增設備專用的 Pi Web 密碼；這不更動模型供應商登入。桌面與手機可登入，但本階段沒有對外模型對話驗收，也沒有宣稱舊設備本來不存在的 Claude／Codex 登入已完成。
+
+## 保留 Cockpit 網址的 PWA 與 Pi 入口
+
+既有 Tunnel 原本指向 Cockpit 的 `:9090`。此設備讓 PWA gateway 接手原連接埠，Cockpit backend 改為僅限 loopback 的 `:9092`，保留原 Cloudflare hostname、Tunnel 路由、Access 設定及 Linux 帳號。gateway 仍驗證 Cockpit session 與 Pi 自己的登入。區網與 VPN 使用 HTTP，外網 HTTPS 由原 Tunnel 提供。
+
+設備的 userspace VPN 沒有在 Linux interface 上配置 VPN IP。新增明確 opt-in 的 loopback forwarding，維持精確的 VPN Host／Origin 與登入檢查；既有 VPN 身分與其他轉送保留。Cockpit browser port 和 backend port 分開設定，避免 iframe policy、主題訊息誤指到內部埠。修正與安全測試已合併至 [Woow_cockpit PR #14](https://github.com/WOOWTECH/Woow_cockpit/pull/14)。這是既有設備的入口適配，不改寫原 rc1 tag 的來源鎖。
+
+區網、VPN 的滑鼠登入、Pi 操作頁、390px 排版與藍色深淺主題同步已通過。公開 HTTPS 的登入、主題與版面也通過；一般瀏覽器設定檔的測試使用 DOM 表單送出，因自動化滑鼠／鍵盤事件未送達巢狀 iframe，此限制保留在證據中。早先無痕瀏覽器的公開入口登入成功，但無痕模式不允許安裝 PWA；另以一般設定檔確認瀏覽器回報零項 PWA 安裝阻礙。後續使用獨立 Chromium 設定檔實際安裝 PWA、設定「以視窗開啟」、啟動並驗證 `display-mode: standalone` 與 Cockpit 登入；此項以 DOM 操作登入控制項。不把這些測試擴大為所有手機／瀏覽器均已實機驗收。
+
+同名映像標籤也可能對應不同內容。實測在匯入其他服務前發現原 PostgreSQL、Redis 有相同版本標籤但不同 image ID，因此先為原程序建立固定本機映像參照，避免下一次重啟意外換成另一個建置；資料庫不因新增服務而被順帶更換。
 
 ## 升級門檻與驗收
 

@@ -1,0 +1,8 @@
+{
+  "richdocuments": {
+    "version": "12.0.1",
+    "url": "https://github.com/nextcloud-releases/richdocuments/releases/download/v12.0.1/richdocuments-v12.0.1.tar.gz",
+    "sha256": "0639ab0e3413142a76334af20ca88cba0a351a11c9c07effa0f1eb7f05941f2c",
+    "nextcloud_major": 35
+  }
+}

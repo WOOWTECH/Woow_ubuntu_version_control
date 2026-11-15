@@ -17,6 +17,8 @@
 
 首次安裝仍需網路取得固定提交的公開來源、Ubuntu 套件及原生 Pi 的釘選相依軟體。這不是完全離線的 OS ISO。安裝器固定 Podman、Cockpit 及 cockpit-podman 等關鍵套件版本；完整實際 apt 套件清單另外保存在設備的 `packages.txt`。
 
+Office 外掛另外鎖在 `application-artifacts.json`：對齊來源設備的 richdocuments 12.0.1，使用官方發行封存與 SHA-256。`nextcloud-office-app.py` 檢查 Nextcloud 35 相容範圍、路徑、檔案類型及官方完整性簽章，再啟用外掛；拒絕覆蓋不同版本的既有 app。可用 `--archive /path/to/richdocuments-v12.0.1.tar.gz` 提供預先取得的相同材料，不再由 `app:enable` 自行選擇當時最新版本。這項 main 分支補充不改寫先前 rc1 tag。
+
 版本鎖中的九個 Cockpit／Podman 套件設為 apt hold，需由維護者在下一個驗收版本明確更新；其餘 Ubuntu 安全更新仍依系統原有政策執行。安裝器另讓 needrestart 跳過有限期的 `woowtech-backup-j….service` 作業，避免更新函式庫時中止正在執行的備份／還原；下一個備份作業自然使用已更新的函式庫。這不會停用系統更新，也不排除其他常駐服務。
 
 部署帳號的 systemd `user@UID.service` 關機等待時間設為 180 秒。Ubuntu 映像原本只有 5 秒，會早於 Quadlet 自己的 30–90 秒期限強制結束資料庫；不能只調容器內層的停止期限。OpenDesign 主服務另會在啟動前移除自己三個已命名的附屬容器，處理意外斷電留下的網路命名空間依賴；所有資料卷保留，不對其他容器執行 prune。

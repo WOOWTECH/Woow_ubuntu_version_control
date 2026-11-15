@@ -70,5 +70,222 @@
     "upstream_smoke_passed": true,
     "model_calls_made": false,
     "total_seconds": 122.0
+  },
+  "nextcloud": {
+    "cutover": {
+      "service": "nextcloud",
+      "physical_host": true,
+      "passed": true,
+      "phases": [
+        {
+          "version": "34.0.6",
+          "passed": true,
+          "full_backup_checksum_passed": true,
+          "original_accounts_config_and_files_preserved": true,
+          "original_listen_port_and_mounts_preserved": true,
+          "upgrade_and_validation_seconds": 359.3
+        },
+        {
+          "version": "35.0.1",
+          "passed": true,
+          "full_backup_checksum_passed": true,
+          "original_accounts_config_and_files_preserved": true,
+          "original_listen_port_and_mounts_preserved": true,
+          "upgrade_and_validation_seconds": 446.5
+        }
+      ],
+      "user_count": 1,
+      "user_file_count": 0
+    },
+    "isolated_drill": {
+      "service": "nextcloud",
+      "scope": "isolated copies after brief original cold backup",
+      "passed": true,
+      "public_ports_opened": false,
+      "network_egress_allowed": false,
+      "backup_seconds": 0.8,
+      "backup_includes_user_files": true,
+      "upgrades": [
+        {
+          "version": "34.0.6",
+          "accounts_and_passwords_preserved": true,
+          "instance_secrets_and_urls_preserved": true,
+          "user_files_preserved": true,
+          "readiness": true
+        },
+        {
+          "version": "35.0.1",
+          "accounts_and_passwords_preserved": true,
+          "instance_secrets_and_urls_preserved": true,
+          "user_files_preserved": true,
+          "readiness": true
+        }
+      ],
+      "rollback": {
+        "version": "34.0.3",
+        "readiness": true,
+        "accounts_config_and_files_restored": true
+      },
+      "original_service_version_unchanged": true,
+      "user_count": 1,
+      "user_file_count": 0
+    }
+  },
+  "pi": {
+    "service": "pi",
+    "physical_host": true,
+    "passed": true,
+    "original_sessions": 14,
+    "credentials_models_mcp_projects_and_sessions_preserved": true,
+    "original_volume_retained_for_rollback": true,
+    "original_proxy_hostname_and_port_preserved": true,
+    "original_working_directory_paths_resolve": true,
+    "independent_pi_web_login_enabled": true,
+    "proxy_reaches_native_auth": true,
+    "cutover_and_validation_seconds": 86.7,
+    "rollback_archive": {
+      "passed": true,
+      "original_working_directory_files_verified": 12,
+      "existing_home_provider_auth_files_verified": 0,
+      "original_volume_has_no_running_writer": true,
+      "complete_original_pi_volume_archive_verified": true,
+      "archive_bytes": 2846041434
+    },
+    "native_browser": {
+      "authenticated": true,
+      "views": [
+        {
+          "width": 1440,
+          "scrollWidth": 1440,
+          "bodyVisible": true
+        },
+        {
+          "width": 390,
+          "scrollWidth": 390,
+          "bodyVisible": true
+        }
+      ]
+    }
+  },
+  "cockpit_ingress": {
+    "passed": true,
+    "original_cloudflare_routes_unchanged": true,
+    "original_cockpit_port": 9090,
+    "backend_loopback_port": 9092,
+    "browser_acceptance": {
+      "public": true,
+      "lan": true,
+      "vpn": true,
+      "public_login_submission": "DOM form submission in persistent browser",
+      "public_pwa_installability_passed": true
+    },
+    "pwa_manifest": true,
+    "vpn_original_forwards_retained": true,
+    "views": {
+      "public": {
+        "mode": "public",
+        "cockpit_login": true,
+        "pi_login": true,
+        "login_submission": "DOM form submission in persistent browser",
+        "views": [
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "light",
+            "accent": "#6183fc"
+          },
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "dark",
+            "accent": "#6183fc"
+          }
+        ],
+        "pwa_manifest": true,
+        "installability": {
+          "installabilityErrors": []
+        }
+      },
+      "lan": {
+        "mode": "lan",
+        "cockpit_login": true,
+        "pi_login": true,
+        "views": [
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "light",
+            "accent": "#6183fc"
+          },
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "dark",
+            "accent": "#6183fc"
+          }
+        ],
+        "pwa_manifest": true
+      },
+      "vpn": {
+        "mode": "vpn",
+        "cockpit_login": true,
+        "pi_login": true,
+        "views": [
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "light",
+            "accent": "#6183fc"
+          },
+          {
+            "width": 390,
+            "scroll": 390,
+            "theme": "dark",
+            "accent": "#6183fc"
+          }
+        ],
+        "pwa_manifest": true
+      }
+    }
+  },
+  "n8n_queue": {
+    "adoption": {
+      "passed": true,
+      "original_editor_and_webhook_urls_preserved": true,
+      "main_still_handles_production_webhooks": true,
+      "original_accounts_workflows_credentials_and_key_preserved": true,
+      "original_postgres_image_preserved": true,
+      "cold_backup_verified": true,
+      "queue_worker_and_separate_webhook": true,
+      "upstream_smoke_passed": true,
+      "cutover_and_validation_seconds": 79.9,
+      "actual_workflow_test_pending": true
+    },
+    "functional": {
+      "passed": true,
+      "owner_password_reset": false,
+      "worker_launcher_registered_before_execution": true,
+      "verified_webhook_routes": [
+        "original-main-url",
+        "webhook-processor"
+      ],
+      "unique_code_results": true,
+      "successful_database_executions": 2,
+      "original_accounts_preserved": true,
+      "temporary_workflow_removed": true
+    },
+    "actual_workflow_test_completed": true
+  },
+  "pwa_installed": {
+    "passed": true,
+    "public_https": true,
+    "installability_errors": 0,
+    "installed": true,
+    "launched": true,
+    "standalone": true,
+    "cockpit_login": true,
+    "login_submission": "DOM login controls in installed PWA target",
+    "scope": "isolated Chromium test profile",
+    "browser_open_as_window_setting": true
   }
 }

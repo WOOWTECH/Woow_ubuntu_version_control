@@ -365,7 +365,7 @@ def office(address):
     (Path.home() / '.config/nextcloud/gateway.conf').chmod(0o644)
     run(['systemctl', '--user', 'daemon-reload'])
     run(['systemctl', '--user', 'start', 'nextcloud-office.service', 'nextcloud-gateway.service'])
-    run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'app:enable', 'richdocuments'])
+    run(['python3', ROOT / 'installer/nextcloud-office-app.py'])
     run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'config:app:set', 'richdocuments', 'wopi_url', '--value=http://' + address + ':18081'])
     run(['podman', 'exec', '--user', 'www-data', 'nextcloud-app', 'php', 'occ', 'config:app:set', 'richdocuments', 'public_wopi_url', '--value=http://' + address + ':18081'])
 
