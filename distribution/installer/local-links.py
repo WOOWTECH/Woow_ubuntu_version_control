@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import time
 import urllib.request
@@ -68,9 +69,18 @@ def main():
         if not reply.get('ok') or not reply.get('host', {}).get('connected'):
             raise SystemExit('Native Pi host is not connected to local Omnigent.')
         connected.write_text(json.dumps({'connected': True, 'server': 'http://127.0.0.1:8000', 'host_id': reply['host']['id']}) + '\n')
-        # Move host ownership to the persistent Pi Web service. A host spawned
-        # by this installation job would otherwise die with its systemd cgroup.
-        subprocess.run(['systemctl', '--user', 'restart', 'pi-web.service'], check=True)
+    # A cold boot starts 47 containers. Resume only after the local server is
+    # reachable, retry transient dependency probes, and keep the host in a
+    # persistent cgroup. Never reauthenticate from a stale password or receipt.
+    runtime = STATE / 'runtime'
+    runtime.mkdir(exist_ok=True)
+    shutil.copyfile(Path(__file__).with_name('resume-native.py'), runtime / 'resume-native.py')
+    units = Path.home() / '.config/systemd/user'
+    unit = units / 'woow-native-connection.service'
+    unit.write_text('[Unit]\nDescription=Resume the authorized local Pi Omnigent host\nWants=pi-web.service omnigent-server.service\nAfter=pi-web.service omnigent-server.service\nPartOf=pi-web.service\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/python3 %h/.local/state/woow-release/2026.11.15-rc1/runtime/resume-native.py\nTimeoutStartSec=900\nRestart=on-failure\nRestartSec=30\n\n[Install]\nWantedBy=pi-web.service\n')
+    subprocess.run(['systemctl', '--user', 'daemon-reload'], check=True)
+    subprocess.run(['systemctl', '--user', 'enable', 'woow-native-connection.service'], check=True)
+    subprocess.run(['systemctl', '--user', 'start', '--no-block', 'woow-native-connection.service'], check=True)
     report = {'ha_mqtt': 'loaded', 'shared_agent_mcp': 'woow-local-ha', 'native_omnigent_connection_preserved': connection.exists() or connected.exists(), 'external_credentials_copied': False}
     (STATE / 'local-links.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report))

@@ -477,7 +477,7 @@ def verify():
     stop_budget = subprocess.run(['systemctl', 'show', f'user@{os.getuid()}.service', '-p', 'TimeoutStopUSec', '--value'], capture_output=True, text=True)
     result['maintenance']['user_manager_stop_budget_matches'] = stop_budget.returncode == 0 and stop_budget.stdout.strip() in ('3min', '180s')
     result['native_units'] = {}
-    for unit, user in [('pi-web.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
+    for unit, user in [('pi-web.service', True), ('woow-native-connection.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
         query = subprocess.run(['systemctl', *(['--user'] if user else []), 'is-active', unit], capture_output=True, text=True)
         result['native_units'][unit] = query.returncode == 0 and query.stdout.strip() == 'active'
     for name, rec in LOCK['containers'].items():

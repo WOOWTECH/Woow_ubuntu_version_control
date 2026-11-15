@@ -73,6 +73,8 @@ OpenDesign 的 Paseo bridge 程式已包含在相同映像中，但首次安裝�
 
 原生 Pi 以新生成的 operator 帳號連到這台設備的 Omnigent，host 由持續運行的 Pi Web 服務管理。候選版對固定的 Omnigent plugin 0.3.31 加上一項明確覆寫：CLI 版本偵測由 5 秒延長為 30 秒；N100 VM 的 Pi 冷啟動曾實測超過 6 秒。覆寫會核對版本與原始程式片段，記錄變更後校驗碼，不變更登入、host 身分或模型授權判定。
 
+`woow-native-connection.service` 隨 Pi Web 啟動，等本機 Omnigent 的 HTTP 健康檢查可用後，透過插件正式 `boot` 流程恢復已授權連線，並在冷啟動偵測失敗時有限期重試。它保留 host 程序所在的 systemd cgroup；Pi Web 停止時會一同停止。沒有登入紀錄、身分不符或使用者改連其他 server 時，不會偷偷登入或覆寫連線。
+
 ## 維護者製作材料
 
 在**持有版本鎖中精確映像**且具散布授權的建置／參考設備執行：
