@@ -25,3 +25,15 @@ pgdumps/
 *.log
 *.tmp
 .DS_Store
+
+# Release code and checksums are public; binaries, machine identities and logs are not.
+__pycache__/
+*.pyc
+*.oci.tar*
+*.docker.tar*
+*.qcow2
+*.iso
+*.deb
+guest-access.json
+seed.iso
+authorized-materials/

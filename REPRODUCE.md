@@ -1,4 +1,7 @@
-# REPRODUCE — 給 AI 讀的一頁復現指南
+# 歷史備份還原流程
+
+**全新設備請使用 [distribution/README.md](distribution/README.md) 的固定版本安裝器。**
+下方流程需要既有主機的私人備份，保留供歷史還原使用；不要拿它取代 `2026.11.15-rc1` 的新機建置與驗收流程。
 
 **目標讀者：** Claude Code（或任何 AI agent）在一台**空的 Ubuntu 22.04 / 24.04** 上
 把本 repo 記錄的某台主機狀態 1:1 復刻出來。

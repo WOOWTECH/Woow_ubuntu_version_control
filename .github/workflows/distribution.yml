@@ -1,0 +1,19 @@
+name: Reproducible Ubuntu distribution
+on:
+  push:
+    paths: ['distribution/**', '.github/workflows/distribution.yml']
+  pull_request:
+    paths: ['distribution/**', '.github/workflows/distribution.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate immutable references and installer safety
+        run: python3 -m unittest discover -s distribution/tests -v
+      - name: Compile Python sources
+        run: python3 -m compileall -q distribution/installer distribution/tests
+      - name: Render installation plan without changing the runner
+        run: python3 distribution/installer/woow-release.py plan
