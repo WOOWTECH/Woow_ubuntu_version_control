@@ -1,0 +1,671 @@
+{
+  "checked_at": "2026-11-15T23:07:10.636964+00:00",
+  "new_source_repositories": 11,
+  "customer_runtime_changed_by_this_backport": false,
+  "immutable_rc1_tag_changed": false,
+  "entries": [
+    {
+      "repository": "WOOWTECH/Woow_native_os_pi_agent",
+      "pr": "https://github.com/WOOWTECH/Woow_native_os_pi_agent/pull/14",
+      "title": "Recover authorized local Omnigent hosts after cold boot",
+      "scope": "new-backport",
+      "head_tested": "3746d8692fd68bfc4f8f58a6bba68712d058a368",
+      "merge_commit": "91800299ca6b5f408746ddf59e02b8f7b8645262",
+      "main_at_check": "91800299ca6b5f408746ddf59e02b8f7b8645262",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T23:05:52Z",
+      "checks": [
+        {
+          "name": "recovery-and-plugin",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_native_os_pi_agent/actions/runs/43772722423/job/132992014804"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_code_server_package",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_code_server_package/pull/26",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "b470c140a41c2ab7f5c0e82153773a0d50937b9e",
+      "merge_commit": "89e6648c023fa569b37b5bef8442c3acdb91c5f7",
+      "main_at_check": "89e6648c023fa569b37b5bef8442c3acdb91c5f7",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:46:38Z",
+      "checks": [
+        {
+          "name": "50 projects and runtime regressions",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933416/job/132986460257"
+        },
+        {
+          "name": "build (amd64)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933466/job/132986460625"
+        },
+        {
+          "name": "connectors",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933396/job/132986460152"
+        },
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933468/job/132986460172"
+        },
+        {
+          "name": "converge-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933474/job/132986460281"
+        },
+        {
+          "name": "build (arm64)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933466/job/132986460516"
+        },
+        {
+          "name": "release-assets",
+          "status": "COMPLETED",
+          "conclusion": "SKIPPED",
+          "url": "https://github.com/WOOWTECH/Woow_podman_code_server_package/actions/runs/43770933466/job/132986623254"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_emqx",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_emqx/pull/10",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "c3f6dde37da8296acd4d1bdb7f82aac14a43065e",
+      "merge_commit": "37db768f121eecd795002e79230bad24fa61d086",
+      "main_at_check": "37db768f121eecd795002e79230bad24fa61d086",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:55:46Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_emqx/actions/runs/43771525687/job/132988271608"
+        },
+        {
+          "name": "lint",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_emqx/actions/runs/43771525681/job/132988271628"
+        },
+        {
+          "name": "rollback-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_emqx/actions/runs/43771525710/job/132988271750"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_hermes",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_hermes/pull/16",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "7ffee3af5edf183721c262bdfb948fd933da4d22",
+      "merge_commit": "3ac874c027c89bf5e4e712c6c575c291ae824978",
+      "main_at_check": "3ac874c027c89bf5e4e712c6c575c291ae824978",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:46:49Z",
+      "checks": [
+        {
+          "name": "Check for cross-repo pollution",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_hermes/actions/runs/43770948273/job/132986505427"
+        },
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_hermes/actions/runs/43770948302/job/132986505442"
+        },
+        {
+          "name": "lint",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_hermes/actions/runs/43770948210/job/132986505151"
+        },
+        {
+          "name": "rollback-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_hermes/actions/runs/43770948227/job/132986505219"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_homeassistant",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_homeassistant/pull/8",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "38cef2946808ede3141c6758df261ca7cce475db",
+      "merge_commit": "5dc80184662edc30e1d4841728d7429e439efe32",
+      "main_at_check": "5dc80184662edc30e1d4841728d7429e439efe32",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T23:01:38Z",
+      "checks": [
+        {
+          "name": "seed-and-install",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_homeassistant/actions/runs/43772115360/job/132990106776"
+        },
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_homeassistant/actions/runs/43772115343/job/132990106837"
+        },
+        {
+          "name": "scripts",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_homeassistant/actions/runs/43772115297/job/132990106697"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_immich",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_immich/pull/7",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "ec3b07c4d0ba1ee1831193a07921b78ba6da88dd",
+      "merge_commit": "8a48e653ca52b0b8972a588cead758371144cd65",
+      "main_at_check": "8a48e653ca52b0b8972a588cead758371144cd65",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:55:50Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_immich/actions/runs/43771532875/job/132988293642"
+        },
+        {
+          "name": "rollback-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_immich/actions/runs/43771532800/job/132988293739"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_litellm",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_litellm/pull/7",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "8bc79419899b7686f16a5359615ee7492e06095f",
+      "merge_commit": "b088f1f140b47d229741460e4a6538d69a9e6918",
+      "main_at_check": "b088f1f140b47d229741460e4a6538d69a9e6918",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:46:27Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_litellm/actions/runs/43770917149/job/132986411489"
+        },
+        {
+          "name": "static",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_litellm/actions/runs/43770917156/job/132986411401"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_nextcloud",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_nextcloud/pull/9",
+      "title": "Backport Nextcloud 35 maintenance and optional Office deployment",
+      "scope": "new-backport",
+      "head_tested": "46b73e7bf098e3b80d5e0b5e972da67d05ed920b",
+      "merge_commit": "ca9fc79942c10ec80bec5a514ccada30a7a3bdb1",
+      "main_at_check": "ca9fc79942c10ec80bec5a514ccada30a7a3bdb1",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T23:05:59Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_nextcloud/actions/runs/43772751949/job/132992100194"
+        },
+        {
+          "name": "rollback-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_nextcloud/actions/runs/43772751993/job/132992100433"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_odoo",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_odoo/pull/10",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "349cbbe99cd9b08437847e23cd493530362aea04",
+      "merge_commit": "138d10cd2d763a03ca52269771651667035c147f",
+      "main_at_check": "138d10cd2d763a03ca52269771651667035c147f",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T23:01:32Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_odoo/actions/runs/43772087004/job/132990016825"
+        },
+        {
+          "name": "lint",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_odoo/actions/runs/43772086997/job/132990016770"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_omnigent_package",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/pull/14",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "6b38e871d708826ffc64a903087518aec0ae213b",
+      "merge_commit": "431759826c6e6ea25579b05051de102699e54229",
+      "main_at_check": "431759826c6e6ea25579b05051de102699e54229",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:46:43Z",
+      "checks": [
+        {
+          "name": "build (amd64)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/actions/runs/43770939868/job/132986479974"
+        },
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/actions/runs/43770939956/job/132986480233"
+        },
+        {
+          "name": "converge-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/actions/runs/43770939889/job/132986480604"
+        },
+        {
+          "name": "build (arm64)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/actions/runs/43770939868/job/132986480246"
+        },
+        {
+          "name": "manifest",
+          "status": "COMPLETED",
+          "conclusion": "SKIPPED",
+          "url": "https://github.com/WOOWTECH/Woow_podman_omnigent_package/actions/runs/43770939868/job/132986622157"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_opendesign",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_opendesign/pull/16",
+      "title": "Fix N100 deployment startup and recovery",
+      "scope": "new-backport",
+      "head_tested": "16a51a86968a8353e54be4d7563330957a5f89b8",
+      "merge_commit": "c19af6cc1323e4f3d1dd9ee9bb494a4779c42332",
+      "main_at_check": "c19af6cc1323e4f3d1dd9ee9bb494a4779c42332",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T22:46:32Z",
+      "checks": [
+        {
+          "name": "Check for cross-repo pollution",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_opendesign/actions/runs/43770925194/job/132986434996"
+        },
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_opendesign/actions/runs/43770925090/job/132986434666"
+        },
+        {
+          "name": "lint",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_opendesign/actions/runs/43770925183/job/132986434927"
+        },
+        {
+          "name": "image",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_opendesign/actions/runs/43770925183/job/132986435225"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_cockpit",
+      "pr": "https://github.com/WOOWTECH/Woow_cockpit/pull/13",
+      "title": "Fix branding installation on version-held Cockpit packages",
+      "scope": "previously-merged",
+      "head_tested": "926a95389d2eb57d4a7691f11abd6b258304e49c",
+      "merge_commit": "98647b082d37d53ce88264d2cb51888eaa0c2006",
+      "main_at_check": "c393dfbc79eacd26224c3f42e2d0d8b41de2f2f5",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T08:44:27Z",
+      "checks": [
+        {
+          "name": "validate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_cockpit/actions/runs/43695600234/job/132755303569"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_cockpit",
+      "pr": "https://github.com/WOOWTECH/Woow_cockpit/pull/14",
+      "title": "Support Pi ingress on userspace VPNs while preserving browser URLs",
+      "scope": "previously-merged",
+      "head_tested": "77de7287f98c9cb6cc7c2e9acd73f9ab8f0f6085",
+      "merge_commit": "73aef7a618bbf7733f6e8994fa3582a41b1d3b44",
+      "main_at_check": "c393dfbc79eacd26224c3f42e2d0d8b41de2f2f5",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T09:50:55Z",
+      "checks": [
+        {
+          "name": "validate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_cockpit/actions/runs/43700147609/job/132769290339"
+        },
+        {
+          "name": "validate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_cockpit/actions/runs/43700147611/job/132769290406"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_cockpit",
+      "pr": "https://github.com/WOOWTECH/Woow_cockpit/pull/15",
+      "title": "\u300c\u5099\u4efd\u8207\u9084\u539f\u300d\u79fb\u5230\u300c\u5de5\u5177\u300d\u7fa4\u7d44\uff0c\u653e\u5728\u300c\u61c9\u7528\u8edf\u9ad4\u300d\u4e0b\u9762",
+      "scope": "previously-merged",
+      "head_tested": "9a2713f75adda34922e518f71d92e8e46dc80895",
+      "merge_commit": "c393dfbc79eacd26224c3f42e2d0d8b41de2f2f5",
+      "main_at_check": "c393dfbc79eacd26224c3f42e2d0d8b41de2f2f5",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T11:29:37Z",
+      "checks": [
+        {
+          "name": "validate",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_cockpit/actions/runs/43708779795/job/132795598179"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/Woow_podman_nextcloud",
+      "pr": "https://github.com/WOOWTECH/Woow_podman_nextcloud/pull/8",
+      "title": "Preserve config in backups of rootless UID-owned deployments",
+      "scope": "previously-merged",
+      "head_tested": "50200e240034e692500f31b6d286034b222ce271",
+      "merge_commit": "3da3618d351e4debdb2a80152759759cace061e2",
+      "main_at_check": "ca9fc79942c10ec80bec5a514ccada30a7a3bdb1",
+      "contained_in_main": true,
+      "merged_at": "2026-11-15T10:48:58Z",
+      "checks": [
+        {
+          "name": "quadlet",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_nextcloud/actions/runs/43705764728/job/132786370771"
+        },
+        {
+          "name": "rollback-model",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/Woow_podman_nextcloud/actions/runs/43705764733/job/132786370515"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/pi-omnigent-plugin",
+      "pr": "https://github.com/WOOWTECH/pi-omnigent-plugin/pull/29",
+      "title": "\u6162\u7684\u677f\u5b50\u958b\u6a5f\u5f8c\u4e0d\u518d\u628a\u5df2\u88dd\u7684 Omnigent \u7576\u6210\u6c92\u88dd\uff1a\u7248\u672c\u67e5\u8a62\u8207\u62ff\u9396\u6539\u7b49 30 \u79d2",
+      "scope": "previously-merged",
+      "head_tested": "4e6db7f2c020dd18f9083be3b9ffdd4ec9215355",
+      "merge_commit": "3a58bb4057bf1ad9ffa5654f4c8058c98e2a2889",
+      "main_at_check": "2bfdd7d302b075ddfbcdbd1ff1d8cf656d1d145a",
+      "contained_in_main": true,
+      "merged_at": "2026-11-10T01:54:05Z",
+      "checks": [
+        {
+          "name": "test (22.19.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514652"
+        },
+        {
+          "name": "test (22.19.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240873"
+        },
+        {
+          "name": "test (22.23.3)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514595"
+        },
+        {
+          "name": "test (22.23.3)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240832"
+        },
+        {
+          "name": "server-contract (server 0.16.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514739"
+        },
+        {
+          "name": "server-contract (server 0.16.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240586"
+        },
+        {
+          "name": "server-contract (server 0.19.1)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514295"
+        },
+        {
+          "name": "server-contract (server 0.19.1)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240711"
+        },
+        {
+          "name": "native-ui",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514584"
+        },
+        {
+          "name": "native-ui",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240523"
+        },
+        {
+          "name": "combined-ui (0.1.13)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514783"
+        },
+        {
+          "name": "combined-ui (0.1.13)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240852"
+        },
+        {
+          "name": "combined-ui (0.1.14)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514493"
+        },
+        {
+          "name": "combined-ui (0.1.14)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240735"
+        },
+        {
+          "name": "combined-ui (0.1.15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42725081882/job/129528514795"
+        },
+        {
+          "name": "combined-ui (0.1.15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42724999477/job/129528240922"
+        }
+      ]
+    },
+    {
+      "repository": "WOOWTECH/pi-omnigent-plugin",
+      "pr": "https://github.com/WOOWTECH/pi-omnigent-plugin/pull/30",
+      "title": "Release v0.3.32\uff1a\u6162\u7684\u677f\u5b50\u958b\u6a5f\u5f8c\u4e0d\u518d\u628a\u5df2\u88dd\u7684 Omnigent \u7576\u6210\u6c92\u88dd",
+      "scope": "previously-merged",
+      "head_tested": "246bb9651f22300065c599e53018bf27427e70ed",
+      "merge_commit": "2bfdd7d302b075ddfbcdbd1ff1d8cf656d1d145a",
+      "main_at_check": "2bfdd7d302b075ddfbcdbd1ff1d8cf656d1d145a",
+      "contained_in_main": true,
+      "merged_at": "2026-11-10T02:02:27Z",
+      "checks": [
+        {
+          "name": "test (22.19.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832423"
+        },
+        {
+          "name": "test (22.19.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806319"
+        },
+        {
+          "name": "test (22.23.3)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832136"
+        },
+        {
+          "name": "test (22.23.3)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806248"
+        },
+        {
+          "name": "server-contract (server 0.16.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832411"
+        },
+        {
+          "name": "server-contract (server 0.16.0)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806413"
+        },
+        {
+          "name": "server-contract (server 0.19.1)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832356"
+        },
+        {
+          "name": "server-contract (server 0.19.1)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806227"
+        },
+        {
+          "name": "native-ui",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832480"
+        },
+        {
+          "name": "native-ui",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806084"
+        },
+        {
+          "name": "combined-ui (0.1.13)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832624"
+        },
+        {
+          "name": "combined-ui (0.1.13)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806333"
+        },
+        {
+          "name": "combined-ui (0.1.14)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832453"
+        },
+        {
+          "name": "combined-ui (0.1.14)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575806262"
+        },
+        {
+          "name": "combined-ui (0.1.15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739212069/job/129575832562"
+        },
+        {
+          "name": "combined-ui (0.1.15)",
+          "status": "COMPLETED",
+          "conclusion": "SUCCESS",
+          "url": "https://github.com/WOOWTECH/pi-omnigent-plugin/actions/runs/42739205237/job/129575805778"
+        }
+      ]
+    }
+  ],
+  "validation_notes": [
+    "The upstream plugin installer/resume suites passed 63 tests. Its timing-sensitive competing-process lock test failed once in a concurrent run; all 7 lock tests passed in isolation. No plugin runtime or test source was changed by this audit.",
+    "Native macOS wheel resolution and a second physical reboot of the consolidated latest source were not performed. Historical physical evidence remains under releases/2026.11.15-rc1/evidence/physical-reboot.json."
+  ]
+}
