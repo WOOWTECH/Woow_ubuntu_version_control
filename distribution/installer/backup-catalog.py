@@ -26,6 +26,21 @@ def main():
             records.append({'id': app['id'], 'result': 'invalid', 'field': app.get('field')})
             continue
         entry = app['entry']
+        if app['id'] == 'emqx':
+            # /readyz is intentionally private to the container namespace.
+            # A host probe sees Podman's translated address and is denied.
+            # Use the host-reachable entrance check; the release drill also
+            # verifies an authenticated MQTT read after actual data restore.
+            for check in entry.get('health', []):
+                if check.get('url') == 'http://127.0.0.1:18083/readyz':
+                    check['url'] = 'http://127.0.0.1:18083/healthz'
+        if app['id'] == 'homeassistant':
+            for check in entry.get('health', []):
+                if check.get('url') == 'http://127.0.0.1:9584/mcp':
+                    # Streamable HTTP MCP accepts POST, not a health-check GET.
+                    # 405 is its expected GET response; local-smoke.py tests
+                    # actual initialize/tools/list separately.
+                    check['expect_status'] = 405
         # Keep the default cold snapshot: no inference about a database role's
         # permissions, active writers or logical-restore semantics.
         preview = call('catalog-install', {'entry': entry})

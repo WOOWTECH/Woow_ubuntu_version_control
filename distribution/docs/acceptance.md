@@ -38,6 +38,8 @@ python3 distribution/installer/backup-smoke.py --confirm-isolated-device
 
 演練會建立測試 retained 訊息、加密備份、深度校驗、讀取可下載檔案的校驗碼，再改變訊息並還原備份，確認舊值恢復；還原引擎須保留安全備份。測試後移除臨時 MQTT 訊息。測試用 Mosquitto 映像由 EMQX 的完整 smoke suite 先取得。
 
+EMQX 入口的 `/readyz` 只允許容器內的 loopback 請求；主機備份程序會被拒絕，因此目錄中的 HTTP 檢查使用 `/healthz`，而演練另以已授權的 MQTT 真實讀寫確認 broker。HTTP 入口成功不代表 MQTT 授權已就緒。Mosquitto 2.0.22 甚至可能在發布遭拒時仍回傳退出碼 0，所以演練使用 MQTT 5、檢查錯誤輸出、有限期重試，並要求訂閱讀回的值完全相同。HA MCP 的 GET `/mcp` 預期回傳 405，實際協定連線由 `local-smoke.py` 另行驗證。
+
 交付時讓設備管理員到 Cockpit「備份與還原」下載並妥善保存緊急金鑰。不要把緊急金鑰、備份內容、帳密檔案或原始日誌提交至公開 GitHub。
 
 ## 重開機與重新執行

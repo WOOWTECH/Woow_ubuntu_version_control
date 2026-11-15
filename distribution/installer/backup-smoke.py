@@ -50,10 +50,32 @@ def main():
         for tool in ('mosquitto_pub', 'mosquitto_sub'):
             Path(directory, tool).write_text('-u woow\n-P ' + password + '\n')
         def mqtt(tool, *args):
-            return subprocess.check_output(['podman', 'run', '--rm', '--pull=never', '--network=host', '-e', 'XDG_CONFIG_HOME=/cfg', '-v', directory + ':/cfg:ro', CLIENT, tool, '-h', '127.0.0.1', '-t', topic, *args], timeout=60, text=True).strip()
+            # The entrance can serve HTTP before EMQX opens its MQTT listener.
+            # Require a real broker response after the cold restart, within a
+            # bounded startup budget. Repeated retained writes are idempotent.
+            deadline = time.monotonic() + 120
+            while True:
+                result = subprocess.run(['podman', 'run', '--rm', '--pull=never', '--network=host', '-e', 'XDG_CONFIG_HOME=/cfg', '-v', directory + ':/cfg:ro', CLIENT, tool, '-V', 'mqttv5', '-h', '127.0.0.1', '-t', topic, *args], timeout=60, text=True, capture_output=True)
+                # Mosquitto 2.0.22 can exit zero after a rejected PUBACK or
+                # SUBACK. MQTT 5 exposes that rejection on stderr. Never
+                # mistake a successful process exit for a successful write.
+                if result.returncode == 0 and not result.stderr.strip():
+                    return result.stdout.strip()
+                if time.monotonic() >= deadline:
+                    raise RuntimeError('MQTT operation failed after the restart deadline; exit code ' + str(result.returncode))
+                time.sleep(3)
+        def expect(value):
+            deadline = time.monotonic() + 30
+            while True:
+                actual = mqtt('mosquitto_sub', '-C', '1', '-W', '20')
+                if actual == value:
+                    return
+                if time.monotonic() >= deadline:
+                    raise AssertionError('Retained test message did not match ' + value)
+                time.sleep(2)
         try:
             mqtt('mosquitto_pub', '-q', '1', '-r', '-m', 'before-backup')
-            assert mqtt('mosquitto_sub', '-C', '1', '-W', '20') == 'before-backup'
+            expect('before-backup')
             backup = job('backup-start', {'apps': apps, 'include_images': False, 'note': 'Isolated release acceptance drill', 'encrypt': True})
             backup_id = backup['backup_id']
             verified = job('verify-start', {'backup_id': backup_id})
@@ -63,9 +85,9 @@ def main():
             actual = subprocess.check_output(['sudo', 'sha256sum', download['path']], text=True).split()[0]
             assert actual == expected
             mqtt('mosquitto_pub', '-q', '1', '-r', '-m', 'after-backup')
-            assert mqtt('mosquitto_sub', '-C', '1', '-W', '20') == 'after-backup'
+            expect('after-backup')
             restored = job('restore-start', {'backup_id': backup_id, 'apps': apps, 'confirm': True})
-            assert mqtt('mosquitto_sub', '-C', '1', '-W', '20') == 'before-backup'
+            expect('before-backup')
             report = {'backup_id': backup_id, 'encrypted': True, 'deep_verify_succeeded': True, 'download_checksum_matches': True, 'download_bytes': download['size'], 'retained_message_restored': True, 'safety_backup_id': restored.get('safety_backup_id'), 'restored': restored}
             (catalog.STATE / 'backup-smoke.json').write_text(json.dumps(report, indent=2) + '\n')
             print(json.dumps({k: v for k, v in report.items() if k != 'restored'}))

@@ -98,10 +98,12 @@ def preflight():
     print('Preflight passed: Ubuntu 24.04 x86_64, fresh or managed installation.', flush=True)
 
 def platform_install():
+    run(['sudo', 'install', '-D', '-m', '0644', ROOT / 'overlays/needrestart-woow-release.conf', '/etc/needrestart/conf.d/woow-release.conf'])
     run(['sudo', 'apt-get', 'update'])
     packages = ['podman', 'uidmap', 'slirp4netns', 'fuse-overlayfs', 'dbus-user-session', 'git', 'curl', 'jq', 'openssl', 'zstd', 'age', 'rsync', 'python3', 'python3-venv', 'nodejs', 'npm', 'build-essential', 'tmux', 'xz-utils', 'unzip', 'iproute2']
     run(['sudo', 'apt-get', 'install', '-y', *packages])
     run(['sudo', 'apt-get', 'install', '-y', *[k + '=' + v for k, v in LOCK['platform_packages'].items()]])
+    run(['sudo', 'apt-mark', 'hold', *LOCK['platform_packages']])
     run(['sudo', 'loginctl', 'enable-linger', output(['id', '-un'])])
     run(['systemctl', '--user', 'start', 'podman.socket'])
     run(['systemctl', '--user', 'enable', 'podman.socket'])
@@ -450,6 +452,12 @@ def verify():
     for package, expected in LOCK['platform_packages'].items():
         query = subprocess.run(['dpkg-query', '-W', '-f=${Version}', package], capture_output=True, text=True)
         result['platform_packages'][package] = {'version': query.stdout.strip(), 'matches': query.returncode == 0 and query.stdout.strip() == expected}
+    holds = subprocess.run(['apt-mark', 'showhold'], capture_output=True, text=True)
+    policy = Path('/etc/needrestart/conf.d/woow-release.conf')
+    result['maintenance'] = {
+        'release_packages_held': holds.returncode == 0 and set(LOCK['platform_packages']).issubset(holds.stdout.splitlines()),
+        'backup_restart_policy_matches': policy.is_file() and digest(policy) == digest(ROOT / 'overlays/needrestart-woow-release.conf'),
+    }
     result['native_units'] = {}
     for unit, user in [('pi-web.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
         query = subprocess.run(['systemctl', *(['--user'] if user else []), 'is-active', unit], capture_output=True, text=True)
@@ -470,6 +478,7 @@ def verify():
             result['http'][name] = type(e).__name__
     result['passed'] = all(c.get('running') and c.get('image_matches') and c.get('health') not in ('unhealthy', 'starting') for c in result['containers'].values()) and all(v == 200 for v in result['http'].values()) and all(p['matches'] for p in result['platform_packages'].values()) and all(result['native_units'].values())
     result['passed'] = result['passed'] and all(s['commit_matches'] for s in result['sources'].values()) and all(v['matches'] for v in result['native_versions'].values())
+    result['passed'] = result['passed'] and all(result['maintenance'].values())
     save_json(STATE / 'verification.json', result)
     print(json.dumps(result, indent=2))
     return result['passed']

@@ -4,6 +4,8 @@
 
 第一個候選版是 `2026.11.15-rc1`。來源為 woowtechopenclaw 的正式服務組合，排除 Immich、測試容器、舊回退容器及私人登入。驗收狀態以同版 `releases/` 目錄中的紀錄為準；版本清單本身不是驗收通過的證明。
 
+參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)。
+
 ## 安裝材料
 
 需要兩部分：
@@ -14,6 +16,8 @@
 安裝器驗證封存校驗碼，再確認載入後的 image config ID 與版本鎖相同。`manifest_digest` 是來源映像的 manifest digest；`id` 是 image config digest，兩者不可混用。OCI 匯出可能改變 manifest 的序列化／壓縮；封存本身另有 SHA-256。公開映像的線上來源以 registry digest 鎖定。匯入後使用本機 release 別名與 `Pull=never`；每次驗收再比對實際容器的 image config ID，不依賴匯出時可能改變的 registry manifest。`materials.json` 的校驗碼也必須符合本 Git release 內的可信索引。
 
 首次安裝仍需網路取得固定提交的公開來源、Ubuntu 套件及原生 Pi 的釘選相依軟體。這不是完全離線的 OS ISO。安裝器固定 Podman、Cockpit 及 cockpit-podman 等關鍵套件版本；完整實際 apt 套件清單另外保存在設備的 `packages.txt`。
+
+版本鎖中的九個 Cockpit／Podman 套件設為 apt hold，需由維護者在下一個驗收版本明確更新；其餘 Ubuntu 安全更新仍依系統原有政策執行。安裝器另讓 needrestart 跳過有限期的 `woowtech-backup-j….service` 作業，避免更新函式庫時中止正在執行的備份／還原；下一個備份作業自然使用已更新的函式庫。這不會停用系統更新，也不排除其他常駐服務。
 
 ## 新設備安裝
 
@@ -76,6 +80,8 @@ python3 distribution/installer/export-materials.py \
 ```
 
 `--all` 同時封存公開映像；本候選版的完整映像材料為 37 個檔案、約 11.4 GiB。匯出工具依來源格式保留 Docker／OCI 設定，另外讀取封存內的 config JSON，確認其 SHA-256 沒有改變。這個工具只讀取映像並執行 `podman save`，不匯出容器、資料卷、使用者家目錄或 Podman secrets。材料與其索引透過授權管道一起交付，接收方須使用可信的 Git release commit。不要以 `podman commit` 把現用容器轉成發行映像。
+
+重製封存不保證壓縮後逐位元相同；交付本版時應保留已核對的 37 份原材料。若重新匯出的檔案 SHA-256 不同，須審查並發行新的材料索引／版本，不可叫接收方跳過驗證或自行修改可信索引。
 
 ## 首次操作
 
