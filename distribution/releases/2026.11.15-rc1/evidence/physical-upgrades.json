@@ -314,5 +314,16 @@
     "archive_mode": "0600",
     "container_uid_owned_directory_supported": true,
     "service_restarted": false
+  },
+  "nextcloud_office_document": {
+    "passed": true,
+    "temporary_user_browser_login": true,
+    "office_document_open_edit_save": true,
+    "downloaded_docx_contains_typed_marker": true,
+    "temporary_user_and_files_removed": true,
+    "original_user_count": 1,
+    "access_mode": "existing LAN HTTP URL",
+    "vpn_office_editing_tested": false,
+    "download_bytes": 5175
   }
 }

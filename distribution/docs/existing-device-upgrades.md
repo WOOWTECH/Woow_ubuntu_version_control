@@ -67,7 +67,7 @@ Pi 由舊 Podman 套件切換至固定原生套件，保留 14 份會話、原�
 
 Pi 切換與驗證花費 86.7 秒。14 份會話與模型／MCP／專案內容雜湊一致，另核對舊工作目錄的 12 個檔案；原資料卷沒有運行中的寫入者，並另作完整壓縮備份、驗證壓縮檔與校驗碼。舊套件的健康檢查 timer 原本執行 `podman healthcheck run pi-web`，遷移後該名稱是無容器健康探針的相容代理，會產生 exit 125；已保留原 30 秒週期、改查原生 Pi HTTP 端點並驗證成功，不因此重啟 Pi。舊 Pi 沒有獨立網頁密碼，新版新增設備專用的 Pi Web 密碼；這不更動模型供應商登入。桌面與手機可登入，但本階段沒有對外模型對話驗收，也沒有宣稱舊設備本來不存在的 Claude／Codex 登入已完成。
 
-Office 另外使用固定 richdocuments 12.0.1 官方封存、SHA-256 與 app 完整性驗證啟用，Collabora discovery／capabilities 已通過。原 Nextcloud `:18080` 由 gateway 延續，app 本身移到 loopback 的 `:18082`。原帳號、掛載與網址比對一致；實際文件編輯結果另列，不能以 discovery 成功代替文件儲存驗收。
+Office 另外使用固定 richdocuments 12.0.1 官方封存、SHA-256 與 app 完整性驗證啟用，Collabora discovery／capabilities 已通過。原 Nextcloud `:18080` 由 gateway 延續，app 本身移到 loopback 的 `:18082`。原帳號、掛載與網址比對一致。另以暫時帳號經原區網入口開啟 DOCX，在 Collabora 內輸入唯一識別字並儲存，下載 DOCX 後解析 Word XML 的文字節點，確認完整內容已寫入；最後刪除測試帳號及檔案，使用者數恢復為原本的一位。Office 的 VPN 文件編輯仍未驗收。
 
 備份時另發現 UID 33 擁有、0700 的 HTML 目錄，讓主機使用者的 `-d html/config` 誤判設定不存在。完整冷備份的 `html.tgz` 仍含設定，但一般備份可能漏掉獨立的 `config.tgz`。修正已合併至 [Nextcloud PR #8](https://github.com/WOOWTECH/Woow_podman_nextcloud/pull/8)：目錄檢查與封存均在 Podman user namespace 內執行，設定無法讀取時直接失敗，封存權限設為 0600。真實 UID 權限測試與 CI 通過，實體設備另比對原 `config.php` 和封存內容雜湊一致。`patch-nextcloud-backup.py` 將同一修正套入固定來源，既有補丁可重複呼叫，不改寫 rc1 tag 或共用 Quadlet library。
 
@@ -105,3 +105,21 @@ Office 另外使用固定 richdocuments 12.0.1 官方封存、SHA-256 與 app �
 | `Woow_cloudflare_tunnel_webgui` | `scripts/upgrade.sh --prepare-only` 與 `swap`：獨立 watchdog、連線／路由 gate、觀察與回退 | 既有 CF 授權及對外網址、SSH 恢復、資料格式相容性 |
 
 最終升級紀錄應另外列出每個服務的舊／新版本、備份校驗、回退演練、實際中斷秒數及資料驗證結果；新 VM 的安裝驗收不能替代這份紀錄。
+
+## Nextcloud Text 的既有資料相容修正
+
+此設備經 34.0.6 升至固定的 35.0.1 後，文字編輯 session API 回報 `lastAttachmentCleanup is not a valid attribute`。34.0.6 內附 Text 8.0.1 已建立 `last_attachment_cleanup`，但 35.0.1 內附的 Text 9.0.0 不認識此欄位。這不是使用者文件損壞；不可刪除欄位來隱藏錯誤，也不可裝回只支援 Core 34 的 Text 8。
+
+官方 35.0.3 封存中內附、支援 Core 35 的簽章 Text 9.0.2 可用來修正這條既有升級路徑。`application-artifacts.json` 固定其官方封存 URL 與 SHA-256；以下命令只驗證、擷取 app，不變更運行中的服務，也不把 Core 映像改為 35.0.3：
+
+```bash
+curl -fL --retry 3 -o nextcloud-35.0.3.tar.bz2 \
+  https://download.nextcloud.com/server/releases/nextcloud-35.0.3.tar.bz2
+python3 distribution/installer/prepare-nextcloud-text.py \
+  --server-archive nextcloud-35.0.3.tar.bz2 \
+  --output nextcloud-text-9.0.2.tar.gz
+```
+
+套用前須完成包含 DB、HTML、使用者檔案、config 與密鑰的冷備份並驗證校驗碼；停止 cron、啟用維護模式後，以已驗證的官方 app 替換原 Text，執行 `occ integrity:check-app text` 與 `occ upgrade --no-interaction`。不得手動刪改資料庫欄位。重新啟動 app 清除 PHP opcode cache，恢復 cron，核對原帳號／instance key／網址，並以瀏覽器編輯及 WebDAV 讀回驗收。失敗時以同一份完整 HTML＋DB 備份恢復，不能只換回舊 app 程式。
+
+這是既有設備的可選修正，並未改寫 rc1 的 Core image ID 或歷史 tag。實體功能驗收結果以證據檔為準。
