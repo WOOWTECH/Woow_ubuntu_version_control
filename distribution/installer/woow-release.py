@@ -252,6 +252,20 @@ def patch_first_boot():
     rule = '{allow, {username, "woow"}, all, ["homeassistant/#"]}.\n'
     if rule not in acl.read_text():
         acl.write_text(rule + acl.read_text())
+    # Starting a second Erlang VM for every `emqx ctl status` probe exceeded
+    # its 10s budget during a full cold boot, even after printing "is started".
+    # Use the same local node-status endpoint as the existing entrance probe.
+    # Functional MQTT authorization/read/write is checked separately.
+    broker = SOURCES / 'Woow_podman_emqx/quadlet/emqx.container'
+    text = broker.read_text()
+    text = text.replace('HealthCmd=emqx ctl status', 'HealthCmd=curl -fsS --max-time 8 -o /dev/null http://127.0.0.1:18093/status')
+    broker.write_text(text)
+    # All application stacks share an N100. The Hermes gateway took >300s
+    # during cold boot; provisioning must wait for it instead of failing once.
+    provision = SOURCES / 'Woow_podman_hermes/systemd/hermes-provision.service'
+    text = provision.read_text().replace('woow-provision --wait 300', 'woow-provision --wait 900')
+    text = text.replace('TimeoutStartSec=420', 'TimeoutStartSec=1020')
+    provision.write_text(text)
     # A running Nextcloud container may still be copying cron.php and creating
     # its database. Skip the timer until installation finishes, rather than
     # failing the entire initial install because the file is not there yet.
@@ -477,15 +491,21 @@ def verify():
     stop_budget = subprocess.run(['systemctl', 'show', f'user@{os.getuid()}.service', '-p', 'TimeoutStopUSec', '--value'], capture_output=True, text=True)
     result['maintenance']['user_manager_stop_budget_matches'] = stop_budget.returncode == 0 and stop_budget.stdout.strip() in ('3min', '180s')
     result['native_units'] = {}
-    for unit, user in [('pi-web.service', True), ('woow-native-connection.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
+    for unit, user in [('pi-web.service', True), ('woow-native-connection.service', True), ('hermes-provision.service', True), ('cockpit.socket', False), ('woowtech-piweb-gateway.service', False)]:
         query = subprocess.run(['systemctl', *(['--user'] if user else []), 'is-active', unit], capture_output=True, text=True)
         result['native_units'][unit] = query.returncode == 0 and query.stdout.strip() == 'active'
+    # A single read avoids 47 Podman startup/lock cycles under cold-boot load.
+    # Podman may still return records for existing names when another is absent.
+    proc = subprocess.run(['podman', 'inspect', *LOCK['containers']], capture_output=True, text=True)
+    try:
+        inspected = {c['Name'].lstrip('/'): c for c in json.loads(proc.stdout)}
+    except (ValueError, TypeError, KeyError):
+        inspected = {}
     for name, rec in LOCK['containers'].items():
-        proc = subprocess.run(['podman', 'inspect', name], capture_output=True, text=True)
-        if proc.returncode:
+        c = inspected.get(name)
+        if c is None:
             result['containers'][name] = {'status': 'missing'}
             continue
-        c = json.loads(proc.stdout)[0]
         result['containers'][name] = {'running': c['State']['Running'], 'image_matches': c['Image'].removeprefix('sha256:') == rec['image_id'], 'health': c['State'].get('Health', {}).get('Status', 'not-declared')}
     result['http'] = {}
     for name, url in {'cockpit': 'http://127.0.0.1:9090/ping', 'ha': 'http://127.0.0.1:8123/', 'emqx': 'http://127.0.0.1:18083/', 'n8n': 'http://127.0.0.1:15678/healthz', 'nextcloud': 'http://127.0.0.1:18081/status.php', 'odoo': 'http://127.0.0.1:18080/web/login', 'litellm': 'http://127.0.0.1:4000/health/liveliness', 'pi-web': 'http://127.0.0.1:30141/'}.items():
