@@ -2,7 +2,24 @@
 
 這是既有主機的可選第二個管理入口。WOOW 與 Apporo 連到**同一份 Cockpit、Podman 應用、備份引擎及原生 Pi**；新增的是入口與品牌呈現。它不建立第二組 47 個應用容器，也不提供租戶隔離。從任一入口執行的服務、備份或 Pi 操作，都作用於同一台設備及相同資料。
 
-目前為整合草稿：本 distribution 的共同材料仍釘在 `73871247139a054de07c2e4275a6108aa2cd5bb0`，尚未更新為包含 `parallel-ingress/manage.py` 的最終 Cockpit 提交。下列介面已與 Cockpit 主代理確認；正式安裝須等共同材料鎖更新、來源驗證及 Cockpit 驗收完成。現有 pin 缺少該入口時，wrapper 會在呼叫 sudo 前拒絕。文件與單元測試不代表已在實體主機部署。
+Apporo 並行入口已完成下列參考主機實測。[Cockpit PR19](https://github.com/WOOWTECH/Woow_cockpit/pull/19) 已推送至 `b561633`；2026-11-17 此輪交接時仍待 CI 與合併。本 distribution 的共同材料仍釘在 `73871247139a054de07c2e4275a6108aa2cd5bb0`，須等最終已合併的 commit／tree 才更新。現有 pin 缺少 `parallel-ingress/manage.py` 時，wrapper 仍會在呼叫 sudo 前拒絕；PR head 不當成正式 source pin。
+
+## 已完成的參考主機驗收
+
+以下為 Cockpit 主代理在 2026-11-17 提供的實機與測試結果；來源與範圍另見 [PR19 說明](https://github.com/WOOWTECH/Woow_cockpit/pull/19)：
+
+| 項目 | 此輪結果 |
+| --- | --- |
+| Apporo Pi Web | 實際對話、助理回覆與 SSE 串流通過 |
+| 品牌主題 | Apporo Pi 主題切換通過 |
+| 應用及服務頁 | 讀到 13 張應用卡片、312 項服務及 49 個容器狀態 |
+| 備份排程 UI | 實際排程表單操作通過 |
+| 來源產物與共同後端 | 記錄 93 項 rendered assets、25 項 common backend 檔案 |
+| Root config 與入口測試 | root ownership／祖先目錄條件已實作；27 項入口測試通過 |
+
+服務／容器數是該參考主機當次 UI 查詢結果，不改變本 distribution 的 rc1 47-container profile，也不代表新增了 49 個容器。排程表單操作通過不延伸宣稱所有應用都已完成真實備份還原。
+
+**外部 Cloudflare OTP／Access 尚未驗收。** public-origin 的本機鏈路測試與實際 UI 操作不代表通過外部 OTP；原 Access policy 仍是獨立授權層，此功能不會移除或繞過它。最終 CI、合併來源及 distro 材料 pin 另行記錄。
 
 ## 選擇正確的流程
 
@@ -25,7 +42,7 @@ flowchart LR
 
 ## Config 與主機責任
 
-Cockpit root installer 的設定約定為 `/etc/cockpit/parallel-ingress-config/<instance>.json` 下的 root-owned JSON，`schema` 為 1。設定檔必須是一般檔案，檔案及各層祖先目錄均由 root 擁有，不可經過 symlink，也不可讓 group／other 寫入。只把一般帳號家目錄裡的 JSON 改成 root owner，仍不符合祖先目錄條件。root installer 負責執行這些檢查；最終來源合併後須核對其實作與驗收證據。
+Cockpit root installer 的設定約定為 `/etc/cockpit/parallel-ingress-config/<instance>.json` 下的 root-owned JSON，`schema` 為 1。設定檔必須是一般檔案，檔案及各層祖先目錄均由 root 擁有，不可經過 symlink，也不可讓 group／other 寫入。只把一般帳號家目錄裡的 JSON 改成 root owner，仍不符合祖先目錄條件。root installer 已實作這些檢查，結果列於上方驗收紀錄。
 
 設定不包含密碼、Token、Cookie、Linux 登入或 Podman secrets；既有帳號、服務擁有者及授權繼續使用。以最終固定來源中的 schema／範例及 `plan --config` 驗證設定，wrapper 不複製另一套 config validator。
 
@@ -62,7 +79,7 @@ Cockpit `Origins` 以新增允許 origin 的方式處理，保留原 WOOW origin
 python3 distribution/installer/parallel-ingress.py plan
 ```
 
-這個 `plan` 僅輸出來源選擇，明確標示 `scope: source-selection`、`instance_validated: false` 及 `runtime_verified: false`。其中 source 的 ready／release_eligible 沿用材料選擇語義，不代表 parallel CLI 存在、instance 設定有效、backend parity 通過或主機已完成驗收。它不解析 Cockpit `plan` 的 JSON，避免上游 metadata 尚未定稿時建立錯誤依賴。
+這個 `plan` 僅輸出來源選擇，明確標示 `scope: source-selection`、`instance_validated: false` 及 `runtime_verified: false`。其中 source 的 ready／release_eligible 沿用材料選擇語義，不代表 parallel CLI 存在、instance 設定有效、backend parity 通過或執行計畫的設備已完成驗收。它不解析 Cockpit `plan` 的 JSON，不依賴上游報告欄位。
 
 正式來源與 instance config 就緒後，wrapper 的介面如下；這些是設備操作指令，本次文件與測試工作沒有執行它們：
 
@@ -95,8 +112,8 @@ config 以絕對路徑原樣傳遞，root 擁有權、祖先目錄／symlink 檢
 合併交接應包含：
 
 1. 最終 Cockpit SHA／tree／main ancestry、root config schema、plan／verify／rollback 的實際結果及限制。
-2. 同一組後端在 WOOW 與 Apporo 入口的管理、登入、備份與 Pi 功能證據；不以僅 HTTP 200 代替功能驗證。
+2. 將上方已完成的 Apporo UI／Pi／排程驗收與最終來源對照，附上兩品牌回歸及後續驗收結果與範圍。
 3. 原 WOOW origin、全域品牌、既有 service owners、應用映像／資料／Secrets、Pi upstream 及原網路設定的保留結果。
 4. instance 重跑、失敗恢復與 rollback，以及 public 相容別名和一般 LAN／VPN 路徑的隔離結果。
 
-本 distribution 的本機檢查僅使用臨時 Git fixtures 與 mock root CLI：確認只讀來源計畫、production pin、來源漂移拒絕、原全域 receipt 保留、CLI 參數／退出碼與缺少 installer 時停止。測試不執行主機 sudo、Podman 或 systemctl；Cockpit 的實際入口與瀏覽器驗收仍由主代理提供。
+本 distribution 的本機檢查使用臨時 Git fixtures 與 mock root CLI：確認只讀來源計畫、production pin、來源漂移拒絕、原全域 receipt 保留、CLI 參數／退出碼、lock symlink 保護與缺少 installer 時停止，共 60 項測試通過。這些測試不執行主機 sudo、Podman 或 systemctl；Cockpit 主代理提供的實機驗收另列於上方。
