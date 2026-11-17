@@ -196,6 +196,52 @@ class BrandMaterialSafety(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'origin'):
             brands.source_check(self.source, selected)
 
+    def test_source_check_rejects_wrong_commit_and_tree(self):
+        selected = self.select('apporo', local_source=self.source, development=True)
+        for key in ('commit', 'tree'):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'commit/tree'):
+                brands.source_check(self.source, {**selected, key: '0' * 40})
+
+    def test_production_pinned_main_must_itself_be_on_upstream_main(self):
+        selected = self.select('apporo', material_lock=self.lock)
+        git(self.source, 'remote', 'add', 'origin', brands.COCKPIT_REPOSITORY)
+        git(self.source, 'update-ref', 'refs/remotes/origin/main', self.source_commit)
+        (self.source / 'not-merged.txt').write_text('not yet on main')
+        unmerged_main = commit(self.source)
+        git(self.source, 'checkout', '--detach', self.source_commit)
+        # The source is an ancestor of this claimed main, but that claimed main
+        # is not an ancestor of the fetched upstream main. Both gates matter.
+        with self.assertRaisesRegex(ValueError, 'provenance'):
+            brands.source_check(self.source, {**selected, 'main_commit': unmerged_main})
+
+    def test_parallel_ingress_entrypoint_cannot_be_added_or_modified_as_an_overlay(self):
+        manager = self.source / 'parallel-ingress/manage.py'
+        manager.parent.mkdir()
+        manager.write_text('# pinned parallel ingress fixture\n')
+        commit(self.source)
+        selected = self.select('apporo', local_source=self.source, development=True)
+        staged = brands.prepare_source(self.state, selected)
+        (staged / 'parallel-ingress/manage.py').write_text('# unexpected root installer change\n')
+        with self.assertRaisesRegex(ValueError, 'source drift'):
+            brands.prepare_source(self.state, selected)
+        with self.assertRaisesRegex(ValueError, 'Unapproved'):
+            brands.receipt_for(selected, staged, 'applied')
+        # Even an exact checksum cannot authorize a new privileged entrypoint.
+        with self.assertRaisesRegex(ValueError, 'Unapproved'):
+            brands.source_check(staged, selected,
+                                {'parallel-ingress/manage.py': brands.sha256(staged / 'parallel-ingress/manage.py')})
+        self.assertEqual(manager.read_text(), '# pinned parallel ingress fixture\n')
+        self.assertEqual(git(self.source, 'status', '--porcelain'), '')
+
+    def test_untracked_parallel_installer_in_staging_is_rejected(self):
+        selected = self.select('apporo', local_source=self.source, development=True)
+        staged = brands.prepare_source(self.state, selected)
+        manager = staged / 'parallel-ingress/manage.py'
+        manager.parent.mkdir()
+        manager.write_text('# not in the material commit\n')
+        with self.assertRaisesRegex(ValueError, 'source drift'):
+            brands.prepare_source(self.state, selected)
+
     def test_bad_receipt_fails_closed(self):
         self.state.mkdir()
         (self.state / 'brand.json').write_text('{"brand":"apporo"}')

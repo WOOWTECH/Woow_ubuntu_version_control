@@ -4,6 +4,8 @@
 
 兩份 profile 已共同預設 [2026.11.17-dual-brand.json](2026.11.17-dual-brand.json)。Cockpit 功能來源為 `73871247139a054de07c2e4275a6108aa2cd5bb0`，包含 [PR16 排程備份](https://github.com/WOOWTECH/Woow_cockpit/pull/16) 與 [PR17 雙品牌](https://github.com/WOOWTECH/Woow_cockpit/pull/17)，兩品牌使用同一 renderer、素材介面、備份引擎、PWA 與 Pi gateway。預設 WOOW 與 Apporo 的 plan 都選擇 production 來源。
 
+可選的[Apporo 並行入口](../docs/parallel-brand-ingress.md)另有獨立 wrapper 與 staging，不更新主要 `brand.json`。目前等待包含該功能的最終 Cockpit pin；本材料鎖仍是上述來源，不代表並行入口已可正式安裝。
+
 ## 介面
 
 ```bash
