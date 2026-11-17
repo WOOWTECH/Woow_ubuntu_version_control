@@ -2,7 +2,9 @@
 
 新版 main 採用 **base_rc1 + common brand layer**。woowtech／apporo 共用同一個整機引擎、硬體方案、47 個容器、映像內容鎖、服務 ID、資料路徑及 Secret 名稱，兩份品牌 profile 必須預設同一個新 Cockpit 材料鎖／commit／tree。woowtech 仍是首次安裝預設品牌；兩品牌使用相同 UI engine 與功能提交。此目錄不取代或修改歷史 rc1 的 lock/materials/tag；精確重現舊版請在獨立 checkout 使用 `v2026.11.15-rc1` 及該版文件。
 
-兩份 profile 已共同預設 [2026.11.17-dual-brand.json](2026.11.17-dual-brand.json)。Cockpit 功能來源為 `73871247139a054de07c2e4275a6108aa2cd5bb0`，包含 [PR16 排程備份](https://github.com/WOOWTECH/Woow_cockpit/pull/16) 與 [PR17 雙品牌](https://github.com/WOOWTECH/Woow_cockpit/pull/17)，兩品牌使用同一 renderer、素材介面、備份引擎、PWA 與 Pi gateway。預設 WOOW 與 Apporo 的 plan 都選擇 production 來源。
+兩份 profile 已共同預設 [2026.11.17-dual-brand.json](2026.11.17-dual-brand.json)。Cockpit 功能來源為 `13e95399bbce924cf9e1ed96a92b39a31db51fae`，包含 [PR16 排程備份](https://github.com/WOOWTECH/Woow_cockpit/pull/16)、[PR17 雙品牌](https://github.com/WOOWTECH/Woow_cockpit/pull/17) 與 [PR19 並行入口](https://github.com/WOOWTECH/Woow_cockpit/pull/19)，兩品牌使用同一 renderer、素材介面、備份引擎、PWA 與 Pi gateway。預設 WOOW 與 Apporo 的 plan 都選擇 production 來源。
+
+可選的[Apporo 並行入口](../docs/parallel-brand-ingress.md)使用獨立 wrapper 與 staging，不更新主要 `brand.json`。共同後端、實機 UI／Pi／排程頁及入口回退已有驗收結果；[新外網入口待完成項目](../docs/parallel-brand-ingress.md#驗證範圍與待完成項目)另列。本材料鎖已固定合併至 main 的 PR19 來源，包含並行入口 installer。
 
 ## 介面
 
@@ -39,9 +41,9 @@ python3 distribution/installer/woow-release.py brand --brand apporo \
   "brands": ["woowtech", "apporo"],
   "cockpit": {
     "repository": "https://github.com/WOOWTECH/Woow_cockpit.git",
-    "commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
-    "tree": "d85fb2ca56c8d14f602ff80da8ba3e58d8d1fbbb",
-    "main_commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
+    "commit": "13e95399bbce924cf9e1ed96a92b39a31db51fae",
+    "tree": "170b3dd3b61ae6ce3154ac71a8bf78ca04eed533",
+    "main_commit": "13e95399bbce924cf9e1ed96a92b39a31db51fae",
     "interface_version": 1
   }
 }
@@ -49,7 +51,7 @@ python3 distribution/installer/woow-release.py brand --brand apporo \
 
 同一份鎖必須支援兩品牌；Git tree 同時釘選程式與素材。安裝器檢查：基底鎖一致、JSON 未偏離本倉庫 HEAD 的已提交內容、來源 repository 固定、完整 commit/tree 一致，且來源 commit 是已釘選 main commit 的祖先，後者仍在取得的上游 `origin/main` 中。未合併 PR 可以使用明確開發模式驗證，不能藉手寫 lock 變成正式材料。
 
-PR17 CI 的合併測試 commit `f871421da0fb391a61eae46794feb5fd2bd487ee` 與上述 main commit 的 tree 完全相同，已由 GitHub commit API 核對。主代理提供的該輪結果為 1056 項 Python 測試、每品牌 79 項備份 UI，以及兩品牌 PWA／服務／Pi 測試通過；另外以整合來源完成隔離 apporo → woowtech → apporo 切換，涵蓋新增 timer units 落檔與 manage verify。這些證據涵蓋合併後的排程功能；後續 docs-only PR18 不改本功能 pin。
+PR19 已合併至上述 main commit／tree，最終 CI 通過 1088 項 Python 測試（含 32 項部署測試）、13 項 Pi 測試、每品牌 79 項備份 UI 情境與兩品牌 PWA fixtures。實機 UI、Pi／SSE、主題及入口安裝／回退已完成驗收；範圍與外網限制見 [Cockpit 驗收紀錄](https://github.com/WOOWTECH/Woow_cockpit/blob/13e95399bbce924cf9e1ed96a92b39a31db51fae/docs/parallel-ingress-validation-20261117.md) 與[並行入口說明](../docs/parallel-brand-ingress.md#驗證範圍與待完成項目)。
 
 ```bash
 sha256sum distribution/releases/2026.11.15-rc1/lock.json

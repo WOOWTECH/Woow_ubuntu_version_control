@@ -5,9 +5,9 @@
   "brands": ["woowtech", "apporo"],
   "cockpit": {
     "repository": "https://github.com/WOOWTECH/Woow_cockpit.git",
-    "commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
-    "tree": "d85fb2ca56c8d14f602ff80da8ba3e58d8d1fbbb",
-    "main_commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
+    "commit": "13e95399bbce924cf9e1ed96a92b39a31db51fae",
+    "tree": "170b3dd3b61ae6ce3154ac71a8bf78ca04eed533",
+    "main_commit": "13e95399bbce924cf9e1ed96a92b39a31db51fae",
     "interface_version": 1
   }
 }
