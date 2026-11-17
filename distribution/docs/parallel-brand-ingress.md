@@ -25,7 +25,9 @@ flowchart LR
 
 ## Config 與主機責任
 
-Cockpit root installer 接受 root 擁有的 JSON，schema 為 1。設定不包含密碼、Token、Cookie、Linux 登入或 Podman secrets；既有帳號、服務擁有者及授權繼續使用。以最終固定來源中的 schema／範例及 `plan` 驗證設定，wrapper 不複製另一套 config validator。
+Cockpit root installer 的設定約定為 `/etc/cockpit/parallel-ingress-config/<instance>.json` 下的 root-owned JSON，`schema` 為 1。設定檔必須是一般檔案，檔案及各層祖先目錄均由 root 擁有，不可經過 symlink，也不可讓 group／other 寫入。只把一般帳號家目錄裡的 JSON 改成 root owner，仍不符合祖先目錄條件。root installer 負責執行這些檢查；最終來源合併後須核對其實作與驗收證據。
+
+設定不包含密碼、Token、Cookie、Linux 登入或 Podman secrets；既有帳號、服務擁有者及授權繼續使用。以最終固定來源中的 schema／範例及 `plan --config` 驗證設定，wrapper 不複製另一套 config validator。
 
 | 欄位／用途 | 此次介面約定 | 說明 |
 | --- | --- | --- |
@@ -34,7 +36,7 @@ Cockpit root installer 接受 root 擁有的 JSON，schema 為 1。設定不包�
 | `brand` | `apporo` | 此入口的呈現，不改全域品牌 |
 | `owner` | `woowtechopenclaw` | 範例主機原有的 rootless Podman owner；新主機須依現況填寫 |
 | `public_origin` | `https://apporo.example.test` | 該設備已配置的 HTTPS origin；範例網域不可直接用於正式入口 |
-| `listen_port` | `29092` | 此 instance 的主要入口埠 |
+| `listen_port` | `29092` | 此 instance 的主要入口埠；目前 renderer 綁定 `127.0.0.1` |
 | `compatibility_port` | `18000`，可省略 | public 相容別名；不是第二份應用，也不應作為 LAN／VPN 的廣泛別名 |
 | `pi_public_port` | `19096` | 此 instance 的 public Pi gateway |
 | `pi_local_port` | `19097` | 此 instance 的 local Pi gateway |
@@ -45,7 +47,7 @@ Cockpit root installer 接受 root 擁有的 JSON，schema 為 1。設定不包�
 
 上表是介面交接，不是可直接安裝的 JSON。這份 rc1 鎖的 PWA nginx 來源 reference 是 `docker.io/nginxinc/nginx-unprivileged@sha256:5aea7cc516b419e3526f47dd1531be31a56a046cfe44754d94f9383e13e2ee99`；image config ID 是 `sha256:696695300a3c18a324c07ecb41f220e8c470302148b0378770cf5c70e6458ea0`。兩者不同，不能互換。最終入口 config 的映像仍須符合 Cockpit installer 支援的格式與已審查材料，不藉此改寫 rc1 的既有 PWA image alias。
 
-設定與產物由 Cockpit root installer 管理，root 檔案放在 `/etc/cockpit/parallel-ingress/<instance>/releases/...`。Apporo 使用者 Quadlet 沿用 `apporo-cockpit-pwa` 名稱，以支援既有樣板入口的原地更新；兩個 Pi gateway 是分開的 root systemd units。精確檔案清單、unit 名稱及 transaction journal 以最終來源的 plan／verify 為準。
+輸入 JSON 放在 `/etc/cockpit/parallel-ingress-config/`；產物由 Cockpit root installer 放在 `/etc/cockpit/parallel-ingress/<instance>/releases/...`。Apporo 使用者 Quadlet 沿用 `apporo-cockpit-pwa` 名稱，以支援既有樣板入口的原地更新；兩個 Pi gateway 是分開的 root systemd units。精確檔案清單、unit 名稱及 transaction journal 以最終來源的 plan／verify 為準。
 
 安裝前，Cockpit installer 嚴格比對主機已安裝的管理 helper／engine bytes 與固定來源；不一致時拒絕部署。不能靠這個 wrapper 順帶升級共享後端，也不能為繞過 parity 檢查而全域切成 Apporo。共享後端同步應另按 Cockpit 的維護流程處理並保留主入口品牌。
 
@@ -66,22 +68,23 @@ python3 distribution/installer/parallel-ingress.py plan
 
 ```bash
 python3 distribution/installer/parallel-ingress.py install \
-  --config /etc/cockpit/parallel-ingress/apporo.json
+  --config /etc/cockpit/parallel-ingress-config/apporo.json
 python3 distribution/installer/parallel-ingress.py verify --instance apporo
 python3 distribution/installer/parallel-ingress.py rollback --instance apporo
 ```
 
 wrapper 透過 `brand_profile.select()` 選擇固定來源，再由 `prepare_source()` 複製、fetch 並驗證。staging 位於 `~/.local/state/woow-release/2026.11.15-rc1/parallel-ingress/branding/production/<commit>/`；不讀寫其上層主要安裝的 `brand.json`，也不建立假的 `device.json`。wrapper 沒有全域品牌切換、應用初始化、帳號 bootstrap 或資料卷操作。
 
-install／verify／rollback 會準備並驗證來源，因此可能建立上述 staging 及讀取上游 Git；plan 才是完全不建 state 的來源查詢。wrapper 不以 root 執行整體流程，只在確認來源後將動作交給固定的 Cockpit CLI，例如：
+install／verify／rollback 會準備並驗證來源，因此可能建立上述 staging 及讀取上游 Git；wrapper 的 plan 才是完全不建 state 的來源查詢。Cockpit 自己的 `plan --config` 另會驗證 instance 設定與已安裝後端，不等同於 wrapper 的來源 plan。wrapper 不以 root 執行整體流程，只在確認來源後將動作交給固定的 Cockpit CLI。以下 `<pinnedCockpit>` 必須是已通過 provenance 驗證的 staging：
 
 ```text
-sudo env PYTHONDONTWRITEBYTECODE=1 python3 <pinnedCockpit>/parallel-ingress/manage.py install --config /path/instance.json
+sudo env PYTHONDONTWRITEBYTECODE=1 python3 <pinnedCockpit>/parallel-ingress/manage.py plan --config /etc/cockpit/parallel-ingress-config/apporo.json
+sudo env PYTHONDONTWRITEBYTECODE=1 python3 <pinnedCockpit>/parallel-ingress/manage.py install --config /etc/cockpit/parallel-ingress-config/apporo.json
 sudo env PYTHONDONTWRITEBYTECODE=1 python3 <pinnedCockpit>/parallel-ingress/manage.py verify --instance apporo
 sudo env PYTHONDONTWRITEBYTECODE=1 python3 <pinnedCockpit>/parallel-ingress/manage.py rollback --instance apporo
 ```
 
-config 以絕對路徑原樣傳遞，root 擁有權、schema、連接埠、後端 parity、交易與錯誤由 Cockpit CLI 負責。其非零退出碼會保留；失敗時不自動切品牌或退回未鎖定來源。rollback 作用於該 instance 的入口交易，不能當成應用資料、備份排程或全域品牌的回退工具；可回復範圍以該交易 journal 為準。
+config 以絕對路徑原樣傳遞，root 擁有權、祖先目錄／symlink 檢查、schema、連接埠、後端 parity、交易與錯誤由 Cockpit CLI 負責。其非零退出碼會保留；失敗時不自動切品牌或退回未鎖定來源。rollback 作用於該 instance 的入口交易，不能當成應用資料、備份排程或全域品牌的回退工具；可回復範圍以該交易 journal 為準。
 
 ## 最終 pin 與驗證交接
 

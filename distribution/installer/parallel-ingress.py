@@ -29,7 +29,8 @@ def delegate(action, selection, config=None, instance=None):
     if os.getuid() == 0:
         raise ValueError('Run the distribution wrapper as the deployment owner; it invokes sudo for Cockpit')
     STATE.mkdir(mode=0o700, parents=True, exist_ok=True)
-    with (STATE / 'source.lock').open('w') as guard:
+    fd = os.open(STATE / 'source.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'r+') as guard:
         try:
             fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
@@ -48,7 +49,8 @@ def main():
     actions = parser.add_subparsers(dest='action', required=True)
     actions.add_parser('plan', help='Read-only source selection; does not validate an instance or contact the host')
     install = actions.add_parser('install', help='Stage verified source and delegate to the Cockpit root installer')
-    install.add_argument('--config', type=Path, required=True, help='Absolute path to the root-owned instance JSON')
+    install.add_argument('--config', type=Path, required=True,
+                         help='Root-owned JSON under /etc/cockpit/parallel-ingress-config; ancestors must not be writable by non-root')
     for action in ('verify', 'rollback'):
         command = actions.add_parser(action)
         command.add_argument('--instance', required=True, help='Instance name understood by the Cockpit root CLI')

@@ -66,7 +66,7 @@ class ParallelIngressBoundary(unittest.TestCase):
 
     def test_install_verify_and_rollback_only_delegate_to_the_verified_source(self):
         selection = ingress.select_source()
-        for action, extra in (('install', ['--config', '/etc/cockpit/parallel-ingress/apporo.json']),
+        for action, extra in (('install', ['--config', '/etc/cockpit/parallel-ingress-config/apporo.json']),
                               ('verify', ['--instance', 'apporo']), ('rollback', ['--instance', 'apporo'])):
             with self.subTest(action=action), \
                     patch.object(ingress, 'select_source', return_value=selection), \
@@ -148,6 +148,17 @@ class ParallelIngressBoundary(unittest.TestCase):
                 patch.object(ingress.brands, 'prepare_source') as stage, self.assertRaisesRegex(ValueError, 'Another parallel'):
             ingress.delegate('verify', selection, instance='apporo')
         stage.assert_not_called()
+
+    def test_source_lock_symlink_cannot_truncate_primary_receipt(self):
+        selection = ingress.select_source()
+        self.state.mkdir()
+        (self.state / 'source.lock').symlink_to(self.primary)
+        with patch.object(ingress.brands, 'prepare_source', return_value=self.repo) as stage, \
+                patch.object(ingress.subprocess, 'run') as command, self.assertRaises(OSError):
+            ingress.delegate('verify', selection, instance='apporo')
+        stage.assert_not_called()
+        command.assert_not_called()
+        self.assertEqual(self.primary.read_bytes(), self.original)
 
 
 if __name__ == '__main__':
