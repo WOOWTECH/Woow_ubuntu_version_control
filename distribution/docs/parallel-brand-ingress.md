@@ -70,6 +70,8 @@ ssh -N -L 127.0.0.1:29092:127.0.0.1:29092 operator@appliance.example.test
 | --- | --- |
 | 產物與後端 | 94 個受 receipt 管理的檔案、25 個共同後端檔案核對 |
 | Apporo UI | 13 張應用卡片、311 項服務、49 個容器狀態與實際排程頁通過 |
+| Apporo PWA 實機 | 安裝條件、瀏覽器實際安裝、獨立視窗啟動／登入與 WebSocket 通過 |
+| 登入頁與行動版 | 淺／深色字型均為 `system-ui`，favicon 雜湊與官方素材一致，390px 寬度無橫向溢位 |
 | Pi 與品牌 | 真實助理回覆、SSE、手機尺寸與主題通過；原 WOOW HTTPS 入口的 Pi／主題回歸通過 |
 | 入口生命週期 | 安裝 → 回退 → 前版 verify → 再安裝 → 新版 verify 通過 |
 | 新 public origin 的本機可信 proxy 測試 | 登入 200、WebSocket 101、錯誤 Origin 403、匿名 401 |
