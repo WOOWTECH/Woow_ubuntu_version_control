@@ -36,7 +36,11 @@ class BrandMaterialSafety(unittest.TestCase):
         (self.dist / 'brands').mkdir(parents=True)
         (self.dist / 'brand-materials').mkdir()
         for brand in brands.BRANDS:
-            (self.dist / 'brands' / (brand + '.json')).write_bytes((ROOT / 'brands' / (brand + '.json')).read_bytes())
+            data = json.loads((ROOT / 'brands' / (brand + '.json')).read_text())
+            # Unconfigured/legacy behavior is a fixture, independent of the
+            # production profiles' current shared Cockpit material pin.
+            data['material_lock'] = None
+            (self.dist / 'brands' / (brand + '.json')).write_text(json.dumps(data))
         self.base = self.dist / 'base.json'
         self.base.write_text('{"release":"test"}\n')
         self.state = self.root / 'state'
@@ -93,6 +97,26 @@ class BrandMaterialSafety(unittest.TestCase):
         self.lock.write_text(self.lock.read_text() + '\n')
         with self.assertRaisesRegex(ValueError, 'committed and unchanged'):
             self.select('apporo', material_lock=self.lock)
+
+    def test_both_profile_defaults_select_the_same_production_engine(self):
+        for brand in brands.BRANDS:
+            path = self.dist / 'brands' / (brand + '.json')
+            data = json.loads(path.read_text())
+            data['material_lock'] = self.lock.name
+            path.write_text(json.dumps(data))
+        commit(self.repo)
+        woow, apporo = self.select(), self.select('apporo')
+        self.assertEqual(woow['brand'], 'woowtech')
+        self.assertEqual(apporo['brand'], 'apporo')
+        for selected in (woow, apporo):
+            self.assertEqual(selected['mode'], 'production')
+            self.assertTrue(selected['ready'])
+            self.assertTrue(selected['release_eligible'])
+        for key in ('material_lock', 'material_lock_sha256', 'commit', 'tree',
+                    'main_commit', 'base_lock_sha256', 'feature_profile'):
+            self.assertEqual(woow[key], apporo[key], key)
+        self.assertEqual(woow['commit'], self.source_commit)
+        self.assertFalse(self.state.exists())
 
     def test_lock_rejects_wrong_base_repository_tree_and_brand_subset(self):
         changes = [({'base_release': 'other'}, None), ({'base_lock_sha256': '0' * 64}, None),

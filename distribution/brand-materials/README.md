@@ -1,8 +1,8 @@
 # 雙品牌 Cockpit 材料鎖
 
-WOOW 舊指令預設維持 rc1 來源與行為。Apporo 共用同一個整機引擎、硬體方案、47 個容器、映像內容鎖、服務 ID、資料路徑及 Secret 名稱。此目錄只授權新增 Cockpit 品牌呈現來源，不取代或修改歷史 rc1 的 lock/materials/tag。
+新版 main 採用 **base_rc1 + common brand layer**。woowtech／apporo 共用同一個整機引擎、硬體方案、47 個容器、映像內容鎖、服務 ID、資料路徑及 Secret 名稱，兩份品牌 profile 必須預設同一個新 Cockpit 材料鎖／commit／tree。woowtech 仍是首次安裝預設品牌；兩品牌使用相同 UI engine 與功能提交。此目錄不取代或修改歷史 rc1 的 lock/materials/tag；精確重現舊版請在獨立 checkout 使用 `v2026.11.15-rc1` 及該版文件。
 
-新 Cockpit commit 包含兩品牌 renderer、素材、PWA 及 Pi gateway。正式 commit 尚未確定，所以目前沒有可交付的 Apporo 材料鎖；`plan --brand apporo` 會回報 `ready: false`，`apply --brand apporo` 在變更設備前拒絕。
+新 Cockpit commit 包含兩品牌 renderer、素材、PWA 及 Pi gateway。正式合併 SHA／tree 尚未確定，目前兩份 profile 仍未配置材料鎖，屬準備狀態；`plan --brand apporo` 會回報 `ready: false`，`apply --brand apporo` 在變更設備前拒絕。取得最終合併來源後，必須一併提交共同鎖與兩份 profile 的預設引用，才能交付新版雙品牌 main。
 
 ## 介面
 
@@ -20,7 +20,7 @@ python3 distribution/installer/woow-release.py brand --brand apporo \
   --development --cockpit-source /path/to/clean-cockpit-checkout
 ```
 
-`brand` 會安裝 Cockpit 呈現、PWA 及 Pi gateway，重新啟動這些 gateway，然後執行原有完整 runtime `verify`。它不重跑應用安裝、帳號 bootstrap、Secret 生成，也不重設現有 `cockpit.conf` 或 service owners。它不是任意既有主機的升級工具。`--development` 只適用 `plan` 與 `brand`，不能搭配完整 `apply` 或繞過正式 `verify`。
+`brand` 會安裝 Cockpit 呈現與 PWA，Pi 僅更新 gateway.mjs、index.html、style.css，保留 app.js、manifest、所有 gateway units 與網路設定；僅重啟原本 active 的 LAN／VPN／public Pi gateway，然後執行原有完整 runtime `verify`。它不重跑應用安裝、帳號 bootstrap、Secret 生成，也不重設現有 `cockpit.conf` 或 service owners。它不是任意既有主機的升級工具。`--development` 只適用 `plan` 與 `brand`，不能搭配完整 `apply` 或繞過正式 `verify`。
 
 來源複製到 `~/.local/state/woow-release/2026.11.15-rc1/branding/<mode>/<commit>/`，不修改提供來源的 checkout，也不覆寫歷史 `sources/Woow_cockpit`。省略 `--brand` 時使用已有 receipt 的品牌，否則是 woowtech。已有開發 receipt 時，重新套用須再次明確提供開發來源或正式材料鎖。
 
@@ -58,7 +58,18 @@ python3 distribution/installer/woow-release.py apply --brand apporo \
   --materials /path/to/authorized-materials/images --address <LAN-IPv4>
 ```
 
-可選擇把 `distribution/brands/{woowtech,apporo}.json` 的 `material_lock` 設為同一檔名，免每次傳參數；WOOW 預設目前保留 `null` 以維持舊行為。這是 rc1 基底加新品牌材料，不能宣稱歷史 `v2026.11.15-rc1` 已包含 Apporo 或沿用其驗收結論。`plan` 的 ready 表示本地材料選擇有效，實際上游來源 provenance 在安裝前檢查；計畫不是 runtime 驗收證據。
+正式釘選時，`distribution/brands/{woowtech,apporo}.json` 的 `material_lock` **必須同時設為同一檔名**，免每次傳參數；不能讓新版 woowtech 留在舊 Cockpit、apporo 使用新 Cockpit。這是 rc1 基底加共同品牌層，不能宣稱歷史 `v2026.11.15-rc1` 已包含 Apporo 或沿用其驗收結論。`plan` 的 ready 表示本地材料選擇有效，實際上游來源 provenance 在安裝前檢查；計畫不是 runtime 驗收證據。
+
+## 品牌切回與回退範圍
+
+已套用雙品牌的設備，使用同一份 production pin 協調切回 WOOW：
+
+```bash
+python3 distribution/installer/woow-release.py brand --brand woowtech \
+  --brand-lock distribution/brand-materials/<same-reviewed-lock>.json
+```
+
+這會同步 Cockpit、PWA 與 Pi 呈現並重新驗證，保留應用資料與網路設定。Cockpit `scripts/manage.py rollback` 只還原其 journal 管理的檔案，包含 brand.json；它不會回復 PWA 產物或重啟已載入舊配色的 Pi gateway。單獨使用該低階回退後，仍須依回復品牌 refresh PWA，並重啟既有 active gateways；完整品牌切回請使用上述 distribution 動作。
 
 ## Receipt 與驗證
 
@@ -74,3 +85,5 @@ python3 distribution/installer/woow-release.py apply --brand apporo \
 開發模式報告保留 `runtime_passed`，但 `release_eligible: false`、`passed: false`。開發 `brand` 動作僅在 runtime 檢查通過時退出 0；一般 `verify` 仍退出非零，避免把開發檢查當成正式交付。正式模式的任一原有 runtime 或新增品牌檢查失敗都不能通過。
 
 素材與 browser matrix 由 Cockpit/PWA/Pi 分工驗證；本 distribution 的測試不代替隔離 VM 安裝、重啟、實際備份還原與跨品牌 UI 驗收。
+
+測試把未配置／legacy 情境放在獨立 fixture 或 profile mock；正式 plan 允許唯讀 `git show HEAD:distribution/brand-materials/...` 檢查已提交材料，禁止安裝與網路命令。兩品牌的預設 plan 必須選到同一材料鎖與來源 commit/tree。

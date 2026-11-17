@@ -14,10 +14,17 @@ r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
 
 
+def unconfigured_profile(brand):
+    """An explicit legacy/pending fixture; never depends on production pins."""
+    return {'schema_version': 1, 'id': brand, 'display_name': brand,
+            'feature_profile': 'openclaw-x86_64', 'material_lock': None}
+
+
 class BrandIntegration(unittest.TestCase):
-    def test_two_brand_plans_preserve_runtime_and_do_not_run_commands(self):
+    def test_unconfigured_brand_plans_preserve_runtime_and_do_not_run_commands(self):
         plans = []
         with tempfile.TemporaryDirectory() as tmp, patch.object(r, 'STATE', Path(tmp) / 'state'), \
+                patch.object(r.brands, 'profile', side_effect=unconfigured_profile), \
                 patch.object(r.subprocess, 'run', side_effect=AssertionError('plan must not run commands')):
             for brand in ('woowtech', 'apporo'):
                 out = io.StringIO()
@@ -31,8 +38,45 @@ class BrandIntegration(unittest.TestCase):
         self.assertTrue(plans[0]['branding']['ready'])
         self.assertFalse(plans[1]['branding']['ready'])
 
+    def test_repository_brand_plans_share_material_and_only_read_committed_git(self):
+        # Production plans must really validate the committed lock. Only the
+        # exact read-only git show is permitted; sudo/network/deployment fail.
+        profiles = [r.brands.profile(brand) for brand in r.brands.BRANDS]
+        lock_name = profiles[0]['material_lock']
+        self.assertEqual(lock_name, profiles[1]['material_lock'])
+        real_run = subprocess.run
+
+        def read_only(args, **kwargs):
+            self.assertIsNotNone(lock_name)
+            self.assertEqual(args, ['git', '-C', str(ROOT.parent), 'show',
+                                    'HEAD:distribution/brand-materials/' + lock_name])
+            return real_run(args, **kwargs)
+
+        plans = []
+        with tempfile.TemporaryDirectory() as tmp, patch.object(r, 'STATE', Path(tmp) / 'state'), \
+                patch.object(r.subprocess, 'run', side_effect=read_only) as command:
+            for args in ([], ['--brand', 'woowtech'], ['--brand', 'apporo']):
+                out = io.StringIO()
+                with patch('sys.argv', ['woow-release.py', 'plan', *args]), contextlib.redirect_stdout(out):
+                    r.main()
+                plans.append(json.loads(out.getvalue()))
+            self.assertFalse(r.STATE.exists())
+        self.assertEqual(plans[0], plans[1], 'new hosts still default to woowtech')
+        for key in ('release', 'applications', 'containers', 'pending_authorizations'):
+            self.assertEqual(plans[1][key], plans[2][key], key)
+        if lock_name is not None:
+            self.assertEqual(command.call_count, 3)
+            for plan in plans:
+                self.assertEqual(plan['branding']['mode'], 'production')
+                self.assertTrue(plan['branding']['ready'])
+            for key in ('material_lock', 'material_lock_sha256', 'commit', 'tree', 'main_commit'):
+                self.assertEqual(plans[1]['branding'][key], plans[2]['branding'][key], key)
+        else:
+            command.assert_not_called()  # Preparation branch before the reviewed pin arrives.
+
     def test_pending_apporo_apply_and_unmanaged_brand_action_stop_before_mutation(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(r, 'STATE', Path(tmp) / 'state'), \
+                patch.object(r.brands, 'profile', side_effect=unconfigured_profile), \
                 patch.object(r, 'device_address') as address, patch.object(r, 'run') as command:
             for args in (['apply', '--brand', 'apporo'], ['brand'],
                          ['apply', '--development', '--cockpit-source', '/unused']):
