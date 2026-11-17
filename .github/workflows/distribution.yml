@@ -1,9 +1,9 @@
 name: Reproducible Ubuntu distribution
 on:
   push:
-    paths: ['distribution/**', '.github/workflows/distribution.yml']
+    paths: ['README.md', 'distribution/**', '.github/workflows/distribution.yml']
   pull_request:
-    paths: ['distribution/**', '.github/workflows/distribution.yml']
+    paths: ['README.md', 'distribution/**', '.github/workflows/distribution.yml']
 permissions:
   contents: read
 jobs:
@@ -17,3 +17,12 @@ jobs:
         run: python3 -m compileall -q distribution/installer distribution/tests
       - name: Render installation plan without changing the runner
         run: python3 distribution/installer/woow-release.py plan
+  brand-plan:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        brand: [woowtech, apporo]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render brand plan without deploying services
+        run: python3 distribution/installer/woow-release.py plan --brand '${{ matrix.brand }}'

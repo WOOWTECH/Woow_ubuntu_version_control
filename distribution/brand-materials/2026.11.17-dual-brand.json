@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "base_release": "2026.11.15-rc1",
+  "base_lock_sha256": "2cf7665543b030371f58ccce0f0706cc031f9b2015925f153e10452d223b05de",
+  "brands": ["woowtech", "apporo"],
+  "cockpit": {
+    "repository": "https://github.com/WOOWTECH/Woow_cockpit.git",
+    "commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
+    "tree": "d85fb2ca56c8d14f602ff80da8ba3e58d8d1fbbb",
+    "main_commit": "73871247139a054de07c2e4275a6108aa2cd5bb0",
+    "interface_version": 1
+  }
+}

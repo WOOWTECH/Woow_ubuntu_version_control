@@ -10,8 +10,11 @@
 - [第二台 N100 的新機建置實測與限制](distribution/releases/2026.11.15-rc1/VALIDATION.md)
 - [既有設備保留資料升級](distribution/docs/existing-device-upgrades.md)
 - [既有實體設備重開機驗收](distribution/docs/reboot-acceptance.md)
+- [woowtech／apporo 共用引擎、品牌計畫與材料鎖](distribution/brand-materials/README.md)（預設品牌 woowtech；共同 Cockpit pin `7387124`，含排程備份）
 
-本候選版包含 15 個來源提交、37 個映像與 47 個正式容器，另有原生 Pi Web 及三代理 CLI。HA 品牌映像、Odoo 等二進位安裝材料透過 WOOW 授權管道交付；公開 Git 倉庫提供程式、校驗碼、設定及說明。請指定交付的 release tag／commit，依同版驗收紀錄判讀支援範圍。
+新版雙品牌組合採用 **base_rc1 + common brand layer**：沿用 rc1 的應用、既有服務 ID、資料路徑、Secrets 與映像鎖，兩品牌的 `material_lock` 同時指向 [2026.11.17-dual-brand.json](distribution/brand-materials/2026.11.17-dual-brand.json)，使用同一份新 Cockpit commit/tree。這份來源包含 PR16 排程備份與 PR17 雙品牌功能；排程 timer 的安裝語義見材料說明。WOOW 預設指品牌選擇，不代表使用較舊的 UI engine。歷史 `v2026.11.15-rc1` tag 保持不變；精確重現舊版應在獨立 checkout 使用該 tag 與其文件。
+
+rc1 基底包含 15 個來源提交、37 個映像與 47 個正式容器，另有原生 Pi Web 及三代理 CLI。HA 品牌映像、Odoo 等二進位安裝材料透過 WOOW 授權管道交付；公開 Git 倉庫提供程式、校驗碼、設定及說明。請指定交付的 release tag／commit，依同版驗收紀錄判讀支援範圍。
 
 `distribution/` 是全新建置流程。根目錄的 `scripts/capture.sh`、`scripts/restore.sh` 及既有主機資料夾屬於較早的私人備份還原流程；新設備安裝請勿混用。
 
