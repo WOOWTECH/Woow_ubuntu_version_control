@@ -21,6 +21,13 @@ def unconfigured_profile(brand):
 
 
 class BrandIntegration(unittest.TestCase):
+    def test_run_checks_failures_by_default_and_allows_explicit_status_probes(self):
+        for kwargs, check in (({}, True), ({'check': False}, False)):
+            with self.subTest(check=check), patch.object(r.subprocess, 'run') as command:
+                result = r.run(['fixture-command', Path('/fixture')], **kwargs)
+                command.assert_called_once_with(['fixture-command', '/fixture'], check=check, umask=0o022)
+                self.assertIs(result, command.return_value)
+
     def test_unconfigured_brand_plans_preserve_runtime_and_do_not_run_commands(self):
         plans = []
         with tempfile.TemporaryDirectory() as tmp, patch.object(r, 'STATE', Path(tmp) / 'state'), \
@@ -186,7 +193,7 @@ class BrandIntegration(unittest.TestCase):
                 with patch.object(r.brands, 'prepare_source', return_value=repo), \
                         patch.object(r.brands, 'receipt_for', return_value={}), \
                         patch.object(r, 'verify_presentation') as verify, patch.object(r, 'save_json'), \
-                        patch.object(r, 'run', side_effect=command) as commands, \
+                        patch.object(r.subprocess, 'run', side_effect=command) as commands, \
                         patch.object(r, 'output', return_value='--brand'):
                     r.cockpit('192.0.2.99', selection, presentation_only=True)
                 self.assertCountEqual(writes, copies)

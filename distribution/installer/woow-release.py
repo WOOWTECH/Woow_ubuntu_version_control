@@ -45,7 +45,8 @@ APPS = {
 
 def run(args, **kw):
     kw.setdefault('umask', 0o022)  # Upstream templates must remain readable in unprivileged containers.
-    return subprocess.run([str(x) for x in args], check=True, **kw)
+    kw.setdefault('check', True)
+    return subprocess.run([str(x) for x in args], **kw)
 
 def output(args):
     return subprocess.check_output([str(x) for x in args], text=True).strip()
