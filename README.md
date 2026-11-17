@@ -11,7 +11,7 @@
 - [既有設備保留資料升級](distribution/docs/existing-device-upgrades.md)
 - [既有實體設備重開機驗收](distribution/docs/reboot-acceptance.md)
 - [woowtech／apporo 共用引擎、品牌計畫與材料鎖](distribution/brand-materials/README.md)（預設品牌 woowtech；共同 Cockpit pin `7387124`，含排程備份）
-- [同一台主機的可選 Apporo 並行入口](distribution/docs/parallel-brand-ingress.md)（已記錄實機 UI／Pi／排程驗收；等待最終 Cockpit pin，外部 OTP 未驗收）
+- [同一台主機的可選 Apporo 並行入口](distribution/docs/parallel-brand-ingress.md)（已記錄當輪 UI／Pi／排程驗收；[整合、public 路由與最終 pin 待完成項目](distribution/docs/parallel-brand-ingress.md#驗證範圍與待完成項目)另列）
 
 新版雙品牌組合採用 **base_rc1 + common brand layer**：沿用 rc1 的應用、既有服務 ID、資料路徑、Secrets 與映像鎖，兩品牌的 `material_lock` 同時指向 [2026.11.17-dual-brand.json](distribution/brand-materials/2026.11.17-dual-brand.json)，使用同一份新 Cockpit commit/tree。這份來源包含 PR16 排程備份與 PR17 雙品牌功能；排程 timer 的安裝語義見材料說明。WOOW 預設指品牌選擇，不代表使用較舊的 UI engine。歷史 `v2026.11.15-rc1` tag 保持不變；精確重現舊版應在獨立 checkout 使用該 tag 與其文件。
 

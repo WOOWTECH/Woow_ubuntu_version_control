@@ -2,7 +2,7 @@
 
 這是既有主機的可選第二個管理入口。WOOW 與 Apporo 連到**同一份 Cockpit、Podman 應用、備份引擎及原生 Pi**；新增的是入口與品牌呈現。它不建立第二組 47 個應用容器，也不提供租戶隔離。從任一入口執行的服務、備份或 Pi 操作，都作用於同一台設備及相同資料。
 
-Apporo 並行入口已完成下列參考主機實測。[Cockpit PR19](https://github.com/WOOWTECH/Woow_cockpit/pull/19) 已推送至 `b561633`；2026-11-17 此輪交接時仍待 CI 與合併。本 distribution 的共同材料仍釘在 `73871247139a054de07c2e4275a6108aa2cd5bb0`，須等最終已合併的 commit／tree 才更新。現有 pin 缺少 `parallel-ingress/manage.py` 時，wrapper 仍會在呼叫 sudo 前拒絕；PR head 不當成正式 source pin。
+Apporo 並行入口已完成下列參考主機實測。[Cockpit PR19](https://github.com/WOOWTECH/Woow_cockpit/pull/19) 在該輪交接時已推送至 `b561633`；後續入口與品牌修正仍由主代理整合，當輪結果及[待完成項目](#驗證範圍與待完成項目)分別記錄。本 distribution 的共同材料仍釘在 `73871247139a054de07c2e4275a6108aa2cd5bb0`，須等最終已合併的 commit／tree 才更新。現有 pin 缺少 `parallel-ingress/manage.py` 時，wrapper 仍會在呼叫 sudo 前拒絕；PR head 不當成正式 source pin。
 
 ## 已完成的參考主機驗收
 
@@ -14,12 +14,20 @@ Apporo 並行入口已完成下列參考主機實測。[Cockpit PR19](https://gi
 | 品牌主題 | Apporo Pi 主題切換通過 |
 | 應用及服務頁 | 讀到 13 張應用卡片、312 項服務及 49 個容器狀態 |
 | 備份排程 UI | 實際排程表單操作通過 |
-| 來源產物與共同後端 | 記錄 93 項 rendered assets、25 項 common backend 檔案 |
+| 來源產物與共同後端 | 當輪快照記錄 93 項 rendered assets、25 項 common backend 檔案 |
 | Root config 與入口測試 | root ownership／祖先目錄條件已實作；27 項入口測試通過 |
 
 服務／容器數是該參考主機當次 UI 查詢結果，不改變本 distribution 的 rc1 47-container profile，也不代表新增了 49 個容器。排程表單操作通過不延伸宣稱所有應用都已完成真實備份還原。
 
-**外部 Cloudflare OTP／Access 尚未驗收。** public-origin 的本機鏈路測試與實際 UI 操作不代表通過外部 OTP；原 Access policy 仍是獨立授權層，此功能不會移除或繞過它。最終 CI、合併來源及 distro 材料 pin 另行記錄。
+## 驗證範圍與待完成項目
+
+上表保留主代理在當時來源與主機狀態下完成的結果。後續 nginx／Quadlet 品牌修正與 favicon／字型變更仍在整合，最終組合須對照實際 commit／tree 重新確認相關驗收；當輪資產數量與測試結果不自動套用到修改後的來源。
+
+Apporo 專用 public origin 目前仍在規劃，**尚未建立 DNS／subscription，相關外部設定仍待核准**。CFGUI 路由維持其原服務用途，不是 Apporo 公開入口。本文與設定範例一律使用 `https://apporo.example.test`，不將已規劃的網址寫成已發布入口；需要正式網址的操作須等該設備的授權、DNS、HTTPS 與路由設定完成。
+
+**外部 Cloudflare OTP／Access 尚未驗收。** public-origin 的本機鏈路測試與實際 UI 操作不代表通過外部 OTP；原 Access policy 仍是獨立授權層，此功能不會移除或繞過它。
+
+最終交接尚須記錄整合後的來源與驗收對應、CI／合併結果、完整 commit／tree／main ancestry，以及 distro 材料 pin。此分工只修改文件與本機程式／測試，不修改現用 nginx、Quadlet、DNS、subscription 或 Cloudflare policy，也不自行推送。
 
 ## 選擇正確的流程
 
@@ -51,8 +59,8 @@ Cockpit root installer 的設定約定為 `/etc/cockpit/parallel-ingress-config/
 | `schema` | `1` | 已對照目前 Cockpit renderer；正式使用前仍核對最終固定來源 |
 | `instance` | `apporo` | instance 的生命週期識別 |
 | `brand` | `apporo` | 此入口的呈現，不改全域品牌 |
-| `owner` | `woowtechopenclaw` | 範例主機原有的 rootless Podman owner；新主機須依現況填寫 |
-| `public_origin` | `https://apporo.example.test` | 該設備已配置的 HTTPS origin；範例網域不可直接用於正式入口 |
+| `owner` | `operator` | 佔位名稱；須填該主機原有的 rootless Podman owner |
+| `public_origin` | `https://apporo.example.test` | 核准後配置的精確 HTTPS origin；範例本身不建立 DNS 或 public 路由 |
 | `listen_port` | `29092` | 此 instance 的主要入口埠；目前 renderer 綁定 `127.0.0.1` |
 | `compatibility_port` | `18000`，可省略 | public 相容別名；不是第二份應用，也不應作為 LAN／VPN 的廣泛別名 |
 | `pi_public_port` | `19096` | 此 instance 的 public Pi gateway |

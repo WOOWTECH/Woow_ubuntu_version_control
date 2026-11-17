@@ -4,7 +4,7 @@
 
 兩份 profile 已共同預設 [2026.11.17-dual-brand.json](2026.11.17-dual-brand.json)。Cockpit 功能來源為 `73871247139a054de07c2e4275a6108aa2cd5bb0`，包含 [PR16 排程備份](https://github.com/WOOWTECH/Woow_cockpit/pull/16) 與 [PR17 雙品牌](https://github.com/WOOWTECH/Woow_cockpit/pull/17)，兩品牌使用同一 renderer、素材介面、備份引擎、PWA 與 Pi gateway。預設 WOOW 與 Apporo 的 plan 都選擇 production 來源。
 
-可選的[Apporo 並行入口](../docs/parallel-brand-ingress.md)另有獨立 wrapper 與 staging，不更新主要 `brand.json`。已記錄 PR19 參考主機的實際 Pi 對話／SSE／主題、應用／服務狀態與排程表單驗收，外部 Cloudflare OTP 尚未驗收。共同材料仍等待該 PR 的最終已合併 commit／tree；不以 PR head `b561633` 代替正式 pin，本材料鎖尚未包含並行入口。
+可選的[Apporo 並行入口](../docs/parallel-brand-ingress.md)另有獨立 wrapper 與 staging，不更新主要 `brand.json`。已記錄 PR19 參考主機當輪的實際 Pi 對話／SSE／主題、應用／服務狀態與排程表單驗收；後續品牌修正整合、專用 public origin 的核准與 DNS／subscription、外部 OTP 驗收均依[待完成項目](../docs/parallel-brand-ingress.md#驗證範圍與待完成項目)追蹤。共同材料仍等待該 PR 的最終已合併 commit／tree；不以當輪 PR head `b561633` 代替正式 pin，本材料鎖尚未包含並行入口。
 
 ## 介面
 
