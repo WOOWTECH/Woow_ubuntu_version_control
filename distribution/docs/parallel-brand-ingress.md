@@ -2,11 +2,11 @@
 
 保留 WOOW 主入口，另加 Apporo Cockpit／PWA／Pi 入口，兩者共用**同一台主機的服務、備份引擎、Podman 應用與原生 Pi 資料**。新增一個前端容器與兩個 Pi gateway units，不建立第二組 47 個應用容器或租戶隔離。
 
-兩品牌使用同一份[共同材料鎖](../brand-materials/2026.11.17-dual-brand.json)。目前材料尚待更新為最終已合併的 Cockpit commit／tree；舊 pin 缺少入口 installer 時，wrapper 會拒絕執行。歷史 rc1 的 lock、materials 與 tag 保持不變。
+兩品牌使用同一份[共同材料鎖](../brand-materials/2026.11.17-dual-brand.json)。來源已固定為合併至 main 的 Cockpit `13e95399bbce924cf9e1ed96a92b39a31db51fae`（PR19），完整 tree 見材料鎖；包含並行入口 installer。歷史 rc1 的 lock、materials 與 tag 保持不變。
 
 ## 安裝前提
 
-完整設定與低階 CLI 見 [Cockpit 並行入口說明](https://github.com/WOOWTECH/Woow_cockpit/blob/db4e38f/parallel-ingress/README.md)。目標是已有共同服務的設備：
+完整設定與低階 CLI 見 [Cockpit 並行入口說明](https://github.com/WOOWTECH/Woow_cockpit/blob/13e95399bbce924cf9e1ed96a92b39a31db51fae/parallel-ingress/README.md)。目標是已有共同服務的設備：
 
 - 使用固定且乾淨的 Cockpit source；已安裝 service helper、backup helper 與完整 backup engine 模組須和來源逐位元一致，差異會拒絕部署。
 - 共同後端需更新時，先以同一來源的 `scripts/manage.py plan`／`install`／`verify` 同步；省略 `--brand`、`--service-owner` 保留原品牌與 owner 設定。新增入口不呼叫 distro 的 `brand` 或第二次 `apply`。
@@ -15,7 +15,7 @@
 
 ## 設定 instance
 
-依固定來源的 [config.example.json](https://github.com/WOOWTECH/Woow_cockpit/blob/db4e38f/parallel-ingress/config.example.json) 建立 `/etc/cockpit/parallel-ingress-config/apporo.json`。設定檔是 root-owned 一般檔案；檔案及所有祖先目錄不可經過 symlink、不可由 group／other 寫入。設定不含密碼、Token、Cookie 或 Cloudflare credentials。
+依固定來源的 [config.example.json](https://github.com/WOOWTECH/Woow_cockpit/blob/13e95399bbce924cf9e1ed96a92b39a31db51fae/parallel-ingress/config.example.json) 建立 `/etc/cockpit/parallel-ingress-config/apporo.json`。設定檔是 root-owned 一般檔案；檔案及所有祖先目錄不可經過 symlink、不可由 group／other 寫入。設定不含密碼、Token、Cookie 或 Cloudflare credentials。
 
 | 欄位 | 範例／預設 |
 | --- | --- |
@@ -39,7 +39,7 @@
 # 只讀來源選擇，不 fetch、不建立 state、不 sudo。
 python3 distribution/installer/parallel-ingress.py plan
 
-# 最終材料 pin 與 root-owned 設定就緒後執行。
+# 完成共同後端檢查與 root-owned 設定後執行。
 python3 distribution/installer/parallel-ingress.py install \
   --config /etc/cockpit/parallel-ingress-config/apporo.json
 python3 distribution/installer/parallel-ingress.py verify --instance apporo
@@ -64,7 +64,7 @@ ssh -N -L 127.0.0.1:29092:127.0.0.1:29092 operator@appliance.example.test
 
 ## 驗證範圍與待完成項目
 
-詳細證據見 [2026-11-17 Cockpit 驗收紀錄](https://github.com/WOOWTECH/Woow_cockpit/blob/db4e38f/docs/parallel-ingress-validation-20261117.md)。已完成的結果如下：
+詳細證據見 [2026-11-17 Cockpit 驗收紀錄](https://github.com/WOOWTECH/Woow_cockpit/blob/13e95399bbce924cf9e1ed96a92b39a31db51fae/docs/parallel-ingress-validation-20261117.md)。已完成的結果如下：
 
 | 範圍 | 結果 |
 | --- | --- |
@@ -75,10 +75,8 @@ ssh -N -L 127.0.0.1:29092:127.0.0.1:29092 operator@appliance.example.test
 | Pi 與品牌 | 真實助理回覆、SSE、手機尺寸與主題通過；原 WOOW HTTPS 入口的 Pi／主題回歸通過 |
 | 入口生命週期 | 安裝 → 回退 → 前版 verify → 再安裝 → 新版 verify 通過 |
 | 新 public origin 的本機可信 proxy 測試 | 登入 200、WebSocket 101、錯誤 Origin 403、匿名 401 |
-| 自動測試 | Cockpit 32 項部署測試、distribution 60 項測試通過 |
+| 自動測試 | Cockpit 1088 項 Python（含 32 項部署）、13 項 Pi、每品牌 79 項備份 UI、兩品牌 PWA fixtures；distribution 60 項測試通過 |
 
 服務／容器數是參考主機的查詢結果，不改 rc1 的 47-container profile。畫面參考的 17 個設備截圖位置明確顯示待擷取，不請求缺少的圖片；本次沒有重做正式應用資料的備份還原。
 
 **新 Apporo 外網入口的 DNS／subscription 尚待核准與開通，外部 OTP／Access 未驗收。** 本機可信 proxy 的成功不代表新網域已上線；OTP 是獨立授權層，不會被此功能移除或繞過。範例網域不是可用入口。
-
-Cockpit 最終 CI／合併結果與共同材料鎖中的完整 commit／tree 尚待確認。

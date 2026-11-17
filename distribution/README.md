@@ -8,9 +8,9 @@
 
 參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)、[既有設備的保留資料升級與只讀盤點](docs/existing-device-upgrades.md)。
 
-woowtech／apporo 使用同一個安裝引擎、功能與映像鎖。新增 `plan --brand`、`brand --brand` 與 `apply --brand`；不指定品牌時保留已套用品牌，首次安裝預設 woowtech。新版採用 **base_rc1 + common brand layer**，兩份品牌 profile 預設同一份 [2026.11.17-dual-brand.json](brand-materials/2026.11.17-dual-brand.json)，使用相同 Cockpit 功能 commit `7387124`，包含 PR16 排程備份與 PR17 品牌整合。開發可明確提供乾淨本機 Cockpit checkout，但不具正式交付資格。介面、timer 安裝語義、receipt 與驗證方式見[品牌材料說明](brand-materials/README.md)。歷史 rc1/tag 不變；重現舊版須使用獨立的 `v2026.11.15-rc1` checkout。
+woowtech／apporo 使用同一個安裝引擎、功能與映像鎖。新增 `plan --brand`、`brand --brand` 與 `apply --brand`；不指定品牌時保留已套用品牌，首次安裝預設 woowtech。新版採用 **base_rc1 + common brand layer**，兩份品牌 profile 預設同一份 [2026.11.17-dual-brand.json](brand-materials/2026.11.17-dual-brand.json)，使用相同 Cockpit 功能 commit `13e9539`，包含 PR16 排程備份、PR17 品牌整合與 PR19 並行入口。開發可明確提供乾淨本機 Cockpit checkout，但不具正式交付資格。介面、timer 安裝語義、receipt 與驗證方式見[品牌材料說明](brand-materials/README.md)。歷史 rc1/tag 不變；重現舊版須使用獨立的 `v2026.11.15-rc1` checkout。
 
-保留原 WOOW 並新增 Apporo 入口，見[並行入口安裝與回退](docs/parallel-brand-ingress.md)。兩入口共用同一台設備的應用與後端，已完成實機 UI／Pi／排程頁、雙品牌主題及入口回退驗收。新外網入口的 DNS／subscription、OTP 與最終材料 pin 狀態見[驗證範圍與待完成項目](docs/parallel-brand-ingress.md#驗證範圍與待完成項目)。
+保留原 WOOW 並新增 Apporo 入口，見[並行入口安裝與回退](docs/parallel-brand-ingress.md)。兩入口共用同一台設備的應用與後端，已完成實機 UI／Pi／排程頁、雙品牌主題及入口回退驗收。新外網入口的 DNS／subscription 與外部 OTP 待完成狀態見[驗證範圍與待完成項目](docs/parallel-brand-ingress.md#驗證範圍與待完成項目)。
 
 ## 安裝材料
 
