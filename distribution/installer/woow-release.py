@@ -481,12 +481,29 @@ def cockpit(address, selection=None, presentation_only=False):
         run(['sudo', 'systemctl', 'enable', '--now', 'cockpit.socket'])
     run(['sudo', 'env', 'PYTHONDONTWRITEBYTECODE=1', 'python3', repo / 'scripts/manage.py', 'verify'], env=env)
     run(['bash', repo / 'pwa-gateway/install.sh'], env=env)
-    # Keep the gateway's Node runtime root-owned; do not execute a user's binary as a system service.
-    node = Path.home() / '.local/share/pi-agent/node/bin/node'
-    run(['sudo', 'install', '-d', '-m', '755', '/usr/local/lib/woow-node'])
-    run(['sudo', 'install', '-m', '755', node, '/usr/local/lib/woow-node/node'])
-    sudo_env = ['env', 'BRAND=' + selection['brand']] if branded else []
-    run(['sudo', *sudo_env, 'bash', repo / 'pi-web-integration/install.sh', address, '19094'], env=env)
+    if presentation_only:
+        # app.js, manifest.json and gateway units hold the device's LAN/VPN/public
+        # origins. Refresh only presentation code; never regenerate network config.
+        for source, target, mode in (
+            ('gateway.mjs', '/usr/local/libexec/woowtech-piweb-gateway.mjs', '0755'),
+            ('package/index.html', '/usr/local/share/cockpit/woowpiweb/index.html', '0644'),
+            ('package/style.css', '/usr/local/share/cockpit/woowpiweb/style.css', '0644'),
+        ):
+            run(['sudo', 'install', '-o', 'root', '-g', 'root', '-m', mode,
+                 repo / 'pi-web-integration' / source, target])
+        for unit in ('woowtech-piweb-gateway.service', 'woowtech-piweb-gateway-vpn.service',
+                     'woowtech-piweb-gateway-public.service'):
+            active = run(['sudo', 'systemctl', 'is-active', '--quiet', unit],
+                         check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if active.returncode == 0:
+                run(['sudo', 'systemctl', 'try-restart', unit])
+    else:
+        # Keep the gateway's Node runtime root-owned; do not execute a user's binary as a system service.
+        node = Path.home() / '.local/share/pi-agent/node/bin/node'
+        run(['sudo', 'install', '-d', '-m', '755', '/usr/local/lib/woow-node'])
+        run(['sudo', 'install', '-m', '755', node, '/usr/local/lib/woow-node/node'])
+        sudo_env = ['env', 'BRAND=' + selection['brand']] if branded else []
+        run(['sudo', *sudo_env, 'bash', repo / 'pi-web-integration/install.sh', address, '19094'], env=env)
     if branded:
         verify_presentation(repo, selection)
         save_json(STATE / 'brand.json', brands.receipt_for(selection, repo, 'applied'))

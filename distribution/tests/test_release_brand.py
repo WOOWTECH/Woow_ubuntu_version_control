@@ -57,13 +57,13 @@ class BrandIntegration(unittest.TestCase):
                     patch.object(r.brands, 'receipt_for', side_effect=lambda s, p, status: {'status': status}), \
                     patch.object(r, 'verify_presentation'), patch.object(r, 'save_json') as save, patch.object(r, 'run') as command, \
                     patch.object(r, 'output', side_effect=lambda a: '--brand' if '--help' in a else 'operator'):
-                r.cockpit('192.0.2.20', selection, presentation_only=True)
+                r.cockpit('192.0.2.20', selection)
             calls = command.call_args_list
             install = next(c for c in calls if 'install' in c.args[0] and any(str(a).endswith('scripts/manage.py') for a in c.args[0]))
             self.assertIn('--brand', install.args[0])
             self.assertIn('apporo', install.args[0])
-            self.assertNotIn('--service-owner', install.args[0])
-            self.assertFalse(any('/etc/cockpit/cockpit.conf' in c.args[0] for c in calls))
+            self.assertIn('--service-owner', install.args[0])
+            self.assertIn('operator', install.args[0])
             pwa = next(c for c in calls if any(str(a).endswith('pwa-gateway/install.sh') for a in c.args[0]))
             pi = next(c for c in calls if any(str(a).endswith('pi-web-integration/install.sh') for a in c.args[0]))
             self.assertEqual(pwa.kwargs['env']['BRAND'], 'apporo')
@@ -75,6 +75,86 @@ class BrandIntegration(unittest.TestCase):
             self.assertIn('Pull=never', pwa_unit.read_text())
             self.assertNotIn('latest', pwa_unit.read_text())
             self.assertFalse(any('podman' in c.args[0] for c in calls))
+
+    def test_brand_only_preserves_pi_network_config_and_restarts_only_active_gateways(self):
+        units = ('woowtech-piweb-gateway.service', 'woowtech-piweb-gateway-vpn.service',
+                 'woowtech-piweb-gateway-public.service')
+        copies = {
+            '/usr/local/libexec/woowtech-piweb-gateway.mjs': ('gateway.mjs', '0755'),
+            '/usr/local/share/cockpit/woowpiweb/index.html': ('package/index.html', '0644'),
+            '/usr/local/share/cockpit/woowpiweb/style.css': ('package/style.css', '0644'),
+        }
+        for active_units in (units, units[:1], ()):
+            with self.subTest(active=active_units), tempfile.TemporaryDirectory() as tmp:
+                repo, host = Path(tmp) / 'repo', Path(tmp) / 'host'
+                pi = repo / 'pi-web-integration'
+                (pi / 'package').mkdir(parents=True)
+                (pi / units[0]).write_text('ExecStart=/usr/bin/node gateway.mjs\n')
+                (repo / 'pwa-gateway').mkdir()
+                (repo / 'pwa-gateway/woow-cockpit-pwa.container').write_text(
+                    '[Container]\nContainerName=woow-cockpit-pwa\nImage=nginx:latest\n')
+                for destination, (source, _) in copies.items():
+                    (pi / source).write_text('new presentation: ' + source)
+                    installed = host / destination.lstrip('/')
+                    installed.parent.mkdir(parents=True, exist_ok=True)
+                    installed.write_text('old presentation')
+                preserved = {
+                    'usr/local/share/cockpit/woowpiweb/app.js':
+                        'const vpn="http://100.64.0.8:19094", publicOrigin="https://pi.example.test";',
+                    'usr/local/share/cockpit/woowpiweb/manifest.json':
+                        '{"content-security-policy":"frame-src http://100.64.0.8:19094 https://pi.example.test"}',
+                    'usr/local/lib/woow-node/node': 'existing pinned node',
+                    'etc/cockpit/cockpit.conf': '[WebService]\nOrigins=https://cockpit.example.test\n',
+                }
+                for unit, bind in zip(units, ('192.0.2.20', '100.64.0.8', '127.0.0.1')):
+                    preserved['etc/systemd/system/' + unit] = '[Service]\nEnvironment=PI_GATEWAY_BIND=' + bind
+                    preserved['etc/systemd/system/' + unit + '.d/network.conf'] = (
+                        '[Service]\nEnvironment=PI_GATEWAY_PUBLIC_ORIGIN=https://pi.example.test\n')
+                for name, content in preserved.items():
+                    path = host / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(content)
+                before = {name: (host / name).read_bytes() for name in preserved}
+                writes, restarts = [], []
+
+                def command(args, **kwargs):
+                    args = [str(a) for a in args]
+                    self.assertFalse(any(a.endswith('pi-web-integration/install.sh') for a in args))
+                    if args[:2] == ['sudo', 'install']:
+                        target = args[-1]
+                        self.assertIn(target, copies)
+                        source, mode = copies[target]
+                        self.assertEqual(args, ['sudo', 'install', '-o', 'root', '-g', 'root',
+                                                '-m', mode, str(pi / source), target])
+                        (host / target.lstrip('/')).write_bytes(Path(args[-2]).read_bytes())
+                        writes.append(target)
+                    elif args[:2] == ['sudo', 'systemctl']:
+                        if args[2] == 'is-active':
+                            self.assertEqual(args[3], '--quiet')
+                            self.assertFalse(kwargs['check'])
+                            return subprocess.CompletedProcess(args, 0 if args[-1] in active_units else 3)
+                        self.assertEqual(args[2], 'try-restart')
+                        self.assertIn(args[-1], active_units)
+                        restarts.append(args[-1])
+                    return subprocess.CompletedProcess(args, 0)
+
+                selection = {'brand': 'apporo', 'mode': 'development'}
+                with patch.object(r.brands, 'prepare_source', return_value=repo), \
+                        patch.object(r.brands, 'receipt_for', return_value={}), \
+                        patch.object(r, 'verify_presentation') as verify, patch.object(r, 'save_json'), \
+                        patch.object(r, 'run', side_effect=command) as commands, \
+                        patch.object(r, 'output', return_value='--brand'):
+                    r.cockpit('192.0.2.99', selection, presentation_only=True)
+                self.assertCountEqual(writes, copies)
+                self.assertEqual(restarts, list(active_units))
+                for name, data in before.items():
+                    self.assertEqual((host / name).read_bytes(), data, name)
+                for destination, (source, _) in copies.items():
+                    self.assertEqual((host / destination.lstrip('/')).read_bytes(), (pi / source).read_bytes())
+                calls = [[str(a) for a in c.args[0]] for c in commands.call_args_list]
+                self.assertFalse(any('--service-owner' in c or '/etc/cockpit/cockpit.conf' in c for c in calls))
+                self.assertCountEqual([c[-1] for c in calls if c[:3] == ['sudo', 'systemctl', 'is-active']], units)
+                verify.assert_called_once_with(repo, selection)
 
     def test_legacy_cockpit_retains_original_source_and_default_brand(self):
         with tempfile.TemporaryDirectory() as tmp:
