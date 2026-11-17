@@ -50,11 +50,11 @@ class BrandIntegration(unittest.TestCase):
         # exact read-only git show is permitted; sudo/network/deployment fail.
         profiles = [r.brands.profile(brand) for brand in r.brands.BRANDS]
         lock_name = profiles[0]['material_lock']
+        self.assertIsNotNone(lock_name, 'dual-brand main requires a shared production pin')
         self.assertEqual(lock_name, profiles[1]['material_lock'])
         real_run = subprocess.run
 
         def read_only(args, **kwargs):
-            self.assertIsNotNone(lock_name)
             self.assertEqual(args, ['git', '-C', str(ROOT.parent), 'show',
                                     'HEAD:distribution/brand-materials/' + lock_name])
             return real_run(args, **kwargs)
@@ -71,15 +71,14 @@ class BrandIntegration(unittest.TestCase):
         self.assertEqual(plans[0], plans[1], 'new hosts still default to woowtech')
         for key in ('release', 'applications', 'containers', 'pending_authorizations'):
             self.assertEqual(plans[1][key], plans[2][key], key)
-        if lock_name is not None:
-            self.assertEqual(command.call_count, 3)
-            for plan in plans:
-                self.assertEqual(plan['branding']['mode'], 'production')
-                self.assertTrue(plan['branding']['ready'])
-            for key in ('material_lock', 'material_lock_sha256', 'commit', 'tree', 'main_commit'):
-                self.assertEqual(plans[1]['branding'][key], plans[2]['branding'][key], key)
-        else:
-            command.assert_not_called()  # Preparation branch before the reviewed pin arrives.
+        self.assertEqual(command.call_count, 3)
+        for plan in plans:
+            self.assertEqual(plan['branding']['mode'], 'production')
+            self.assertTrue(plan['branding']['ready'])
+            self.assertTrue(plan['branding']['release_eligible'])
+            self.assertEqual(plan['branding']['base_lock_sha256'], r.digest(ROOT / 'releases' / r.RELEASE / 'lock.json'))
+        for key in ('material_lock', 'material_lock_sha256', 'commit', 'tree', 'main_commit'):
+            self.assertEqual(plans[1]['branding'][key], plans[2]['branding'][key], key)
 
     def test_pending_apporo_apply_and_unmanaged_brand_action_stop_before_mutation(self):
         with tempfile.TemporaryDirectory() as tmp, patch.object(r, 'STATE', Path(tmp) / 'state'), \

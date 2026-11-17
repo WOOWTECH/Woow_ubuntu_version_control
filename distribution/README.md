@@ -8,7 +8,7 @@
 
 參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)、[既有設備的保留資料升級與只讀盤點](docs/existing-device-upgrades.md)。
 
-woowtech／apporo 使用同一個安裝引擎、功能與映像鎖。新增 `plan --brand`、`brand --brand` 與 `apply --brand`；不指定品牌時保留已套用品牌，首次安裝預設 woowtech。新版採用 **base_rc1 + common brand layer**，兩份品牌 profile 必須預設同一份經審查、已提交的 Cockpit 材料鎖，使用相同 UI engine／功能 commit；共同正式來源 pin 目前待最終合併 SHA。開發可明確提供乾淨本機 Cockpit checkout，但不具正式交付資格。介面、receipt 與驗證方式見[品牌材料說明](brand-materials/README.md)。歷史 rc1/tag 不變；重現舊版須使用獨立的 `v2026.11.15-rc1` checkout。
+woowtech／apporo 使用同一個安裝引擎、功能與映像鎖。新增 `plan --brand`、`brand --brand` 與 `apply --brand`；不指定品牌時保留已套用品牌，首次安裝預設 woowtech。新版採用 **base_rc1 + common brand layer**，兩份品牌 profile 預設同一份 [2026.11.17-dual-brand.json](brand-materials/2026.11.17-dual-brand.json)，使用相同 Cockpit 功能 commit `7387124`，包含 PR16 排程備份與 PR17 品牌整合。開發可明確提供乾淨本機 Cockpit checkout，但不具正式交付資格。介面、timer 安裝語義、receipt 與驗證方式見[品牌材料說明](brand-materials/README.md)。歷史 rc1/tag 不變；重現舊版須使用獨立的 `v2026.11.15-rc1` checkout。
 
 ## 安裝材料
 

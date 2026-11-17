@@ -3,5 +3,5 @@
   "id": "apporo",
   "display_name": "apporo",
   "feature_profile": "openclaw-x86_64",
-  "material_lock": null
+  "material_lock": "2026.11.17-dual-brand.json"
 }

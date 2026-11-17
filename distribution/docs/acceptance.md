@@ -6,6 +6,8 @@
 
 ## 版本、服務與本機整合
 
+共同來源 `7387124` 同時包含備份排程。兩品牌切換時需比對 `schedule.json`、`retention.json`、schedule-state、archives 與 keys 保留；timer 則沿用上游 installer 的啟用語義（未 masked 的 disabled／inactive timer 會啟用，masked 保留），不能宣稱其停止狀態不變。來源與已確認的 CI／隔離切換範圍見[共同材料鎖說明](../brand-materials/README.md)。
+
 ```bash
 python3 distribution/installer/woow-release.py verify
 python3 distribution/installer/smoke.py
