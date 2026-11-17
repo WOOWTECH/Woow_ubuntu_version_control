@@ -3,6 +3,7 @@
 import argparse
 import fcntl
 import hashlib
+import importlib.util
 import ipaddress
 import json
 import os
@@ -13,6 +14,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 
@@ -23,6 +25,9 @@ MATERIALS = json.loads((ROOT / 'releases' / RELEASE / 'materials.json').read_tex
 STATE = Path.home() / '.local/state/woow-release' / RELEASE
 SOURCES = STATE / 'sources'
 QDIR = Path.home() / '.config/containers/systemd'
+_brand_spec = importlib.util.spec_from_file_location('brand_profile', ROOT / 'installer/brand_profile.py')
+brands = importlib.util.module_from_spec(_brand_spec)
+_brand_spec.loader.exec_module(brands)
 APPS = {
     'homeassistant': ('Woow_podman_homeassistant', ['--with-matter', '--with-mcp', '--no-smoke']),
     'emqx': ('Woow_podman_emqx', ['--accept-defaults', '--without-ngrok', '--no-smoke']),
@@ -439,27 +444,111 @@ def mcp():
         if proc.returncode:
             raise SystemExit(product + ' MCP install failed; inspect its private log.')
 
-def cockpit(address):
-    repo = SOURCES / 'Woow_cockpit'
+def cockpit(address, selection=None, presentation_only=False):
+    branded = selection is not None and selection['mode'] in ('production', 'development')
+    repo = brands.prepare_source(STATE, selection) if branded else SOURCES / 'Woow_cockpit'
+    brand_args = ['--brand', selection['brand']] if branded else []
+    env = os.environ.copy()
+    env['PYTHONDONTWRITEBYTECODE'] = '1'
+    env['BRAND'] = selection['brand'] if branded else 'woowtech'
+    if branded:
+        # Probe the agreed interface before touching the installed management UI.
+        help_text = output(['python3', '-B', repo / 'scripts/manage.py', 'install', '--help'])
+        if '--brand' not in help_text:
+            raise ValueError('Pinned Cockpit source does not implement install --brand')
+        # The separate brand source must retain the same PWA image as rc1.
+        pwa_unit = repo / 'pwa-gateway/woow-cockpit-pwa.container'
+        text = pwa_unit.read_text()
+        if re.findall(r'^ContainerName=(.+)$', text, re.M) != ['woow-cockpit-pwa'] or len(re.findall(r'^Image=', text, re.M)) != 1:
+            raise ValueError('Unexpected Cockpit PWA runtime identity')
+        text = re.sub(r'^Pull=.*\n?', '', text, flags=re.M)
+        text = re.sub(r'^Image=.*$', 'Image=' + LOCK['containers']['woow-cockpit-pwa']['image'] + '\nPull=never', text, flags=re.M)
+        pwa_unit.write_text(text)
     run(['python3', ROOT / 'installer/patch-cockpit-held-packages.py', repo])
     run(['python3', ROOT / 'installer/patch-cockpit-backup-navigation.py', repo])
-    run(['sudo', 'python3', repo / 'scripts/manage.py', 'install', '--service-owner', output(['id', '-un'])])
+    # Source overlays are applied only to the distribution-owned staging clone.
+    service = repo / 'pi-web-integration/woowtech-piweb-gateway.service'
+    service.write_text(service.read_text().replace('ExecStart=/usr/bin/node ', 'ExecStart=/usr/local/lib/woow-node/node '))
+    if branded:
+        save_json(STATE / 'brand.json', brands.receipt_for(selection, repo, 'installing'))
+    owners = [] if presentation_only else ['--service-owner', output(['id', '-un'])]
+    run(['sudo', 'env', 'PYTHONDONTWRITEBYTECODE=1', 'python3', repo / 'scripts/manage.py', 'install', *brand_args, *owners], env=env)
     # Fresh-host policy chosen by the product owner: HTTP on LAN; HTTPS belongs at an external tunnel.
     conf = '[WebService]\nAllowUnencrypted=true\nLoginTo=false\n\n[Session]\nIdleTimeout=0\n'
-    run(['sudo', 'install', '-d', '-m', '755', '/etc/cockpit'])
-    run(['sudo', 'tee', '/etc/cockpit/cockpit.conf'], input=conf.encode(), stdout=subprocess.DEVNULL)
-    run(['sudo', 'systemctl', 'enable', '--now', 'cockpit.socket'])
-    run(['sudo', 'python3', repo / 'scripts/manage.py', 'verify'])
-    run(['bash', repo / 'pwa-gateway/install.sh'])
+    if not presentation_only:
+        run(['sudo', 'install', '-d', '-m', '755', '/etc/cockpit'])
+        run(['sudo', 'tee', '/etc/cockpit/cockpit.conf'], input=conf.encode(), stdout=subprocess.DEVNULL)
+        run(['sudo', 'systemctl', 'enable', '--now', 'cockpit.socket'])
+    run(['sudo', 'env', 'PYTHONDONTWRITEBYTECODE=1', 'python3', repo / 'scripts/manage.py', 'verify'], env=env)
+    run(['bash', repo / 'pwa-gateway/install.sh'], env=env)
     # Keep the gateway's Node runtime root-owned; do not execute a user's binary as a system service.
     node = Path.home() / '.local/share/pi-agent/node/bin/node'
     run(['sudo', 'install', '-d', '-m', '755', '/usr/local/lib/woow-node'])
     run(['sudo', 'install', '-m', '755', node, '/usr/local/lib/woow-node/node'])
-    service = repo / 'pi-web-integration/woowtech-piweb-gateway.service'
-    service.write_text(service.read_text().replace('ExecStart=/usr/bin/node ', 'ExecStart=/usr/local/lib/woow-node/node '))
-    run(['sudo', 'bash', repo / 'pi-web-integration/install.sh', address, '19094'])
+    sudo_env = ['env', 'BRAND=' + selection['brand']] if branded else []
+    run(['sudo', *sudo_env, 'bash', repo / 'pi-web-integration/install.sh', address, '19094'], env=env)
+    if branded:
+        verify_presentation(repo, selection)
+        save_json(STATE / 'brand.json', brands.receipt_for(selection, repo, 'applied'))
 
-def verify():
+
+def verify_presentation(repo, selection, system_root=Path('/'), home=None):
+    """Check the installed brand and separately installed PWA/Pi artifacts."""
+    home = Path.home() if home is None else home
+    marker = system_root / 'etc/cockpit/branding/brand.json'
+    if marker.is_symlink() or json.loads(marker.read_text()).get('id') != selection['brand']:
+        raise ValueError('Installed Cockpit brand profile mismatch')
+    copies = {
+        'usr/local/libexec/woowtech-piweb-gateway.mjs': 'pi-web-integration/gateway.mjs',
+        'usr/local/share/cockpit/woowpiweb/index.html': 'pi-web-integration/package/index.html',
+        'usr/local/share/cockpit/woowpiweb/style.css': 'pi-web-integration/package/style.css',
+    }
+    for installed, source in copies.items():
+        path = system_root / installed
+        if path.is_symlink() or digest(path) != digest(repo / source):
+            raise ValueError('Installed Pi Web gateway presentation drift')
+    if digest(QDIR / 'woow-cockpit-pwa.container') != digest(repo / 'pwa-gateway/woow-cockpit-pwa.container'):
+        raise ValueError('Cockpit PWA Quadlet differs from its locked source')
+    with tempfile.TemporaryDirectory(prefix='brand-check-', dir=STATE) as temp:
+        expected = Path(temp)
+        proc = subprocess.run(['python3', '-B', str(repo / 'pwa-gateway/render.py'),
+                               '--brand', selection['brand'], '--output', str(expected)], capture_output=True)
+        if proc.returncode:
+            raise ValueError('Pinned Cockpit PWA renderer failed verification')
+        for relative in ('nginx.conf', 'assets/manifest.webmanifest', 'assets/icon-192.png', 'assets/icon-512.png'):
+            installed = home / '.local/share/woowtech-cockpit-pwa' / relative
+            if installed.is_symlink() or digest(installed) != digest(expected / relative):
+                raise ValueError('Installed Cockpit PWA presentation drift: ' + relative)
+
+
+def verify_brand(selection=None):
+    """Keep development validation distinct from release acceptance."""
+    try:
+        installed, repo = brands.verify_receipt(STATE, RELEASE, ROOT / 'releases' / RELEASE / 'lock.json')
+        if installed is None:
+            if selection and (selection['brand'] != 'woowtech' or selection['mode'] in ('production', 'development')):
+                raise ValueError('Requested brand has not been installed')
+            if Path('/etc/cockpit/branding/brand.json').exists():
+                raise ValueError('Installed brand profile has no distribution receipt')
+            return {'brand': 'woowtech', 'mode': 'legacy', 'passed': True, 'release_eligible': True}
+        if selection and (installed['brand'] != selection['brand'] or
+                          (selection['mode'] in ('production', 'development') and
+                           any(installed[k] != selection[k] for k in ('mode', 'commit', 'tree', 'material_lock_sha256')))):
+            raise ValueError('Installed branding differs from the requested material')
+        # Cockpit verifies its managed-file journal, including renderer output.
+        checked = subprocess.run(['sudo', 'env', 'PYTHONDONTWRITEBYTECODE=1', 'python3',
+                                  str(repo / 'scripts/manage.py'), 'verify'], capture_output=True, text=True)
+        if checked.returncode:
+            raise ValueError('Cockpit managed-file verification failed')
+        verify_presentation(repo, installed)
+        return {'brand': installed['brand'], 'mode': installed['mode'], 'passed': True,
+                'commit': installed['commit'], 'tree': installed['tree'],
+                'release_eligible': installed['mode'] == 'production'}
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        # No subprocess stdout, config, or credentials enter the public report.
+        return {'passed': False, 'release_eligible': False, 'error': str(error)}
+
+def verify(selection=None, allow_development=False):
     result = {'release': RELEASE, 'containers': {}, 'external_authorizations_pending': LOCK['external_authorizations']}
     result['sources'] = {}
     for repo, expected in LOCK['sources'].items():
@@ -521,20 +610,39 @@ def verify():
     result['passed'] = result['passed'] and all(s['commit_matches'] for s in result['sources'].values()) and all(v['matches'] for v in result['native_versions'].values())
     result['passed'] = result['passed'] and all(result['maintenance'].values())
     result['passed'] = result['passed'] and result['native_startup_overlay_matches']
+    result['branding'] = verify_brand(selection)
+    result['runtime_passed'] = result['passed'] and result['branding']['passed']
+    result['release_eligible'] = result['branding']['release_eligible']
+    result['passed'] = result['runtime_passed'] and result['release_eligible']
     save_json(STATE / 'verification.json', result)
     print(json.dumps(result, indent=2))
-    return result['passed']
+    return result['runtime_passed'] if allow_development else result['passed']
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=['plan', 'platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'local-links', 'backup-catalog', 'verify', 'apply'])
+    p.add_argument('action', choices=['plan', 'brand', 'platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'local-links', 'backup-catalog', 'verify', 'apply'])
     p.add_argument('--materials', type=Path, default=Path('/mnt/materials/images'))
     p.add_argument('--address', help='LAN IPv4 address; detected automatically for a fresh device')
     p.add_argument('--apps', nargs='+', choices=APPS)
+    p.add_argument('--brand', choices=brands.BRANDS, help='Presentation only; defaults to installed brand, otherwise woowtech')
+    p.add_argument('--brand-lock', type=Path, help='Committed material lock inside distribution/brand-materials')
+    p.add_argument('--development', action='store_true', help='Allow a local Cockpit commit for plan/brand only; never release eligible')
+    p.add_argument('--cockpit-source', type=Path, help='Explicit clean local Git checkout; requires --development')
     args = p.parse_args()
+    if (args.development or args.cockpit_source is not None) and args.action not in ('plan', 'brand'):
+        p.error('Local development sources are allowed only for plan and brand')
+    try:
+        selection = brands.select(args.brand, RELEASE, ROOT / 'releases' / RELEASE / 'lock.json', STATE,
+                                  args.brand_lock, args.cockpit_source, args.development)
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        p.error(str(error))
     if args.action == 'plan':
-        print(json.dumps({'release': RELEASE, 'applications': list(APPS), 'containers': len(LOCK['containers']), 'new_device': True, 'requires_authorized_materials': True, 'pending_authorizations': LOCK['external_authorizations']}, indent=2))
+        print(json.dumps({'release': RELEASE, 'applications': list(APPS), 'containers': len(LOCK['containers']), 'new_device': True, 'requires_authorized_materials': True, 'pending_authorizations': LOCK['external_authorizations'], 'branding': selection}, indent=2))
         return
+    if args.action in ('apply', 'cockpit', 'brand') and not selection['ready']:
+        p.error(selection['reason'])
+    if args.action == 'brand' and not (STATE / 'device.json').is_file():
+        p.error('brand requires an existing distribution-managed device; use apply for a new appliance')
     os.umask(0o077)
     args.address = device_address(args.address)
     STATE.mkdir(parents=True, exist_ok=True)
@@ -549,6 +657,9 @@ def main():
         if not (STATE / 'device.json').exists():
             import uuid
             save_json(STATE / 'device.json', {'device_id': str(uuid.uuid4()), 'release': RELEASE, 'address': args.address})
+        if args.action in ('apply', 'cockpit', 'brand') and selection['mode'] in ('production', 'development'):
+            # Validate source provenance before any platform/application changes.
+            brands.prepare_source(STATE, selection)
         steps = ['platform', 'sources', 'images', 'apps', 'office', 'native', 'cockpit', 'mcp', 'local-links', 'backup-catalog', 'verify'] if args.action == 'apply' else [args.action]
         for step in steps:
             if step == 'platform': platform_install()
@@ -557,11 +668,14 @@ def main():
             elif step == 'apps': patch_first_boot(); configure(args.address); install_apps(args.apps or list(APPS))
             elif step == 'office': office(args.address)
             elif step == 'native': native()
-            elif step == 'cockpit': cockpit(args.address)
+            elif step in ('cockpit', 'brand'):
+                cockpit(args.address, selection, presentation_only=step == 'brand')
+                if step == 'brand' and not verify(selection, allow_development=args.development):
+                    raise SystemExit(1)
             elif step == 'mcp': mcp()
             elif step == 'local-links': run(['python3', ROOT / 'installer/local-links.py'])
             elif step == 'backup-catalog': run(['python3', ROOT / 'installer/backup-catalog.py'])
-            elif step == 'verify' and not verify(): raise SystemExit(1)
+            elif step == 'verify' and not verify(selection): raise SystemExit(1)
 
 if __name__ == '__main__':
     main()

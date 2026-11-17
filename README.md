@@ -10,6 +10,7 @@
 - [第二台 N100 的新機建置實測與限制](distribution/releases/2026.11.15-rc1/VALIDATION.md)
 - [既有設備保留資料升級](distribution/docs/existing-device-upgrades.md)
 - [既有實體設備重開機驗收](distribution/docs/reboot-acceptance.md)
+- [woowtech／apporo 共用引擎、品牌計畫與材料鎖](distribution/brand-materials/README.md)（WOOW 預設保留；Apporo 正式來源 pin 待完成）
 
 本候選版包含 15 個來源提交、37 個映像與 47 個正式容器，另有原生 Pi Web 及三代理 CLI。HA 品牌映像、Odoo 等二進位安裝材料透過 WOOW 授權管道交付；公開 Git 倉庫提供程式、校驗碼、設定及說明。請指定交付的 release tag／commit，依同版驗收紀錄判讀支援範圍。
 

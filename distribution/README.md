@@ -8,6 +8,8 @@
 
 參考：[架構與版本邊界](docs/architecture.md)、[新設備驗收流程](docs/acceptance.md)、[既有設備的保留資料升級與只讀盤點](docs/existing-device-upgrades.md)。
 
+woowtech／apporo 使用同一個安裝引擎、功能與映像鎖。新增 `plan --brand`、`brand --brand` 與 `apply --brand`；不指定品牌時保留已套用品牌，首次安裝預設 woowtech。Apporo 須另提供經審查且已提交的 Cockpit 品牌材料鎖，目前尚未釘選正式來源。開發可明確提供乾淨本機 Cockpit checkout，但不具正式交付資格。介面、receipt 與驗證方式見[品牌材料說明](brand-materials/README.md)；歷史 rc1/tag 不變。
+
 ## 安裝材料
 
 需要兩部分：

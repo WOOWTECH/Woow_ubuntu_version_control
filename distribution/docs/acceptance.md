@@ -2,6 +2,8 @@
 
 驗收必須針對新安裝的設備執行。不要把同一台來源主機的健康狀態當成新設備已可復現的證明。執行紀錄在安裝帳號的 `~/.local/state/woow-release/2026.11.15-rc1/`，預設為私有檔案。
 
+使用新增[品牌材料](../brand-materials/README.md)時，兩品牌都必須執行以下相同功能測試。`verify` 另外核對品牌 receipt、Cockpit 管理檔案及 PWA/Pi 產物，不能以換品牌為由省略原有 runtime 檢查。開發來源即使 `runtime_passed: true` 仍為 `release_eligible: false`、`passed: false`；不能沿用 rc1 歷史證據宣稱 Apporo 已交付驗收。品牌切換後另測既有資料／Secret 保留、舊備份金鑰與跨品牌還原相容性，證據另存，勿覆寫歷史 rc1 紀錄。
+
 ## 版本、服務與本機整合
 
 ```bash

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "apporo",
+  "display_name": "apporo",
+  "feature_profile": "openclaw-x86_64",
+  "material_lock": null
+}
